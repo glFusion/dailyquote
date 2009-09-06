@@ -1,0 +1,18 @@
+				<tr>
+					<td>
+						{title}
+						<p>&quot;{quote}&quot;</p>
+						<p align="right"><em>{quoted}{source}</em>{sourcedate}</p>
+						<table width="100%" border="0" cellspacing="0" cellpadding="0">
+							<tr>
+								<td style="text-align: left; font-size: 8pt; margin-left: 45%;">{editlink}</td>
+								<td style="text-align: right; font-size: 8pt;">
+									{subm_by}:&nbsp;{contr}&nbsp;/&nbsp;
+									{datecontr}&nbsp;&nbsp;
+									{cat}:&nbsp;{dispcat}
+								</td>
+							</tr>
+						</table>
+						<hr width="45%">
+					</td>
+				</tr>

@@ -1,0 +1,6 @@
+
+	<tr>
+		<td align="center">
+			{addformlink}{batchaddlink}{managelink}{moderationlink}{catmanlink}{searchlink}{catindexlink}{indexlink}
+		</td>
+	</tr>

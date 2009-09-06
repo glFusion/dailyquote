@@ -1,0 +1,3 @@
+            <p style="margin-left: 15%; font-weight: bold;">{preview1}</p>
+            <div style="margin: auto; border: 1px solid; font-size: 9pt; font-weight: normal; font-family: courier; white-space: pre; width: 80%; height: 300px; overflow: auto; background-color: #CCCCCC;">{content}
+			</div>

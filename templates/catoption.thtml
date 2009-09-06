@@ -1,0 +1,2 @@
+
+				<label for="cat" style="display: inline; font-weight: bold; vertical-align: top;{discat}">{catoption}</label><input name="cat[]" type="checkbox" value="{catoption}" {checked} /><br />

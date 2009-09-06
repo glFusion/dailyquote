@@ -1,0 +1,30 @@
+
+	<tr>
+		<td>
+			<br />
+			<h2>{searchtitle}</h2>
+			<form action="{site_url}/dailyquote/manage.php" method="POST">
+				<label for="keywords" style="width: 25%; text-align: right; float: left; font-weight: bold;">{searchlabel}:&nbsp;&nbsp;</label>
+					<input type="text" name="keywords" size="35" maxlength="35" />
+					<select name="keytype">
+						<option value="phrase">{keyphrase}</option>
+						<option value="all">{keyall}</option>
+						<option value="any" SELECTED>{keyany}</option>
+					</select><br /><br />
+				<label for="datestart" style="width: 25%; text-align: right; float: left; font-weight: bold;">{datestart}:&nbsp;&nbsp;</label>
+					<input type="text" name="datestart" size="10" maxlength="10" />&nbsp;&nbsp;
+				<label for="dateend" style="font-weight: bold; display: inline;">{enddate}:&nbsp;&nbsp;</label>
+					<input type="text" name="dateend" size="10" maxlength="10" />&nbsp;&nbsp;{dateformat}<br /><br />
+				<label for="type" style="width: 25%; text-align: right; float: left; font-weight: bold;">{type}:&nbsp;&nbsp;</label>
+					<select name="type">
+						<option value="1">{sortopt1}</option>
+						<option value="2">{sortopt2}</option>
+						<option value="4">{sortopt4}</option>
+						<option value="5">{sortopt5}</option>
+						<option value="6">{sortopt6}</option>
+						<option value="7" SELECTED>{sortopt7}</option>
+					</select><br /><br />
+				<label for="limit" style="width: 25%; text-align: right; float: left; font-weight: bold;">{limit}&nbsp;&nbsp;</label>
+					<label for="contrib" style="vertical-align: top; font-weight: bold; display: inline;">{sortopt4}:&nbsp;&nbsp;</label>
+					<select name="contrib">
+						<option value="" SELECTED></option>

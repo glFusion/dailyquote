@@ -1,0 +1,6 @@
+<blockquote>
+  {dispquote}
+  <p align="right"><em>{dispquoted}{source}</em>{sourcedate}</p>
+  <!--<p style="text-align: right; font-size: 8pt;">{subm_by}{dispcontr}{datecontr}
+  {cat}{dispcat}</p>-->
+</blockquote>

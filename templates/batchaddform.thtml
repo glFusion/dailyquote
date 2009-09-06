@@ -1,0 +1,41 @@
+
+			<br />
+			<h2>{batchaddtitle}</h2>
+			<form action="{site_url}/dailyquote/add2.php" method="POST" enctype="multipart/form-data">
+				<label for="batchadd" style="width: 25%; text-align: right; float: left; font-weight: bold;">{batchadd}:&nbsp;&nbsp;</label>
+					<input type="file" name="batch_import_file" size="45" />
+				<p>{catinstr}</p>
+				<label for="batchcat" style="width: 25%; text-align: right; float: left; font-weight: bold;">{cat}:&nbsp;&nbsp;</label>
+					<input name="batchcat" type="text" size="18" value="" />
+				<p>{srcinstr}</p>
+				<label for="title" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addtitle}:&nbsp;&nbsp;</label>
+					<input name="title" type="text" size="32" value="" /><br /><br />
+				<label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addsource}:&nbsp;&nbsp;</label>
+					<input name="source" type="text" size="32" value="" /><br /><br />
+				<label for="sourcedate" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addsourcedate}:&nbsp;&nbsp;</label>
+					<input name="sourcedate" type="text" size="32" value="" />
+					<span style="color: red; text-align: center;">{dateformat}</span><br /><br />
+					<p align="center">
+						<input type="submit" name="submit" value="{submit}" /></p>
+			</form>
+			<h2>{egtitle}</h2>
+			<table width="100%">
+				<tr>
+					<td>
+					<pre style="width: 600px; border: solid 1px; background-color: #FFFFFF; color: #000000; padding: 5px; overflow: auto;">
+A bad cause will ever be supported by bad means and bad men.\tThomas Paine\tMiscellany\t\tThe American Crisis\t1776
+A common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools.\tDouglas Adams\t\t\t\t
+It will go worse for the man who stands near the fence knowing where the fence is than for the man who stands on the fence not knowing where the fence is.\t\tMiscellany\t\t\t
+A democracy is a state which recognises the subjecting of the minority to the majority.\tVladimir Ilyich Lenin\tDemocracy\t\t\t
+A fear of weapons is a sign of retarded sexual and emotional maturity.\tSigmund Freud\tFreud
+					</pre>
+					<ul>
+						<li>{tabs}</li>
+						<li>{line2}</li>
+						<li>{line3}</li>
+						<li>{line1}</li>
+						<li>{line5}</li>
+					</ul>
+					</td>
+				</tr>
+			</table>

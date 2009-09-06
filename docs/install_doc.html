@@ -1,0 +1,133 @@
+<html>
+<body>
+<h1>DailyQuote Plugin - Install Document</h1>
+
+<h3>DailyQuote Plugin Version 1.0.5<br />
+by Alford Deeley aka machinari</h3>
+ 
+<p>Last Modified: Dec 15, 2004<br />
+E-mail:  ajdeeley@summitpages.ca<br />
+Web site:  http://summitpages.ca</p>
+
+<ol>
+<strong>DailyQuote Plugin 1.0.5</strong>
+<li><a href="#1">Introduction</a></li>
+<li><a href="#2">License</a></li>
+<li><a href="#3">Installation</a></li>
+<li><a href="#4">Upgrade</a></li>
+<li><a href="#5">Uninstall</a></li></ol>
+
+<ol>
+<li><strong><a name="1">Introduction</a></strong>
+This is the DailyQuote plugin using the GL Plugin API calls--some of them.
+It's most basic function displays a random quote in a PHP block or a center block.
+It is configurable to deliver much more functionality than simply displaying a
+random quote, e.g.: quotes may be cached; quotes may be searched and displayed;
+quote submissions may be moderated; permissions are configurable; and more.  See the 
+<a href="usage.html">usage.html</a> doc in the &lt;geeklog_dir&gt;/plugins/dailyquote/docs.</li>
+
+<li><strong><a name="2">License</a></strong>
+This GeekLog Plug-in, like GeekLog is released under the 
+GNU General Public License. It is a bona fide Open Source / Free Software project.
+Like all good open source projects, GeekLog and this Plug-in both depend on the 
+community. Thanks for your continued support, and let us know what we can do to 
+make GeekLog and the plugin even better.</li>
+
+<li><strong><a name="3">Installation</a></strong>
+It is recommended that you read and reference the Plugin Installation Overview documentation 
+located on the GeekLog Documentation Project site. There is a lot more detail on 
+how to install plugins including annotated images.
+
+The Plugin installation requires that you manually create the plugin program directories
+and copy the program files into their appropriate directories.
+
+	<ol>
+	<li><strong>Database backup</strong><br />
+	Make a backup of your current GeekLog database using the 
+	built-in admin feature. Verify your backup feature is configured correctly and 
+	backup file is not 0 bytes (This is worth a check)</li>
+
+	<li><strong>Copy plugin files</strong> into their required directories<br />
+	- Need to create these directories as noted below:<br />
+	uncompress the archive files into your &lt;geeklog_dir&gt;/plugins 
+	directory. It will create a dailyquote/ directory and associated subdirectories
+	for the files. You will need to move the files in the admin and public subdirectories
+	to their appropriate directory as indicated below.
+
+		<ol>
+		<li>public_html/<br />
+			- Main program files<br />
+		The files in the public directory under your new plugins/dailyquote/ folder need
+		to be moved to &lt;geeklog_dir&gt;/public_html/dailyquote/ directory.  You will need to
+		first create the:  &lt;geeklog_dir&gt;/public_html/dailyquote/ directory.</li>
+		<li>admin/<br />
+			-Plugin Install and Main admin program files<br />
+		The files in the admin directory under your new	plugins/dailyquote/ folder need to be
+		moved to &lt;geeklog_dir&gt;/public_html/admin/plugins/dailyquote/ directory.  You will need
+		to first create the:  &lt;geeklog_dir&gt;/public_html/admin/plugins/dailyquote/ directory.</li>
+		<li>Directory and File Permissions<br />
+		Directory and File owner should be same as web server<br />
+		All the files and directories should have Read permissions and directories need 
+		execute. Setting all plugin files and directories to have read + execute should 
+		not be a security issue but PHP files only need read access to execute. The 
+		directories need execute rights in order for them to be searched or accessed.<br />
+		The data/ dir, &lt;pubilc_html&gt;/dailyquote/data/, must be writable if you intend
+		to use the batch add function.</li></ol></li>
+
+	<li><strong>Run the install program</strong><br />
+
+		<ol>
+		<li>Logged in as admin<br />
+		In your browser, go to http://your_geeklog_url/admin/plugins/dailyquote/install.php<br />
+		Note: The installer is designed to back out any database changes if there should be an error.
+		You can monitor the installer by viewing the error.log, file &lt;geeklog_dir&gt;/logs/error.log.</li>
+		<li>Verify successful operation<br />
+		Did you get a successful completion message that your database tables have been created--this 
+		message is found in your error log.<br />
+		There should now be a DailyQuote link in your top header.  If not, refresh the page.<br />
+		As admin, you should see the DailyQuote menu item in the Admin Block.</li>
+		<li>Check the install logging in the &lt;geeklog_dir&gt;/logs/error.log file</li>
+		<li><span style="font-weight: bold; color: red;">One last step</span>:<br />
+		You should now see a &lt;public_html&gt;/dailyquote/data/ directory.  This directory must be 
+		made writable if you are going to add quotations using the batch add function or if you plan 
+		on using the database backup utility.  If you do not see this directory then it will have to 
+		be created.</li>
+		<li>To make use of the extended user's profile, read the &quot;Profile Display Integration&quot; 
+		section of usage.html.</li>
+		</ol></li></ol></li>
+<li><strong><a name="4">Upgrade</a></strong>:
+
+	<ul>
+	<li>If you are <strong>upgrading from 1.0.5rc1</strong>, you need only to replace your files.  No database changes were 
+	made.</li>
+	<li>If you are <strong>upgrading to 1.0.5</strong>, you need to create a new directory named &lt;data/&gt; under 
+	your &lt;public_html&gt;/dailyquote/ directory and make it writable.  This dir will now be the temp 
+	directory for the batch add function as well as the directory responsible for housing the database 
+	backups. the &lt;geeklog_dir&gt;/plugins/dailyquote/tmp/ directory is no longer necessary and can 
+	be deleted.  To make use of the extended user's profile, read the upgrade section of usage.html.</li>
+	<li>If you are <strong>upgrading from 1.0.4</strong> to 1.0.5, be aware of one database change making it necessary 
+	to run the update script found in &lt;geeklog_dir&gt;/plugins/dailyquote/updates/.  A number of files 
+	have been changed so you'll need to copy those over your old files remembering to take note of custom
+	changes that you have made so those changes can be reapplied.</li>
+	<li>If you are <strong>upgrading from any other version</strong> to 1.0.5, be sure to apply all relevant update scripts 
+	in the proper order.  All update scripts are found in &lt;geeklog_dir&gt;/plugins/dailyquote/updates/.  
+	A number of files have been changed so you'll need to copy those over your old files remembering to take 
+	note of custom changes that you have made so those changes can be reapplied.</li>
+	<li>See the change.log for changes.  There is no list of changed files.</li>
+	<!--<li><span style="font-weight: bold; color: red;">Important Note</span>:<br />
+	Be advised that when you apply the latest update script, it will effectively enable all categories.  
+	These can easily be disabled again using the category management page, which is new to 1.0.4.</li> -->
+	</ul></li>
+
+<li><strong><a name="5">Uninstall</a></strong>:
+
+	<ol>
+	<li>Go to Admin Block/Plugins<br />
+	Find the plugin in the list of plugins, click the number, then press Delete, confirm (or not)
+	deletion, this will remove all the plugin data from your database.</li>
+	<li>Delete the three plugin directories created in the install process:  <geeklog-dir>plugins/dailyquote/;
+	&lt;public_html&gt;/dailyquote/; and <admin>/plugins/dailyquote/.</li></ol>
+
+</li></ol>
+</body>
+</html>

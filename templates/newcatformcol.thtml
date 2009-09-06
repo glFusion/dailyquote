@@ -1,0 +1,7 @@
+						</table>
+					</td>
+					<td width="49%">
+						<table align="center" cellpadding="3px">
+							<tr>
+								<th>{category}</th><th>{enable}</th><th>{action}</th>
+							</tr>

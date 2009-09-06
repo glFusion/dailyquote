@@ -1,0 +1,267 @@
+<html>
+<body>
+<h1>DailyQuote Plugin - Usage Document</h1>
+
+<h3>DailyQuote Plugin Version 1.0.5<br />
+by Alford Deeley aka machinari</h3>
+ 
+<p>Last Modified: Dec 26, 2004<br />
+E-mail:  ajdeeley@summitpages.ca<br />
+Web site:  http://summitpages.ca</p>
+
+<ol>
+<strong>DailyQuote Plugin 1.0.5</strong>
+<li><a href="#1">Features</a></li>
+<li><a href="#2">Random/Cached Quote</a></li>
+<li><a href="#3">phpblock_randomquote/Center Block</a></li>
+<li><a href="#4">What's New/GL Stats/Search</a></li>
+<li><a href="#18">The Menu Block</a></li>
+<li><a href="#5">Add/Delete a Quote</a></li>
+<li><a href="#6">Search the Repository</a></li>
+<li><a href="#7">Clickable Links</a></li>
+<li><a href="#8">Navigating the Categories</a></li>
+<li><a href="#9">Batch Add Quotations</a></li>
+<li><a href="#10">Moderate Submissions</a></li>
+<li><a href="#11">Manage Quotes</a></li>
+<li><a href="#12">Manage Categories</a></li>
+<li><a href="#13">Permissions</a></li>
+<li><a href="#14">Rights</a></li>
+<li><a href="#15">Configuration</a></li>
+<li><a href="#20">Backup/Restore Utility</a></li>
+<li><a href="#16">Upgrade</a></li>
+<li><a href="#19">Note: Profile Display Integration</a></li>
+<li><a href="#17">To Do's</a></li></ol>
+
+<ol>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="1">Features</a></span><br />
+	<ul>
+		<li>Retrieves quotations and related information from one's own database not relying upon 
+		any other web sites, and displays those quotations on the plugin's index page together with 
+		the by-line as well as contributor information.</li>
+		<li>Can also display a random or cached quote (cache time is configurable) in a center block, 
+		or a PHP block.</li>
+		<li>Quotations can be categorized and can belong to multiple categories.</li>
+		<li>Quotations are searchable by keywords, personalities, contributors, etc.  Quotations 
+		can also be sorted on the main index page according to various criteria.</li>
+		<li>A category index page exists for your convenience.</li>
+		<li>Users have the ability to add to your collection.</li>
+		<li>Users have the ability to add multiple quotations at once.</li>
+		<li>Many configurable options on the admin page.</li>
+		<li>DailyQuote has taken advantage of many of GeekLog's plugin API calls.  The &quot;
+		What's New&quot; block as well as the native GL search engine and stats page are all supported.  
+		Moderation functions are not supported.  However, the plugin makes use of its own moderation 
+		system and is fully configurable with respect to permissions.
+		<li>Configurable permissions allow or disallow members and/or anonymous 
+		users to add and/or view quotations.</li>
+		<li>This plugin was designed with GeekLog 1.3.9x in mind, but is 1.3.10 compliant.</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="2">Random/Cached Quote</a></span><br />
+A random or cached quotation is displayed in a box at the top of the main plugin's pages.  This displays 
+the most basic function of this plugin, i.e., to display data retrieved from a database.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="3">phpblock_randomquote/Centerblock</a></span><br />
+As well as displaying the quotation at the top of various plugin pages, a random or cached quote may be 
+displayed in a center block just as staticpages or the ever popular forum plugin may be.  A random or 
+cached quote may also be displayed in an already defined PHP block as configured in your 
+&lt;public_html&gt;/admin/block.php.  It has only to be enabled from that page to make it to your 
+display and of course permissions matter.
+	<ul><span style="font-weight: bold; color: red;">Optional Block Components:</span>:
+		<li>By default, the related information is not displayed with the quotation when it appears in the 
+		phpblock, the centerblock, or the random quote block.  Only the quotation and the personality quoted will 
+		appear.  Some other information, such as the contributor's byline, the source, the source date, etc., is 
+		configurable and can be made to appear, or not, from the admin page.</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="4">What's New/GL Stats/Search</a></span><br />
+The &quot;what's new&quot; listing can be turned on or off from the admin page.  It lists, by default, 
+those quotations approved within the previous 14 days.  The by-line provides the content of the list and 
+clicking on any of the names will bring you to the search page, which will display the matching quotation.<br />
+The list provided on the GL stats page displays the top ten most quoted personalities contained in the 
+repository and clicking on any of the names will bring you to the search page once again, but now all 
+quotations by that personality will be displayed.<br />
+The GL search results function similarly, but within a 
+broader spectrum.  The results from a GL search list the quotation, the by-line, and the contributor.  By clicking 
+on any of these you are redirected to the plugin's search page where either the quotation, or 
+all quotations by a particular personality, or all quotations submitted by a particular contributor are displayed.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="18">The Menu Block</a></span><br />
+If you run GeekLog 1.3.10, you'll notice a menu block dynamically created in your left blocks column whenever you 
+are on a dailyquote plugin page.  This menu replaces the usual link row that will appear at the top of the plugin 
+pages in all earlier versions of GeekLog for which this plugin is compatable.<br />
+	<ul>
+		<li>The bracketed number beside the &quot;listing&quot; link reflects the total active entries.</li>
+		<li>The bracketed number beside the &quot;categories&quot; link reflects the total active categories.</li>
+		<li>The bracketed number beside the &quot;moderate&quot; link reflects the total unapproved entries in the submission queue.</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="5">Add/Delete a Quote</a></span><br />
+To add a quotation you have only to follow the link provided in the &quot;user functions&quot; block, and 
+once at the add page, paste or type your quotation into the space provided.  You may create a new category 
+at the same time by filling in the appropriate space or you may simply use the checkboxes to select relevant 
+categories.  All quotes are considered miscellany unless otherwise indicated.  Click on &quot;submit quote&quot; 
+and you are done.<br />
+You may, if you wish, restrict the add page to logged in <strong>members only</strong> from the admin page.<br />
+Note:  do not enclose your quotations in double quotes whether you are adding one or many.  The logic will supply 
+your outermost quotation marks.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="6">Search the Repository</a></span><br />
+From any of the DailyQuote pages you may click on the search link, which will then take you to the search page.  
+Once there you can search the repository by supplying at least one keyword.  You may select from the various 
+drop downs the type of search you wish, e.g., you may search by contributor, quotation, by-line, or date.  You 
+may also limit your search to a particular category or contributor.  Results return all information relevant to 
+a particular quotation.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="7">Clickable Links</a></span><br />
+Quotations can be displayed along with related information such as source, date, contributor, etc.  A few of these fields 
+are clickable, i.e., you can click on them and be lead to another page.<br />
+	<ul>
+		<li>If the personality quoted is clicked on then the user will be transferred to the google search page where results are displayed for that personality.  This feature can be enabled/disabled.</li>
+		<li>If the contributor/user name is clicked on then the user will be transferred to the contributor's profile page.</li>
+		<li>If the category is clicked on then the user will be taken to the search page where all quotes in that category are displayed.</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="8">Navigating the Categories</a></span><br />
+From any of the DailyQuote pages you may click on the categories link, which will then take you to the categories page.  
+Once there you can select and click on any category title from the list of active and enabled categories, which 
+will in turn display the results on the search page.  The results will consist of all quotes assigned to that 
+particular category.
+	<ul><span style="font-weight: bold; color: red;">Note</span>:
+		<li>An active category is that category which contains quotes.  An disabled category refers to that category 
+		which contains quotes, but has been turned off and so is not displayed.  This may be accomplished from the 
+		category management page--see &quot;Manage Categories.&quot;</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="9">Batch Add Quotations</a></span><br />
+If you are the plugin's admin or have been granted permission by the admin, then you have the 
+ability to add multiple quotes at once.  To accomplish this you have only to submit a tab-delimited 
+text file containing 5 columns:  the quotation (tab); the by-line (tab); the category; the source (tab); 
+and the source date.  The by-line and/or the category, the source, and the source date may all be left blank (do not 
+forget the tabs however!), but there must be a quotation of some kind before the first tab or you will receive 
+an error at the very least.  You may create a new category independent of the submitted file by filling in the 
+appropriate space in the form.  That newly created category will be applied to any blank category fields in the 
+file.<br />
+Note:  do not enclose your quotations in double quotes whether you are adding one or many.  The logic will supply 
+your outermost double quotation marks.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="10">Moderate Submissions</a></span><br />
+As admin you have the ability to turn ON or OFF the submission queue.  This means that you may moderate user 
+submissions if you so desire or feel it necessary to do so.  The queue is turned on by default, but you can switch 
+it off from the admin page.  When moderation is turned on, all submissions must pass through the queue for 
+approval, deletion, or editing.  If there are submissions in the queue, the admin is notified on the &quot;manage 
+quotes&quot; page as well as the admin page.  When moderation is turned  off, all submissions left in the queue 
+will summarily be approved and no more submissions will be passed through moderation (until the queue is turned on 
+again), but will instead be added directly to the repository ready for display.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="11">Manage Quotes</a></span><br />
+Admins will find a &quot;manage quotes&quot; link in their &quot;user functions&quot; block.  This page 
+allows you to edit any quotation, by-line, or category that resides in the database except for those 
+that are still in the submission queue if any.  You may also change who contributed the quotation if 
+you wish.  A use for that is when a user has forgotten to log in and requests that you put his name 
+on the otherwise anonymously contributed quotation.<br />
+Quotes displayed on this page are displayed according to your search results.  A search form is provided and the 
+results are displayed, each quotation within its own form, ready to be edited or deleted entirely.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="12">Manage Categories</a></span><br />
+The category management page allows you to edit, delete, create, and enable/disable categories independent of any 
+other page.  When a category is disabled (e.g., seasonal quotes), all quotes belonging to that category are not 
+displayed on any page unless they belong also to an enabled category.<br />
+	<ul><span style="font-weight: bold; color: red;">Note</span>:
+		<li>Quotes may still be added to disabled categories, but will only appear when that category becomes enabled 
+		or if they were also added to an enabled category.</li>
+		<li>Disabled categories still appear in the category lists on the category index page, as well as the add form 
+		and the management form, however, the text is greyed in order to indicate a disabled category.</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="13">Permissions</a></span><br />
+Permissions are fully configurable and self-explanatory.  You may configure permissions from the admin page.<br />
+Note:  If you have given anonymous users permission to add a quote, but have not given them permission to 
+view the quotes, they will not be able to add a quote either.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="14">Rights</a></span><br />
+Rights refer to degrees of access one has within the DailyQuote pages.  You may have rights by default, as admin does;
+or you may only have permission.  Permissions are configurable in most cases, but in order to gain rights, you must 
+be added to a group, which has been given those rights.  Available rights include: view; add; and edit rights.  Admin 
+has edit rights.  By default, view rights are granted to the logged in members group.<br />
+What's the point?<br />
+	<ul><span style="font-weight: bold; color: red;">An Example</span>:
+		<li>You may turn off permission to add quotes effectively denying logged in members the ability to add quotes, 
+		but have a select few still able to add quotes based on add rights given to a created group--those 	members 
+		belonging to that group of course.</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="15">Configuration</a></span><br />
+As I said, this plugin's functionality is very configurable.  It does more than simply display a random quote 
+somewhere on a web page.  In the &quot;admins only&quot; box you will find the DailyQuote admin link, which 
+will take you to the configuration page.  From this page you may modify the default settings according to 
+what options are provided.  You may also reset any modified settings to their default by clicking on the 
+&quot;apply default settings&quot; button at the bottom of the screen.  In addition, from this page you may 
+check the integrity of your DailyQuote database and repair it if necessary.<br />
+	<ul><span style="font-weight: bold; color: red;">The Default Settings</span>:
+		<li>Anonymous users can view quotations, but cannot add a quotation.</li>
+		<li>Logged in users can view quotations and can add quotations as well as create categories.</li>
+		<li>Only admin may utilize the batch add feature.</li>
+		<li>The submission queue is turned on, and all but admin submissions must go through the queue.</li>
+		<li>The &quot;what's new&quot; list is enabled by default.</li>
+		<li>A PHP block is defined and listed with your other blocks, but is disabled by default.  This is 
+		enabled on the blocks configuration page along with the rest of your GeekLog blocks.</li>
+		<li>The center block is disabled.</li>
+		<li>Cached quote refresh period is disabled in favor of a new quotation being displayed with every page refresh.</li>
+		<li>See the admin page for more information--all settings are listed and accessible there.</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="20">Backup/Restore Utility</a></span><br />
+New to version 1.0.5 is the ability to backup and restore your DailyQuote table data.  This function is 
+available from the admin page.<br />
+	<ul><span style="font-weight: bold; color: red;">Backup/Restore Features</span>:
+		<li>Backup does not use the mySQL dump executable, but simply PHP.</li>
+		<li>Backup creates a downloadable .gz file in the <public_html>/dailyquote/data directory--just click on the link provided to download the file.</li>
+		<li>A clickable list of previous backups is provided if any exist.</li>
+		<li>Select from the list and you have the option to delete the file, restore the data from the file, or even 
+		to preview the data in the file before you decide what to do with it.</li>
+	</ul>
+	<ul><span style="font-weight: bold; color: red;">Note</span>:
+		<li>The backup function will store only data from your DailyQuote plugin tables and no other GeekLog tables.</li>
+		<li>The restore function will remove all data from your present DailyQuote tables and restore the backed 
+		up data from whichever backup file was selected.</li>
+	</ul>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="16">Upgrade</a></span><br />
+Always check the change.log and the install.html files in your docs/ 
+directory.  These documents will note changes and install/upgrade instructions.  If there are no database changes 
+in the upgraded version of the plugin, then you may just overwrite your files adding/editing any changes you had 
+made previously.  If the database was modified in anyway, you will find instructions in the install.html file and 
+an upgrade script included in the updates/ directory.
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="19">Note: Profile Display Integration</a></span><br />
+Version 1.0.5 includes the ability to integrate into a user's GL profile display in order to list a user's last 
+10 dailyquote submissions as well as a user's total submission count.  Because GeekLog seems not to fully support 
+a plugin's ability to accomplish this, I have had to make a couple of minor modifications to the core.  These mods 
+have been sent to the developers in hope that they will intergrate them or some form of them into the GL core.<br />
+For now, if you would like to extend the user's profile display to include dailyquote stats for that user, then 
+follow these simple instructions:
+	<ul>
+		<li>Notice a mods/ directory in your &lt;geeklog_dir&gt;/plugins/dailyquote/ directory.  This directory 
+		contains changes and additions to the geeklog core.</li>
+		<li>&lt;public_html&gt;/users.php and &lt;geeklog_dir&gt;/system/lib-plugins.php will have to be 
+		replaced.  The replacement files are slightly modified versions of the 1.3.10 release.</li>
+		<li>There is also one changed and three new template files that will go to your 
+		&lt;layout&gt;/theme_name/users/ directory--required for all themes being used on your site.</li>
+		<li>These changes have been sent to CVS as a feature request--we'll see what happens.</li>
+	</ul>
+</li>
+</li>
+<li><span style="font-weight: bold; text-decoration: overline;"><a name="17">To Do's</a></span><br />
+	<ul>
+		<li>Batch delete from the manage page (probably will end up on a separate page--like a summary manage page) 
+		is still being worked out.</li>
+		<li>Will add and option to admin that enables/disables the menu_item link for header.thtml.</li>
+		<li>If you have further suggestions, bug reports, fixes, etc., please visit the development thread at geeklog.net 
+		or at summitpages.ca and post.  I'm sure, as simple as this plugin is, you would like other features or you 
+		will find problems/bugs here and there.  Please, Please, if this happens let me know.  I'll see what I can do.</li>
+	</ul>
+</li></ol>
+
+<h2>Thanks Everybody</h2>
+</body>
+</html>

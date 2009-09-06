@@ -1,0 +1,16 @@
+	<tr>
+		<td>
+			<h2 align="center">{categories}</h2>
+			<form action="{site_url}/dailyquote/catman.php" method="POST">
+				<p align="center">
+					<input name="enableall" type="submit" value="{enableall}" />&nbsp;&nbsp;
+					<input name="disableall" type="submit" value="{disableall}" />&nbsp;&nbsp;
+					<span style="font-weight: bold; color: red;">{beware}</span>
+					<input name="delall" type="submit" value="{deleteall}" />
+					<span style="font-weight: bold; color: red;">{beware}</span>
+				</p>
+			</form>
+			<p>{instr}</p>
+			<form action="{site_url}/dailyquote/catman.php" method="POST">
+			<table border="0" cellspacing="" cellpadding="3px" width="100%" align="center">
+				<tr>

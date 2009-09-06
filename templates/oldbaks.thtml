@@ -1,0 +1,8 @@
+<ul style="list-style: none;"><strong>{head}</strong>
+{fileli}
+</ul>
+<p style="margin-left: 15%;">
+	<input type="submit" name="submit" value="{preview}" />&nbsp;&nbsp;
+	<input type="submit" name="submit" value="{restore}" />&nbsp;&nbsp;
+	<input type="submit" name="submit" value="{delete}" />
+</p>

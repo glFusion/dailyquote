@@ -1,0 +1,1 @@
+ALTER TABLE `gl_dailyquote_settings` ADD `contributor` TEXT AFTER `Quoted` ;

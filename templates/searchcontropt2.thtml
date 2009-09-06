@@ -1,0 +1,5 @@
+
+					</select>&nbsp;&nbsp;
+					<label for="categ" style="vertical-align: top; font-weight: bold; display: inline;">{sortopt3}:&nbsp;&nbsp;</label>
+					<select name="categ">
+						<option value=""></option>

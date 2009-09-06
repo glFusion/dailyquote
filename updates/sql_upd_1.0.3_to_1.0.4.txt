@@ -1,0 +1,13 @@
+#
+#apply all statements if you are upgrading from 1.0.3
+#
+ALTER TABLE `gl_dailyquote_lookup` ADD `Status` TINYINT( 1 ) DEFAULT '1' NOT NULL ;
+ALTER TABLE `gl_dailyquote_settings` ADD `loginaddcat` TINYINT( 1 ) DEFAULT '1' NOT NULL AFTER `loginadd` ;
+ALTER TABLE `gl_dailyquote_settings` ADD `gglink` TINYINT( 1 ) DEFAULT '1' NOT NULL AFTER `blk11` ;
+#
+#only apply the following if you are upgrading from 1.0.4rc1 to 1.0.4 final
+#
+ALTER TABLE `gl_dailyquote_quotes` ADD `Title` TEXT AFTER `Quoted` ;
+ALTER TABLE `gl_dailyquote_settings` ADD `blk12` TINYINT( 1 ) DEFAULT '0' NOT NULL AFTER `blk11` ,
+	ADD `blk13` TINYINT( 1 ) DEFAULT '0' NOT NULL AFTER `blk12` ,
+	ADD `blk14` TINYINT( 1 ) DEFAULT '0' NOT NULL AFTER `blk13` ;

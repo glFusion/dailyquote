@@ -1,0 +1,4 @@
+
+				<tr>
+					<td>
+						<form action="{site_url}/dailyquote/{action}" method="POST">

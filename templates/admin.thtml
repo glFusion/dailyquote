@@ -1,0 +1,131 @@
+
+	<tr>
+		<td>
+			<form action="{site_admin_url}/plugins/dailyquote/index.php" method="POST">
+			{start_genblock}
+				<label for="disprand" style="width: 45%; text-align: right; float: left; font-weight: bold;">{disprand}:&nbsp;&nbsp;</label>
+					<select name="disprand">
+						<option value="3600" {currand1}>1 {hour}</option>
+						<option value="21600" {currand6}>6 {hours}</option>
+						<option value="43200" {currand12}>12 {hours}</option>
+						<option value="86400" {currand24}>24 {hours}</option>
+						<option value="172800" {currand48}>48 {hours}</option>
+						<option value="0" {currand0}>{pgrefresh}</option>
+					</select><br /><br />
+				<label for="displim" style="width: 45%; text-align: right; float: left; font-weight: bold;">{displim}:&nbsp;&nbsp;</label>
+					<select name="displim">
+						<option value="5" {currdisp5}>5</option>
+						<option value="10" {currdisp10}>10</option>
+						<option value="25" {currdisp25}>25</option>
+						<option value="50" {currdisp50}>50</option>
+					</select><br /><br />
+				<label for="srchdisplim" style="width: 45%; text-align: right; float: left; font-weight: bold;">{srchdisplim}:&nbsp;&nbsp;</label>
+					<select name="srchdisplim">
+						<option value="5" {currsrch5}>5</option>
+						<option value="10" {currsrch10}>10</option>
+						<option value="25" {currsrch25}>25</option>
+						<option value="50" {currsrch50}>50</option>
+					</select>
+			<hr width="65%" align="center">
+				<label for="whatsnew" style="width: 45%; text-align: right; float: left; font-weight: bold;">{whatsnew}:&nbsp;&nbsp;</label>
+					<input type="radio" name="whatsnew" value="1" {currwhatsnewy} />{yes}&nbsp;&nbsp;<input type="radio" name="whatsnew" value="0" {currwhatsnewn} />{no}<br /><br />
+				<label for="gglink" style="width: 45%; text-align: right; float: left; font-weight: bold;">{gglink}:&nbsp;&nbsp;</label>
+					<input type="radio" name="gglink" value="1" {gglinky} />{yes}&nbsp;&nbsp;<input type="radio" name="gglink" value="0" {gglinkn} />{no}<br /><br />
+				<label for="cntrblk" style="width: 45%; text-align: right; float: left; font-weight: bold;">{cntrblk}:&nbsp;&nbsp;</label>
+					<input type="radio" name="cntrblk" value="1" {currblky} />{yes}&nbsp;&nbsp;<input type="radio" name="cntrblk" value="0" {currblkn} />{no}<br /><br />
+				<label for="cntrblkhom" style="width: 45%; text-align: right; float: left; font-weight: bold;">{cntrblkhom}:&nbsp;&nbsp;</label>
+					<input type="radio" name="cntrblkhom" value="1" {currhomy} />{yes}&nbsp;&nbsp;<input type="radio" name="cntrblkhom" value="0" {currhomn} />{no}<br /><br />
+				<label for="cntrblkpos" style="width: 45%; text-align: right; float: left; font-weight: bold;">{cntrblkpos}:&nbsp;&nbsp;</label>
+					<select name="cntrblkpos">
+						<option value="1" {currpos1}>{top}</option>
+						<option value="2" {currpos2}>{below}</option>
+						<option value="3" {currpos3}>{bottom}</option>
+					</select><br />
+			{end_block}
+			{start_compblock}<br />
+			<table style="width: 100%;">
+				<tr><td colspan="3" align="center">{compinstr}</td>
+				<tr><th>{cntrcomp}</th><th>{phpcomp}</th><th>{rndmcomp}</th></tr>
+				<tr>
+					<td style="width: 33%; text-align: right; padding: 0px 5px;">
+					<label for="cntrtit" style="text-align: right; font-weight: bold;">{blktit}:&nbsp;&nbsp;</label>
+						<input type="radio" name="cntrtit" value="1" {cntrtiton} />{on}&nbsp;&nbsp;<input type="radio" name="cntrtit" value="0" {cntrtitoff} />{off}<br /><br />
+					<label for="cntrsrc" style="text-align: right; font-weight: bold;">{blksrc}:&nbsp;&nbsp;</label>
+						<input type="radio" name="cntrsrc" value="1" {cntrsrcon} />{on}&nbsp;&nbsp;<input type="radio" name="cntrsrc" value="0" {cntrsrcoff} />{off}<br /><br />
+					<label for="cntrcnt" style="text-align: right; font-weight: bold;">{blkcnt}:&nbsp;&nbsp;</label>
+						<input type="radio" name="cntrcnt" value="1" {cntrcnton} />{on}&nbsp;&nbsp;<input type="radio" name="cntrcnt" value="0" {cntrcntoff} />{off}<br /><br />
+					<label for="cntrcat" style="text-align: right; font-weight: bold;">{blkcat}:&nbsp;&nbsp;</label>
+						<input type="radio" name="cntrcat" value="1" {cntrcaton} />{on}&nbsp;&nbsp;<input type="radio" name="cntrcat" value="0" {cntrcatoff} />{off}<br /><br />
+					<label for="cntradd" style="text-align: right; font-weight: bold;">{blkadd}:&nbsp;&nbsp;</label>
+						<input type="radio" name="cntradd" value="1" {cntraddon} />{on}&nbsp;&nbsp;<input type="radio" name="cntradd" value="0" {cntraddoff} />{off}
+					</td>
+					<td style="width: 33%; text-align: right; border-left: 1px solid; padding: 0px 5px;">
+					<label for="phptit" style="text-align: right; font-weight: bold;">{blktit}:&nbsp;&nbsp;</label>
+						<input type="radio" name="phptit" value="1" {phptiton} />{on}&nbsp;&nbsp;<input type="radio" name="phptit" value="0" {phptitoff} />{off}<br /><br />
+					<label for="phpsrc" style="text-align: right; font-weight: bold;">{blksrc}:&nbsp;&nbsp;</label>
+						<input type="radio" name="phpsrc" value="1" {phpsrcon} />{on}&nbsp;&nbsp;<input type="radio" name="phpsrc" value="0" {phpsrcoff} />{off}<br /><br />
+					<label for="phpcnt" style="text-align: right; font-weight: bold;">{blkcnt}:&nbsp;&nbsp;</label>
+						<input type="radio" name="phpcnt" value="1" {phpcnton} />{on}&nbsp;&nbsp;<input type="radio" name="phpcnt" value="0" {phpcntoff} />{off}<br /><br />
+					<label for="phpcat" style="text-align: right; font-weight: bold;">{blkcat}:&nbsp;&nbsp;</label>
+						<input type="radio" name="phpcat" value="1" {phpcaton} />{on}&nbsp;&nbsp;<input type="radio" name="phpcat" value="0" {phpcatoff} />{off}<br /><br />
+					<label for="phpadd" style="text-align: right; font-weight: bold;">{blkadd}:&nbsp;&nbsp;</label>
+						<input type="radio" name="phpadd" value="1" {phpaddon} />{on}&nbsp;&nbsp;<input type="radio" name="phpadd" value="0" {phpaddoff} />{off}
+					</td>
+					<td style="width: 33%; text-align: right; border-left: 1px solid; padding: 0px 5px;">
+					<label for="rndmtit" style="text-align: right; font-weight: bold;">{blktit}:&nbsp;&nbsp;</label>
+						<input type="radio" name="rndmtit" value="1" {rndmtiton} />{on}&nbsp;&nbsp;<input type="radio" name="rndmtit" value="0" {rndmtitoff} />{off}<br /><br />
+					<label for="rndmsrc" style="text-align: right; font-weight: bold;">{blksrc}:&nbsp;&nbsp;</label>
+						<input type="radio" name="rndmsrc" value="1" {rndmsrcon} />{on}&nbsp;&nbsp;<input type="radio" name="rndmsrc" value="0" {rndmsrcoff} />{off}<br /><br />
+					<label for="rndmcnt" style="text-align: right; font-weight: bold;">{blkcnt}:&nbsp;&nbsp;</label>
+						<input type="radio" name="rndmcnt" value="1" {rndmcnton} />{on}&nbsp;&nbsp;<input type="radio" name="rndmcnt" value="0" {rndmcntoff} />{off}<br /><br />
+					<label for="rndmcat" style="text-align: right; font-weight: bold;">{blkcat}:&nbsp;&nbsp;</label>
+						<input type="radio" name="rndmcat" value="1" {rndmcaton} />{on}&nbsp;&nbsp;<input type="radio" name="rndmcat" value="0" {rndmcatoff} />{off}
+					<!-- <label for="rndmadd" style="text-align: right; font-weight: bold;">{blkadd}:&nbsp;&nbsp;</label>
+						<input type="radio" name="rndmadd" value="1" {rndmaddon} />{on}&nbsp;&nbsp;<input type="radio" name="rndmadd" value="0" {rndmaddoff} />{off} --><!-- not implemented -->
+					</td>
+				</tr>
+			</table>
+			{end_block}
+			{start_permsblock}<br />
+				<label for="queue" style="width: 45%; text-align: right; float: left; font-weight: bold;">{queue}:&nbsp;&nbsp;</label>
+					<input type="radio" name="queue" value="0" {currqueueoff} />{off}&nbsp;<input type="radio" name="queue" value="1" {currqueueon} />{on}
+				<p align="center">{queueoff}</p>
+				<p align="center" style="color: red;">{queuenumtxt}:&nbsp;&nbsp;{queuenum}&nbsp;&nbsp;&nbsp;&nbsp;{moderationlink}</p>
+			<hr width="65%" align="center">
+				<label for="anonview" style="width: 45%; text-align: right; float: left; font-weight: bold;">{anonview}:&nbsp;&nbsp;</label>
+					<input type="radio" name="anonview" value="1" {curranony} />{yes}&nbsp;&nbsp;<input type="radio" name="anonview" value="0" {curranonn} />{no}<br /><br />
+				<label for="anonadd" style="width: 45%; text-align: right; float: left; font-weight: bold;">{anonadd}:&nbsp;&nbsp;</label>
+					<input type="radio" name="anonadd" value="1" {curranonaddy} />{yes}&nbsp;&nbsp;<input type="radio" name="anonadd" value="0" {curranonaddn} />{no}
+			<hr width="65%" align="center">
+				<label for="logadd" style="width: 45%; text-align: right; float: left; font-weight: bold;">{logadd}:&nbsp;&nbsp;</label>
+					<input type="radio" name="logadd" value="1" {currlogy} />{yes}&nbsp;&nbsp;<input type="radio" name="logadd" value="0" {currlogn} />{no}<br /><br />
+				<label for="logaddcat" style="width: 45%; text-align: right; float: left; font-weight: bold;">{logaddcat}:&nbsp;&nbsp;</label>
+					<input type="radio" name="logaddcat" value="1" {currlogcaty} />{yes}&nbsp;&nbsp;<input type="radio" name="logaddcat" value="0" {currlogcatn} />{no}<br /><br />
+				<label for="loginbatch" style="width: 45%; text-align: right; float: left; font-weight: bold;">{logbatch}:&nbsp;&nbsp;</label>
+					<input type="radio" name="loginbatch" value="1" {currbatchy} />{yes}&nbsp;&nbsp;<input type="radio" name="loginbatch" value="0" {currbatchn} />{no}
+			<p align="center">{logbatchinstr}</p>
+			<p align="center">
+				<input type="submit" name="submit" value="{update}" />&nbsp;&nbsp;
+				<input type="reset" name="reset" value="{reset}" />
+			</p>
+			<p align="center">
+				<input type="submit" name="submit" value="{default}" />
+			</p>
+			{end_block}
+			</form>
+			{start_dbblock}
+			{delresult}
+			{restresult}
+			<p align="center">{dbinstr}</p>
+			<form action="{site_admin_url}/plugins/dailyquote/index.php#db" method="POST">
+				<p style="margin-left: 15%;"><a name="db"></a><input type="submit" name="submit" value="{chkdb}" /></p>
+				{chkrepresult}
+				{repbutt}
+				<p style="margin-left: 15%"><a name="db"></a><input type="submit" name="submit" value="{dbbackup}" /></p>
+				{bakresult}
+				{bakpreview}
+				{oldbackups_list}
+			</form>
+			{end_block}
+		</td>
+	</tr>

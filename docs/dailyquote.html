@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- $Id$ -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
+  <link rel="stylesheet" type="text/css" href="layout/style.css" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Daily Quote Plugin - glFusion CMS</title>
+</head>
+
+<body style="direction: ltr;">
+<div id="gl_container_fluid">
+  <div id="gl_header"><span style="color: rgb(255, 255, 255); float: left; padding-left: 10px; padding-top: 5px; vertical-align: middle;">glFusion Documentation Project
+  </span><a style="float: right; padding-right: 10px; padding-top: 5px; vertical-align: middle;" href="http://www.glfusion.org/wiki/doku.php">glFusion Wiki</a>
+</div>
+<div id="gl_wrapper">
+<div class="body-container">
+<h1><a name="dq_plugin" id="dq_plugin">Daily Quote Plugin</a></h1>
+
+<div class="level1">
+<p>The Daily Quote Plugin allows the site admin and users to submit quotations
+for display in blocks. The administrator can control publication by using the submission queue.</p>
+<p>This version requires GLFusion 1.1.0 or higher.</p>
+<h1><a name="dq_plugin_configuration_options" id="dq_plugin_configuration_options">Daily Quote Plugin Configuration Options</a></h1>
+
+<table class="inline">
+  <tbody>
+    <tr>
+      <th class="col0 leftalign" colspan="2">General Settings</th>
+    </tr>
+
+    <tr class="row0">
+      <th class="col0 leftalign">Option </th>
+      <th class="col1 leftalign">Description </th>
+    </tr>
+
+    <tr class="row1">
+      <td class="col0 leftalign"><a name="desc_quoteperpage"></a>Quotes per page to display</td>
+      <td class="col1 leftalign">The number of quotes to display per page in the main plugin.</td>
+    </tr>
+    <tr class="row2">
+      <td class="col0 leftalign"><a name="desc_searchlimit"></a>Max search results to return</td>
+      <td class="col1 leftalign">Maximum quotations to be returned by the glFusion search facility.</td>
+    </tr>
+    <tr class="row3">
+      <td class="col0 leftalign"><a name="desc_submission"></a>Use submission queue?</td>
+      <td class="col1 leftalign">Set this to "True" to use the glFusion submission queue to moderate submissions.  If this is set to "False" then user submissions will be immediately published.</td>
+    </tr>
+    <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_whatsnew_int"></a>Number of days for a quote to be considered "new"</td>
+      <td class="col1 leftalign">This is the number of days during which a quote will appear in the "What's New" block, if enabled.</td>
+    </tr>
+    <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_whatsnew"></a>Show Quotes in the "What's New" block</td>
+      <td class="col1 leftalign">If this is set to "Yes", then quotes which are newer than the number of days specified above will appear in the "What's New" block.</td>
+    </tr>
+    <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_anonadd"></a>Allow anonymous users to submit quotes?</td>
+      <td class="col1 leftalign">If this is "Yes", then anonymous users will be able to submit quotations.  If this is "No", then only logged-in users may submit.  If you set this value to "Yes" then you should use the submission queue!</td>
+    </tr>
+    <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_google"></a>Base link for Google searches</td>
+      <td class="col1 leftalign">The text in this field will be used to construct a Google search link by appending the quoted personality's name.  The default value is <br /><code>http://www.google.com/search?hl=en&num=20&q=</code>, which will search Google and return 20 results.  Other search engines may be used, but be sure that the search phrase is the last item in the string.<p />
+    Leave this string empty to disable link creation.</td>
+    </tr>
+
+    <tr>
+      <th class="col0 leftalign" colspan="2">CenterBlock Settings</th>
+    </tr>
+    <tr class="row0">
+      <th class="col0 leftalign">Option </th>
+      <th class="col1 leftalign">Description </th>
+    </tr>
+
+    <tr class="row5">
+      <td class="col0 leftalign"><a name="desc_cb_enable"></a></td>
+      <td class="col1 leftalign">Set this to "Yes" to enable the Center Block.  If this is "No", then none of the other CenterBlock settings will have any effect.</td>
+    </tr>
+    <tr class="row6">
+      <td class="col0 leftalign"><a name="desc_cb_pos"></a>CenterBlock Position</td>
+      <td class="col1 leftalign">Select the position for the centerblock.</td>
+    </tr>
+    <tr class="row7">
+      <td class="col0 leftalign"><a name="desc_cb_title"></a>Show title in centerblock?</td>
+      <td class="col1 leftalign">Set to "Yes" to display the quotation title in the centerblock.  Set to "No" to omit the title from the display.</td>
+    </tr>
+    <tr class="row8">
+      <td class="col0 leftalign"><a name="desc_cb_homepage"></a>Centerblock on Home Page only?</td>
+      <td class="col1 leftalign">Set to "Yes" to display the centerblock only on the home page.  Set to "No" to display the centerblock on all pages.</td>
+    </tr>
+    <tr class="row9">
+      <td class="col0 leftalign"><a name="desc_cb_srcdate"></a>Show source date in centerblock?</td>
+      <td class="col1 leftalign">If set to "Yes", the quotation's source date will be shown in the centerblock.  Set to "No" to omit the source date.</td>
+    </tr>
+    <tr class="row10">
+      <td class="col0 leftalign"><a name="desc_cb_contribdate"></a>Show contributed date in centerblock?</td>
+      <td class="col1 leftalign">If set to "Yes", the date when the quotation was submitted to your site will be shown in the centerblock.  Set to "No" to omit the contribution date.</td>
+    </tr>
+    <tr class="row10">
+      <td class="col0 leftalign"><a name="desc_cb_categories"></a>Show categories in centerblock?</td>
+      <td class="col1 leftalign">Set to "Yes" to display the quotations' categories in the centerblock.  Set to "No" to omit categories.</td>
+    </tr>
+    <tr class="row11">
+      <td class="col0 leftalign"><a name="desc_cb_addlink"></a>Show "Add" link in centerblock?</td>
+      <td class="col1 leftalign">Set to "Yes" to show an "Add Quotation" link in the centerblock.  Set to "No" to omit the link.</td>
+    </tr>
+    <tr class="row11">
+      <td class="col0 leftalign"><a name="desc_cb_replhome"></a>Centerblock replaces home page?</td>
+      <td class="col1 leftalign">Set to "Yes" to have the home page replaced by the centerblock showing a random quote.</td>
+    </tr>
+
+    <tr>
+      <th class="col0 leftalign" colspan="2">PHP Block Settings</th>
+    </tr>
+    <tr class="row0">
+      <th class="col0 leftalign">Option </th>
+      <th class="col1 leftalign">Description </th>
+    </tr>
+
+    <tr class="row7">
+      <td class="col0 leftalign"><a name="desc_phpblk_title"></a>Show title in PHP block?</td>
+      <td class="col1 leftalign">Set to "Yes" to display the quotation title in the PHP block.  Set to "No" to omit the title from the display.</td>
+    </tr>
+    <tr class="row9">
+      <td class="col0 leftalign"><a name="desc_phpblk_srcdate"></a>Show source date in PHP block?</td>
+      <td class="col1 leftalign">If set to "Yes", the quotation's source date will be shown in the PHP block.  Set to "No" to omit the source date.</td>
+    </tr>
+    <tr class="row10">
+      <td class="col0 leftalign"><a name="desc_phpblk_contribdate"></a>Show contributed date in PHP block?</td>
+      <td class="col1 leftalign">If set to "Yes", the date when the quotation was submitted to your site will be shown in the PHP block.  Set to "No" to omit the contribution date.</td>
+    </tr>
+    <tr class="row10">
+      <td class="col0 leftalign"><a name="desc_phpblk_categories"></a>Show categories in PHP block?</td>
+      <td class="col1 leftalign">Set to "Yes" to display the quotations' categories in the PHP block.  Set to "No" to omit categories.</td>
+    </tr>
+    <tr class="row11">
+      <td class="col0 leftalign"><a name="desc_phpblk_addlink"></a>Show "Add" link in PHP block?</td>
+      <td class="col1 leftalign">Set to "Yes" to show an "Add Quotation" link in the PHP block.  Set to "No" to omit the link.</td>
+    </tr>
+
+    <tr>
+      <th class="col0 leftalign" colspan="2">Regular Block Settings</th>
+    </tr>
+    <tr class="row0">
+      <th class="col0 leftalign">Option </th>
+      <th class="col1 leftalign">Description </th>
+    </tr>
+
+
+    <tr class="row7">
+      <td class="col0 leftalign"><a name="desc_qbox_title"></a>Show title in Regular block?</td>
+      <td class="col1 leftalign">Set to "Yes" to display the quotation title in the Regular block.  Set to "No" to omit the title from the display.</td>
+    </tr>
+    <tr class="row9">
+      <td class="col0 leftalign"><a name="desc_qbox_srcdate"></a>Show source date in Regular block?</td>
+      <td class="col1 leftalign">If set to "Yes", the quotation's source date will be shown in the Regular block.  Set to "No" to omit the source date.</td>
+    </tr>
+    <tr class="row10">
+      <td class="col0 leftalign"><a name="desc_qbox_contribdate"></a>Show contributed date in Regular block?</td>
+      <td class="col1 leftalign">If set to "Yes", the date when the quotation was submitted to your site will be shown in the Regular block.  Set to "No" to omit the contribution date.</td>
+    </tr>
+    <tr class="row10">
+      <td class="col0 leftalign"><a name="desc_qbox_categories"></a>Show categories in Regular block?</td>
+      <td class="col1 leftalign">Set to "Yes" to display the quotations' categories in the Regular block.  Set to "No" to omit categories.</td>
+    </tr>
+
+    <tr>
+      <th class="col0 leftalign" colspan="2">Default Permissions</th>
+    </tr>
+    <tr class="row0">
+      <th class="col0 leftalign">Option </th>
+      <th class="col1 leftalign">Description </th>
+    </tr>
+
+    <tr class="row0">
+      <td class="col0 leftalign"><a name="desc_defgrp"></a>Default Group</td>
+      <td class="col1 leftalign">This is the default group which will be used to determine who may bypass the submission queue and moderate submissions.</td>
+    </tr>
+
+  </tbody>
+</table>
+<p></p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

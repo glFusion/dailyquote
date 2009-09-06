@@ -1,0 +1,18 @@
+
+			<br />
+			<h2>{addqtitle}<br />
+			<span style="font-weight: normal;">{nomarks}</span></h2>
+			<form action="{site_url}/dailyquote/add.php" method="POST">
+				<label for="title" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addtitle}:&nbsp;&nbsp;</label>
+					<input name="title" type="text" size="32" value="" /><br /><br />
+				<label for="quote" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addquotation}:&nbsp;&nbsp;</label>
+					<textarea name="quote" cols="65" rows="6" wrap="virtual"></textarea><br /><br />
+				<label for="quoted" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addquoted}:&nbsp;&nbsp;</label>
+					<input name="quoted" type="text" size="32" value="Unknown" /><br /><br />
+				<label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addsource}:&nbsp;&nbsp;</label>
+					<input name="source" type="text" size="32" value="" /><br /><br />
+				<label for="sourcedate" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addsourcedate}:&nbsp;&nbsp;</label>
+					<input name="sourcedate" type="text" size="32" value="" />
+					<span style="color: red; text-align: center;">{dateformat}</span><br /><br />
+				<label for="cat" style="display: inline; font-weight: bold;">{choosecat}{firstcat}:&nbsp;&nbsp;</label>
+					{catinput}<br /><br />
