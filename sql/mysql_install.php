@@ -1,12 +1,14 @@
 <?php
-
 /**
-* SQL Commands for the Daily Quote Plugin
-* Last updated Nov 26/2004
-* ajdeeley@summitpages.ca
-*   Updated 31 Jan 2008 Lee Garner
-**/
-
+*   Schema definition.
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @package    dailyquote
+*   @version    0.0.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*               GNU Public License v2 or later
+*   @filesource
+*/
 
 // Main quote table
 $_SQL[] = "CREATE TABLE {$_TABLES['dailyquote_quotes']} (

@@ -1,62 +1,39 @@
 <?php
-
-// +---------------------------------------------------------------------------+
-// | Daily Quote Plugin v1.0.4 for Geeklog - The Ultimate Weblog               |
-// +---------------------------------------------------------------------------+
-// | english.php                                                               |
-// |                                                                           |
-// +---------------------------------------------------------------------------+
-// | Copyright (C) 2004 by the following authors:                              |
-// |                                                                           |
-// | Author: Alf Deeley aka machinari - ajdeeley@summitpages.ca                |
-// | Constructed with the Universal Plugin                                     |
-// | Copyright (C) 2002 by the following authors:                              |
-// | Tom Willett                 -    twillett@users.sourceforge.net           |
-// | Blaine Lang                 -    langmail@sympatico.ca                    |
-// | The Universal Plugin is based on prior work by:                           |
-// | Tony Bibbs                  -    tony@tonybibbs.com                       |
-// +---------------------------------------------------------------------------+
-// |                                                                           |
-// | This program is free software; you can redistribute it and/or             |
-// | modify it under the terms of the GNU General Public License               |
-// | as published by the Free Software Foundation; either version 2            |
-// | of the License, or (at your option) any later version.                    |
-// |                                                                           |
-// | This program is distributed in the hope that it will be useful,           |
-// | but WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             |
-// | GNU General Public License for more details.                              |
-// |                                                                           |
-// | You should have received a copy of the GNU General Public License         |
-// | along with this program; if not, write to the Free Software Foundation,   |
-// | Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.           |
-// |                                                                           |
-// +---------------------------------------------------------------------------+
-//
+//  $Id$
+/**
+*   English language file for the DailyQuote plugin
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @package    dailyquote
+*   @version    0.0.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*               GNU Public License v2 or later
+*   @filesource
+*/
 
 $LANG_DQ00 = array (
-    'access_denied'     => 'Access Denied',
-    'access_denied_msg' => 'Only Root Users have Access to this Page.  Your user name and IP have been recorded.',
-    'access_denied_msg1' => 'Only Authorized Users have Access to this Page.  Your user name and IP have been recorded.',
-    'admin'             => 'Plugin Admin',
-    'enabled'           => 'Disable plugin before uninstalling.',
-    'install'           => 'Install',
-    'install_failed'    => 'Installation Failed -- See your error log to find out why.',
-    'install_header'    => 'Install/Uninstall Plugin',
-    'install_success'   => 'Installation Successful',
-    'installdoc'        => 'Install Document',
-    'installed'         => 'The Plugin is Installed',
-    'plugin'            => 'Plugin',
-    'readme'            => 'STOP! Before you press install please read the ',
-    'uninstall'         => 'UnInstall',
-    'uninstall_msg'     => 'Plugin Successfully Uninstalled',
-    'uninstalled'       => 'The Plugin is Not Installed',
-    'warning'           => 'Warning! Plugin is still Enabled',
+'access_denied'     => 'Access Denied',
+'access_denied_msg' => 'Only Root Users have Access to this Page.  Your user name and IP have been recorded.',
+'access_denied_msg1' => 'Only Authorized Users have Access to this Page.  Your user name and IP have been recorded.',
+'admin'             => 'Plugin Admin',
+'enabled'           => 'Disable plugin before uninstalling.',
+'install'           => 'Install',
+'install_failed'    => 'Installation Failed -- See your error log to find out why.',
+'install_header'    => 'Install/Uninstall Plugin',
+'install_success'   => 'Installation Successful',
+'installdoc'        => 'Install Document',
+'installed'         => 'The Plugin is Installed',
+'plugin'            => 'Plugin',
+'readme'            => 'STOP! Before you press install please read the ',
+'uninstall'         => 'UnInstall',
+'uninstall_msg'     => 'Plugin Successfully Uninstalled',
+'uninstalled'       => 'The Plugin is Not Installed',
+'warning'           => 'Warning! Plugin is still Enabled',
 );
 
 $LANG_DQ= array(
-    'absentfile'            => 'Error: You must specify a file to upload.',
-    'add2intro'             => 'You may import a batch of quotations into the database using this form.  Simply import your tab-delimited text file into the box below ensuring that there is only one entry per line.  Each line, therefore, must contain a value for the following fields: quotation; name of person being quoted; category; title; source; and source date--in that order.  If the second field is left blank, &quot;Unknown&quot; will be used.  Please do not enclose your quotation inside quotation marks.  You can view an example text file at the bottom of this page.',
+'absentfile'            => 'Error: You must specify a file to upload.',
+'add2intro'             => 'You may import a batch of quotations into the database using this form.  Simply import your tab-delimited text file into the box below ensuring that there is only one entry per line.  Each line, therefore, must contain a value for the following fields: quotation; name of person being quoted; category; title; source; and source date--in that order.  If the second field is left blank, &quot;Unknown&quot; will be used.  Please do not enclose your quotation inside quotation marks.  You can view an example text file at the bottom of this page.',
     'addcat'                => 'New Category',
     'addcaterr'             => 'An error has occurred while attempting to add your category to the database.',
     'addcatsuc'             => 'Your category has been successfully added to the database.  Add another?',

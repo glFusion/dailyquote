@@ -1,57 +1,37 @@
 <?php
-/****************************************************************************
-*   Daily Quote Plugin for Geeklog - The Ultimate Weblog
-*****************************************************************************
-*   $Id$
-*****************************************************************************
-*   Copyright (C) 2004 by the following authors:
-
-*   Author: Alf Deeley aka machinari - ajdeeley@summitpages.ca
-*   Constructed with the Universal Plugin
-*   Copyright (C) 2002 by the following authors:
-*   Tom Willett                 -    twillett@users.sourceforge.net
-*   Blaine Lang                 -    langmail@sympatico.ca
-*   The Universal Plugin is based on prior work by:
-*   Tony Bibbs                  -    tony@tonybibbs.com
-*
-*   Adapted for glFusion 1.1 by Lee Garner (lee@leegarner.com) 2008
-*****************************************************************************
-*   This program is free software; you can redistribute it and/or
-*   modify it under the terms of the GNU General Public License
-*   as published by the Free Software Foundation; either version 2
-*   of the License, or (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program; if not, write to the Free Software Foundation,
-*   Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*****************************************************************************/
+//  $Id$
+/**
+*   Common functions for the DailyQuote plugin
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @package    dailyquote
+*   @version    0.0.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*               GNU Public License v2 or later
+*   @filesource
+*/
 
 if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
 }
 
 //  Check and see if we need to load the plugin configuration
-if (!isset($_CONF_DQ['quoteperpage'])) {
-    require_once $_CONF['path_system'] . 'classes/config.class.php';
+/** @global array $_CONF_DQ */
+global $_CONF_DQ;
 
+if (!isset($_CONF_DQ['quoteperpage'])) {
+    /** Import configuration-handling class */
+    require_once $_CONF['path_system'] . 'classes/config.class.php';
     $dq_config = config::get_instance();
     $_CONF_DQ= $dq_config->get_config('dailyquote');
 }
 
-global $_CONF_DQ;
-$_CONF_DQ['pi_version'] = '0.1';
-$_CONF_DQ['pi_name'] = 'dailyquote';
-$_CONF_DQ['gl_version'] = '1.1.0';
-$_CONF_DQ['pi_url'] = 'http://www.leegarner.com';
-
-//print_r($_CONF_DQ);
-
-require_once $_CONF['path']. '/plugins/' . $_CONF_DQ['pi_name'] . '/config.php';
+/** Additional config items and table definitions are added here */
+require_once "{$_CONF['path']}plugins/dailyquote/dailyquote.php";
+if (file_exists("{$_CONF['path']}plugins/{$_CONF_DQ['pi_name']}/config.php")) {
+    /** Include local configuration overrides */
+    include_once "{$_CONF['path']}plugins/{$_CONF_DQ['pi_name']}/config.php";
+}
 
 
 /**
@@ -62,54 +42,38 @@ $langfile = "{$_CONF['language']}.php";
 if (!file_exists($langfile)) {
     $langfile = 'english.php';
 }
-include_once "$langpath/$langfile";
+require_once "$langpath/$langfile";
 
 
 
 /**
-* Returns the items for this plugin that should appear on the main menu
+*   Returns the items for this plugin that should appear on the main menu.
 *
-* NOTE: this MUST return the url/value pairs in the following format
-* $<arrayname>[<label>] = <url>
+*   NOTE: this MUST return the url/value pairs in the following format
+*   $<arrayname>[<label>] = <url>
 *
-* @return    array   Associative array of menu items to be added to menu
-*
+*   @todo   Get anonview setting from configuration system
+*   @return    array   Associative array of menu items to be added to menu
 */
 function plugin_getmenuitems_dailyquote()
 {
     global $_CONF, $_USER, $LANG_DQ, $_TABLES;
 
+    // TODO: Get this from $_CONF_DQ
     // Retrieve access Settings
     $query = DB_query("SELECT anonview FROM {$_TABLES['dailyquote_settings']}");
     list($anonview) = DB_fetchArray($query);
 
-    $menulabel = "{$LANG_DQ['menulabel']}";                // Put your menu label here
-    $menurul = $_CONF['site_url'] . "/dailyquote/index.php";     // Menu url here
+    $menulabel = "{$LANG_DQ['menulabel']}";
+    $menurul = $_CONF['site_url'] . "/dailyquote/index.php";
     
     $menuitems = array();
 
     // Check user has rights to view this cb, if so, do it.
-    if ((($anonview == '1') && ($_USER['uid'] < 2)) || ($_USER['uid'] > 1)) {
+    if ($anonview == '1' || !COM_isAnonUser()) {
         $menuitems["$menulabel"] = $menurul;
     }
     return $menuitems;
-}
-
-
-/**
-*
-* Geeklog is checking to see if this plugin supports comments, tell it no!
-* NOTE: to support comments you must use the same date/time based ID for your
-* widget.  In other words, to make primary keys for your plugin you should call
-* makesid().  Comments are keyed off of that...it is a limitation on how geeklog
-* does comments.
-*
-* @return   boolean true or false
-*
-*/
-function plugin_commentsupport_dailyquote()
-{
-    return false;
 }
 
 
@@ -126,7 +90,7 @@ function plugin_showstats_dailyquote($showsitestats)
 {
     global $_CONF, $_USER, $_TABLES, $LANG_DQ, $_CONF_DQ;
 
-    require_once ($_CONF['path_system'] . 'lib-admin.php');
+    USES_lib_admin();
 
     $retval = '';
 
@@ -202,8 +166,7 @@ function plugin_statssummary_dailyquote()
 *   This will put an option for the plugin in the command and control 
 *   block on moderation.php
 *
-*   @return   array   Array containing (plugin name, admin url, url of plugin icon)
-*
+*   @return   array   Array containing (pi_name, admin url, url of plugin icon)
 */
 function plugin_cclabel_dailyquote()
 {
@@ -221,7 +184,6 @@ function plugin_cclabel_dailyquote()
 * Returns the administrative option for this plugin
 *
 * @return   array   Array containing (plugin name, plugin admin url, # of items in plugin or '')
-*
 */
 function plugin_getadminoption_dailyquote()
 {
@@ -243,7 +205,6 @@ function plugin_getadminoption_dailyquote()
 * Returns the user option for this plugin
 *
 * @return   array   Array containing (plugin name, plugin user url, 0)
-*
 */
 function plugin_getuseroption_dailyquote()
 {
