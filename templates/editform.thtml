@@ -5,10 +5,13 @@
   {hidden_vars}
   <input type="hidden" name="type" value="{pi_name}">
   <input type="hidden" name="uid" value="{uid}">
+  <input type="hidden" name="id" value="{id}">
   <label for="title" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addtitle']}:&nbsp;&nbsp;</label>
   <input name="title" type="text" size="32" value="{title}" /><br /><br />
-  <label for="quote" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['quotation']}:&nbsp;&nbsp;</label>
-  <textarea name="quote" cols="65" rows="6" wrap="virtual">{quote}</textarea><br /><br />
+
+  <label for="content" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['quotation']}:&nbsp;&nbsp;</label>
+  <textarea name="content" cols="65" rows="6" wrap="virtual">{quote}</textarea><br /><br />
+
   <label for="quoted" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['quoted']}:&nbsp;&nbsp;</label>
   <input name="quoted" type="text" size="32" value="{quoted}" /><br /><br />
   <label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addsource']}:&nbsp;&nbsp;</label>

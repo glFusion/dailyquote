@@ -1319,6 +1319,18 @@ function DQ_updateQuote($A, $table='dailyquote_quote')
     if (!is_array($A) || empty($A))
         return '';
 
+    if (!isset($A['id']) || $A['id'] == '') {
+        $type = 'new';
+        $A['id'] = COM_makesid();
+    } else {
+        $type = 'update';
+    }
+
+    if (!isset($A['title']) || empty($A['title']) ||
+        !isset($A['content']) || empty($A['content'])) {
+        return '';
+    }
+
     if ($table != 'dailyquote_submission') {
         $table = $_TABLES['dailyquote_quotes'];
         $cat_table = $_TABLES['dailyquote_cat'];
@@ -1328,21 +1340,32 @@ function DQ_updateQuote($A, $table='dailyquote_quote')
     }
 
     // Delete all links from the lookup table.
-    DB_query("DELETE FROM {$_TABLES['dailyquote_lookup']} WHERE QID='{$A['id']}'");
+    DB_delete($_TABLES['dailyquote_lookup'], 'qid', $A['id']);
 
     // Insert the quote into the main submission table
-    $sql = "
-        UPDATE
-            $table
+    if ($type == 'update') {
+        $sql = "UPDATE $table
         SET
-            content = '" . glfPrepareForDB(COM_checkwords($A['content'])). "',
-            quoted = '" . glfPrepareForDB(COM_checkwords($A['quoted']) ). "',
-            title = '" . glfPrepareForDB(COM_checkwords($A['title'])) . "',
-            source = '" . glfPrepareForDB(COM_checkwords($A['source'])) . "',
-            sourcedate = '" . glfPrepareForDB(COM_checkwords($A['sourcedate'])) . "'
+            content = '" . addslashes(COM_checkwords($A['content'])). "',
+            quoted = '" . addslashes(COM_checkwords($A['quoted'])). "',
+            title = '" . addslashes(COM_checkwords($A['title'])) . "',
+            source = '" . addslashes(COM_checkwords($A['source'])) . "',
+            sourcedate = '" . addslashes(COM_checkwords($A['sourcedate'])) . "'
         WHERE
-            id = '{$A['id']}'
-    ";
+            id = '" .addslashes($A['id']) . "'";
+    } else {
+        $sql = "INSERT INTO $table
+            (id, dt, content, quoted, title, source, sourcedate)
+        VALUES (
+            '{$A['id']}',
+            " . time() . ",
+            '" . addslashes(COM_checkwords($A['content'])). "',
+            '" . addslashes(COM_checkwords($A['quoted'])). "',
+            '" . addslashes(COM_checkwords($A['title'])) . "',
+            '" . addslashes(COM_checkwords($A['source'])) . "',
+            '" . addslashes(COM_checkwords($A['sourcedate'])) . "'
+        )";
+    }
     DB_query($sql);
     if (DB_error())
         return DB_error();

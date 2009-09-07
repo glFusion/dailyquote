@@ -42,11 +42,12 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
         $T->set_var('source', $A['source']);
         $T->set_var('sourcedate', $A['sourcedate']);
         $T->set_var('uid', $A['uid']);
+        $T->set_var('id', $A['id']);
         $T->set_var('hidden_vars',
-            '<input type="hidden" name="date" value="'.$A['dtadded']. '">
-            <input type="hidden" name="id" value="'. $A['id'] . '">');
+            '<input type="hidden" name="date" value="'.$A['dtadded']. '">');
     } else {
         $T->set_var('uid', $_USER['uid']);
+        $T->set_var('id', '');
     }
 
     $T->set_var('site_url', $_CONF['site_url']);

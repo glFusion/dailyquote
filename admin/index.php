@@ -1,6 +1,19 @@
 <?php
+//  $Id$
+/**
+*   Common functions for the DailyQuote plugin
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @package    dailyquote
+*   @version    0.0.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*               GNU Public License v2 or later
+*   @filesource
+*/
 
+/** Import core glFusion functions */
 require_once('../../../lib-common.php');
+/** Import database functions - DEPRECATED */
 require_once('dqdatabase.php');
 
 
