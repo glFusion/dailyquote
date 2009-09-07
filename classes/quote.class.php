@@ -132,8 +132,8 @@ class DailyQuote
 
 
     /**
-     *  Delete a banner.
-     *  Deletes the supplied banner ID if not empty, otherwise
+     *  Delete a quote.
+     *  Deletes the supplied quote ID if not empty, otherwise
      *  deletes the current object
      *  @param  string  $bid    Optional banner ID to delete
      */
@@ -149,8 +149,11 @@ class DailyQuote
             }
         }
 
-        $id = addslashes(trim($id));
-        DB_delete($_TABLES['dailyquote_quote'],
+        if (!DailyQuote::hasAccess(3))
+            return;
+
+        $id = COM_sanitizeID($id, false);
+        DB_delete($_TABLES['dailyquote_quotes'],
             'id', $id);
 
         DB_delete($_TABLES['dailyquote_lookup'],
@@ -182,7 +185,7 @@ class DailyQuote
      */
     function hasAccess($level=3)
     {
-        if ($this->Access() < $level) {
+        if (DailyQuote::Access() < $level) {
             return false;
         } else {
             return true;

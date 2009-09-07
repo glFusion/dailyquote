@@ -113,7 +113,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
                     $T->set_var('discat', ' color: #808080;');
                 }
             }*/
-            if (DB_getItem($_TABLES['dailyquote_lookup'], 'qid', 
+            if ($A['id'] != '' && DB_getItem($_TABLES['dailyquote_lookup'], 'qid', 
                     "cid={$row['id']} AND qid = '{$A['id']}'") == $A['id']) {
                 $T->set_var('checked', ' checked ');
             } else {

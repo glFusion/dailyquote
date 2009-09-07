@@ -28,6 +28,7 @@ function DQ_adminList()
 
     USES_lib_admin();
 
+    $pi_admin_url = "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php";
     $retval = '';
 
     $header_arr = array(      # display 'text' and use table field 'field'
@@ -41,14 +42,13 @@ function DQ_adminList()
     );
 
     $menu_arr = array (
-        array('url' => $_CONF['site_admin_url'] . '/plugins/' . $_CONF_DQ['pi_name'] . '/index.php?mode=edit',
-              'text' => $LANG_DQ['newquote'])
+        array('url' => $_CONF['site_admin_url'],
+                'text' => $LANG_ADMIN['admin_home']),
+        array('url' => $pi_admin_url . '?mode=edit',
+              'text' => $LANG_DQ['newquote']),
     );
 
     $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
-
-    $menu_arr[] = array('url' => $_CONF['site_admin_url'],
-                        'text' => $LANG_ADMIN['admin_home']);
 
     $retval .= COM_startBlock('WhereAmI', '', COM_getBlockTemplate('_admin_block', 'header'));
 
@@ -82,6 +82,7 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
     switch($fieldname) {
     case 'edit':
+var_dump($icon_arr);
         $retval .= COM_createLink(
             $icon_arr['edit'],
             "{$_CONF['site_admin_url']}/plugins/dailyquote/index.php?mode=edit&amp;id={$A['id']}"
@@ -99,6 +100,20 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
                 "\"quote\", \"{$_CONF['site_url']}\");'>\n" .
                 "</span>\n";
+        $retval .= COM_createLink(
+            $_CONF['site_url'].'/dailyquote/images/delete.png',
+            'http://www.leegarner.com');
+/*        $retval .= '<form action={action_url} method="post">
+            <input type=hidden name="id" value="' . $A['id'] . '">
+            <input type=hidden name="action" value="deletequote">
+            <input type="image" 
+              src="'{site_url}/photocomp/images/deleteitem.png" 
+          height="16" width="16" border="0" 
+          alt="{$LANG_PHOTO['delete']}" 
+          title="{$LANG_PHOTO['delete_item']}"
+          onclick="return confirm('Do you really want to delete this item?');" 
+          class="gl_mootip">
+      </form>*/
         break;
     case 'title':
         $retval = stripslashes($A['title']);
