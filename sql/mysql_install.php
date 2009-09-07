@@ -16,7 +16,7 @@ $_SQL = array();
 $_SQL['dailyquote_quotes'] = 
   "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
   id VARCHAR(40) NOT NULL PRIMARY KEY,
-  content TEXT,
+  quote TEXT,
   quoted TEXT,
   title TEXT,
   source TEXT,
@@ -24,21 +24,21 @@ $_SQL['dailyquote_quotes'] =
   dt INT(11) DEFAULT 0,
   uid INT NOT NULL default '1',
   status TINYINT(1) NOT NULL DEFAULT '1',
-  UNIQUE idx_quote (content(32))
+  UNIQUE idx_quote (quote(32))
 ) TYPE=MyISAM";
 
 // Submission Table
 $_SQL['dailyquote_submission'] = 
   "CREATE TABLE {$_TABLES['dailyquote_submission']} (
   id VARCHAR(40) NOT NULL PRIMARY KEY,
-  content TEXT,
+  quote TEXT,
   quoted TEXT,
   title TEXT,
   source TEXT,
   sourcedate VARCHAR(16),
   dt INT(11) DEFAULT 0,
   uid INT NOT NULL default '1',
-  UNIQUE idx_quote (content(32))
+  UNIQUE idx_quote (quote(32))
 ) TYPE=MyISAM";
 
 // Categories Table

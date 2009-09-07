@@ -37,8 +37,8 @@
 require_once('../lib-common.php');
 
 // Retrieve access settings
-$query = DB_query("SELECT anonview FROM {$_TABLES['dailyquote_settings']}");
-list($anonview) = DB_fetchArray($query);
+//$query = DB_query("SELECT anonview FROM {$_TABLES['dailyquote_settings']}");
+//list($anonview) = DB_fetchArray($query);
 // Check user has rights to access this page
 if (($anonview == '0') && ($_USER['uid'] < 2)) {
     // Someone is trying to illegally access this page
@@ -55,14 +55,14 @@ if (($anonview == '0') && ($_USER['uid'] < 2)) {
 //displays the google-like page nav
 function display_pagenav($categ, $keywords, $keytype, $type, $datestart, $dateend, $contr, $qid, $show, $stat, $catget, $mode, $page, $numrows)
 {
-    global $_TABLES, $_CONF, $LANG_DQ;
+    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
 
     //print page nav here
     //$query1 = DB_query ("SELECT COUNT(*) AS numquotes FROM {$_TABLES['dailyquote_quotes']} WHERE Status='1'");
     //list($numquotes) = DB_fetchArray($query1);
-    $query2 = DB_query("SELECT searchdisplim AS displim FROM {$_TABLES['dailyquote_settings']}");
-    list($displim) = DB_fetchArray($query2);
-    if ($numrows > $displim) {
+    //$query2 = DB_query("SELECT searchdisplim AS displim FROM {$_TABLES['dailyquote_settings']}");
+    //list($displim) = DB_fetchArray($query2);
+    if ($numrows > $_CONF_DQ['displim']) {
         $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
         $T->set_file('page', 'pagenav.thtml');
         $prevpage = $page - 1;
@@ -111,29 +111,40 @@ function display_pagenav($categ, $keywords, $keytype, $type, $datestart, $dateen
 
 //displays the search results
 function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend, $contr, $qid, $show, $stat, $catget, $mode, $page){
-    global $_TABLES, $_CONF, $LANG_DQ;
+    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
 
-    $sql = "SELECT DISTINCT ID, Quotes, Quoted, Title, Source, Sourcedate, Date, q.UID, username";
-    $sql .= " FROM {$_TABLES['dailyquote_quotes']} q, {$_TABLES['dailyquote_lookup']} l, {$_TABLES['users']} gl";
+    $sql = "SELECT DISTINCT 
+            id, quote, quoted, title, source, sourcedate, dt, q.uid, username
+        FROM 
+            {$_TABLES['dailyquote_quotes']} q, 
+            {$_TABLES['dailyquote_lookup']} l, 
+            {$_TABLES['users']} u";
+    $catwh = '';
     if (!empty($categ)){
         $cat = slashctrl($categ);
-        $result = DB_query("SELECT ID FROM {$_TABLES['dailyquote_cat']} WHERE Name='$cat'");
-        list($catID) = DB_fetchArray($result);
+        $catID = DB_getItem($_TABLES['dailyquote_cat'], 'id', "name='$cat'");
+        //$result = DB_query("SELECT id 
+        //    FROM {$_TABLES['dailyquote_cat']} WHERE Name='$cat'");
+        //list($catID) = DB_fetchArray($result);
         $catwh = " AND l.CID='$catID'";
     }
-    if (!empty($catget)){
-        $catwh = " AND l.CID='$catget' AND l.QID=ID";
+    if (!empty($catget)) {
+        $catwh = " AND l.cid='$catget' AND l.qid=id";
     }
-    $sql .= " WHERE (q.Status='1' AND q.UID=gl.uid AND l.Status='1' AND l.QID=ID";
-    if(isset($catwh)){
-        $sql .= $catwh;
-    }
-    $sql .= ")";
+    $sql .= " WHERE (
+            q.status='1' 
+        AND 
+            q.uid=u.uid 
+        AND 
+            l.status='1' 
+        AND 
+            l.qid=id 
+        $catwh )";
 
     if (isset($keywords)){
         $query = trim($keywords);
     }
-    if ((isset($_POST['submit'])) && (empty($query))){
+    if (isset($_POST['submit']) && empty($query)) {
         $retval = "<p align=\"center\" style=\"font-weight: bold; color: red;\">" . $LANG_DQ['searchmsg1'] . "</p>";
         return $retval;
     }
@@ -141,11 +152,11 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
     if (isset($keytype)){
         if ($keytype == "phrase"){//exact phrase as query
             $mysearchterm = slashctrl(trim ($query));
-            $q = "(Quotes like '%$mysearchterm%')";
-            $pq = "(Quoted like '%$mysearchterm%')";
+            $q = "(quote like '%$mysearchterm%')";
+            $pq = "(quoted like '%$mysearchterm%')";
             $c = "(username like '%$mysearchterm%')";
-            $s = "(Source like '%mysearchterm%')";
-            $t = "(Title like '%mysearchterm%')";
+            $s = "(source like '%mysearchterm%')";
+            $t = "(title like '%mysearchterm%')";
             if (!empty($type)){
                 if ($type == "1"){//search within quotations
                     $sql .= " AND $q";
@@ -171,11 +182,11 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
             foreach ($mywords AS $mysearchterm) {
                 $mysearchterm = slashctrl (trim ($mysearchterm));
                 if (!$mysearchterm == ""){
-                    $q = "(Quotes like '%$mysearchterm%')";
-                    $pq = "(Quoted like '%$mysearchterm%')";
+                    $q = "(quote like '%$mysearchterm%')";
+                    $pq = "(quoted like '%$mysearchterm%')";
                     $c = "(username like '%$mysearchterm%')";
-                    $s = "(Source like '%mysearchterm%')";
-                    $t = "(Title like '%mysearchterm%')";
+                    $s = "(source like '%mysearchterm%')";
+                    $t = "(title like '%mysearchterm%')";
                     if (!empty($type)){
                         if ($type == "1"){//search within quotations
                             $tmp .= " $q AND";
@@ -205,11 +216,11 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
             foreach ($mywords AS $mysearchterm) {
                 $mysearchterm = slashctrl (trim ($mysearchterm));
                 if (!$mysearchterm == ""){
-                    $q = "(Quotes like '%$mysearchterm%')";
-                    $pq = "(Quoted like '%$mysearchterm%')";
+                    $q = "(quote like '%$mysearchterm%')";
+                    $pq = "(quoted like '%$mysearchterm%')";
                     $c = "(username like '%$mysearchterm%')";
-                    $s = "(Source like '%mysearchterm%')";
-                    $t = "(Title like '%mysearchterm%')";
+                    $s = "(source like '%mysearchterm%')";
+                    $t = "(title like '%mysearchterm%')";
                     if (!empty($type)){
                         if ($type == "1"){//search within quotations
                             $tmp .= " $q OR";
@@ -235,10 +246,10 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
     }
 
     if (!empty($datestart)){
-        $sql .= " AND q.Date >= '$start'";
+        $sql .= " AND q.dt >= '$start'";
     }
     if (!empty($dateend)){
-        $sql .= " AND q.Date < '$end'";
+        $sql .= " AND q.dt < '$end'";
     }
 
     if (!empty($contr)){
@@ -251,33 +262,35 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
     // this GET stuff comes from the GL search results urls and displays here accordingly
     if ((isset($qid)) && (isset($show))){
         if ($show == "quote"){//shows a single quote on the search page
-            $sql .= " AND ID='$qid'";
+            $sql .= " AND id='$qid'";
         } elseif ($show == "quoted"){//shows all quotes by whomever was quoted
-            $result = DB_query("SELECT Quoted From {$_TABLES['dailyquote_quotes']} WHERE ID=$qid");
+            $result = DB_query("SELECT quoted From {$_TABLES['dailyquote_quotes']} WHERE id=$qid");
             list($quoted) = DB_fetchArray($result);
             $quoted = slashctrl($quoted);
-            $sql .= " AND Quoted='$quoted'";
+            $sql .= " AND quoted='$quoted'";
         } elseif ($show == "name"){//shows all quotes submitted by whoever submitted $qid
-            $result = DB_query("SELECT UID FROM {$_TABLES['dailyquote_quotes']} WHERE ID='$qid'");
+            $result = DB_query("SELECT uid FROM {$_TABLES['dailyquote_quotes']} WHERE id='$qid'");
             list($uid) = DB_fetchArray($result);
-            $sql .= " AND q.UID='$uid'";
+            $sql .= " AND q.uid='$uid'";
         }
     }
     elseif (isset($stat)){// this comes from the GL stats page
         $stat = slashctrl($stat);
-        $sql .= " AND Quoted='$stat'";
+        $sql .= " AND quoted='$stat'";
     }
 
     $numrows = DB_query($sql);
 
     // Retrieve results per page setting
-    if(!$query = DB_query("SELECT searchdisplim AS displim FROM {$_TABLES['dailyquote_settings']}")){
-        $displim = 10;
-    } else {
-        list( $displim) = DB_fetchArray($query);
+    //if(!$query = DB_query("SELECT searchdisplim AS displim FROM {$_TABLES['dailyquote_settings']}")){
+      //  $displim = 10;
+    //} else {
+        //list( $displim) = DB_fetchArray($query);
+    $displim = $_CONF_DQ['displim'];
+    if (empty($displim)) $displim = 10;
         $limit = ($displim * $page) - $displim;
         $sql .= " LIMIT $limit, $displim";
-    }
+    //}
 
     $result = DB_query($sql);
     if (!$result){
@@ -297,7 +310,7 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
             $T->set_var('numresults', $numrows);
             $T->set_var('numresultstxt', $LANG_DQ['numresultstxt']);
             if(isset($catget)){
-                if(!$catgetsql = DB_query("SELECT Name FROM {$_TABLES['dailyquote_cat']} WHERE ID=$catget")){
+                if(!$catgetsql = DB_query("SELECT name FROM {$_TABLES['dailyquote_cat']} WHERE id=$catget")){
                 } else {
                     list($cathead) = DB_fetchArray($catgetsql);
                     $T->set_var('cathead', sprintf($LANG_DQ['cathead'],$cathead));
@@ -311,33 +324,42 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
                 $T->set_file('page', 'singlequote.thtml');
                 if (!empty($row['Title'])){
                     $title = '<p style="text-align: left; font-weight: bold; text-decoration: underline;">';
-                    $title .= $row['Title'];
+                    $title .= $row['title'];
                     $title .= '</p>';
                     $T->set_var('title', $title);
                 }
-                $T->set_var('quote', $row['Quotes']);
-                $quoted = ggllink($row['Quoted']);
+                $T->set_var('quote', $row['quote']);
+                $quoted = ggllink($row['quoted']);
                 $T->set_var('quoted', $quoted);
-                if (!empty($row['Source'])){
-                    $T->set_var('source', '&nbsp;--&nbsp;' . $row['Source']);
+                if (!empty($row['source'])){
+                    $T->set_var('source', '&nbsp;--&nbsp;' . $row['source']);
                 }
-                if (!empty($row['Sourcedate'])){
-                    $T->set_var('sourcedate', '&nbsp;&nbsp;(' . $row['Sourcedate'] . ')');
+                if (!empty($row['sourcedate'])){
+                    $T->set_var('sourcedate', '&nbsp;&nbsp;(' . $row['sourcedate'] . ')');
                 }
                 $T->set_var('subm_by', $LANG_DQ['subm_by']);
-                $contrqu = DB_query("SELECT UID, username FROM {$_TABLES['users']} WHERE uid={$row['UID']}");
+                $contrqu = DB_query("SELECT uid, username FROM {$_TABLES['users']} WHERE uid={$row['uid']}");
                 list($uid,$username) = DB_fetchArray($contrqu);
                 $username = prflink($uid,$username);
                 $T->set_var('contr', $username);
-                $T->set_var('datecontr', $row['Date']);
-                $cat = DB_query("SELECT c.ID, c.Name FROM {$_TABLES['dailyquote_cat']} c, {$_TABLES['dailyquote_lookup']} l WHERE l.QID={$row['ID']} AND c.ID=l.CID AND l.Status='1'");
+                $T->set_var('datecontr', $row['dt']);
+                $cat = DB_query("SELECT c.id, c.name 
+                        FROM 
+                            {$_TABLES['dailyquote_cat']} c, 
+                            {$_TABLES['dailyquote_lookup']} l 
+                        WHERE 
+                            l.qid={$row['id']} 
+                        AND 
+                            c.id=l.cid 
+                        AND 
+                            l.status='1'");
                 $i = 0;
                 $catlist = "";
                 while ($catrow = DB_fetchArray($cat)){
                     if ($i > 0){
                         $catlist .= ", ";
                     }
-                    $catlink = catlink($catrow['ID'],$catrow['Name']);
+                    $catlink = catlink($catrow['ID'],$catrow['name']);
                     $catlist = $catlist . $catlink;
                     $i++;
                 }
@@ -520,10 +542,20 @@ if (isset($_POST['contr'])){
     $contr = $_GET['contr'];
 }
 
-if ((!isset($_POST['submit'])) && (!isset($qid)) && (!isset($stat)) && (!isset($cat)) && (!isset($keywords))){
-    $display .= random_quote();
-}
-elseif ((isset($_POST['submit'])) || (isset($qid)) || (isset($stat)) || (isset($cat)) || (isset($keywords))){
+if (!isset($_POST['submit']) && 
+        !isset($qid) && 
+        !isset($stat) && 
+        !isset($cat) && 
+        !isset($keywords)
+) {
+    USES_dailyquote_functions();
+    $display .= DQ_random_quote();
+} elseif (isset($_POST['submit']) || 
+        isset($qid) || 
+        isset($stat) || 
+        isset($cat) || 
+        isset($keywords)
+) {
     $display .= search_results($categ, $keywords, $keytype, $type, $datestart, $dateend, $contr, $qid, $show, $stat, $catget, $mode, $page);
 }
 

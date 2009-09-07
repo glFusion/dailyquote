@@ -289,7 +289,7 @@ $LANG_configsections['dailyquote'] = array(
     'title' => 'Daily Quote Configuration'
 );
 
-$LANG_confignames['dailyquote'] = array(
+/*$LANG_confignames['dailyquote'] = array(
     'quoteperpage'      => 'Quotes per page to display',
     'searchlimit'       => 'Max search results to return',
     'submission'        => 'Use submission queue?',
@@ -322,7 +322,7 @@ $LANG_confignames['dailyquote'] = array(
 
     'defgrp'            => 'Default Group',
 
-);
+);*/
 
 $LANG_configsubgroups['dailyquote'] = array(
     'sg_main' => 'Main Settings'
@@ -346,6 +346,25 @@ $LANG_configselects['dailyquote'] = array(
     9 => array('Never' => 0, 'If Submission Queue' => 1, 'Always' => 2),
     10 => array('5' => 5, '10' => 10, '25' => 25, '50' => 50),
     12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3)
+);
+
+$LANG_confignames['dailyquote'] = array(
+    'indexdisplim' => 'Limit display on index page',
+    'searchdisplim' => 'Limit search results to',
+    'queue' => 'Use submission queue?',
+    'anonadd' => 'Allow anonymous users to add quotes?',
+    'anonview' => 'Allow anonymous users to view quotes?',
+    'loginadd' => 'Allow logged-in users to add quotes?',
+    'loginaddcat' => 'Allow logged-in users to add categories?',
+    'loginbatch' => 'Allow logged-in users to batch-add quotes?',
+    'cb_enable' => 'Enable Centerblock?',
+    'cb_pos' => 'Centerblock Position',
+    'cb_home' => 'Centerblock on home page only?',
+    'gglink' => 'Add Google links to quotes?',
+    'whatsnew' => 'Show Quotes in "What\'s New" block?',
+    'email_admin' => 'Notification Email to Admin?',
+    'defgrpad' => 'Default group set on new quotes',
+    'default_permissions' => 'Banner Default Permissions'
 );
 
 

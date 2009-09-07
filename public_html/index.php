@@ -14,6 +14,8 @@
 /** Import core glFusion functions */
 require_once('../lib-common.php');
 
+USES_dailyquote_functions();
+
 // Retrieve access settings
 $anonview = $_CONF_DQ['default_permissions'][3];
 if ($anonview < 2 && $_USER['uid'] < 2) {
@@ -73,18 +75,20 @@ function display_quote($sort, $asc, $page){
 
     if ($sort == '3') {
         //this sort option to be removed ... category index page is sufficient
-        $catcol = ", Name";
+        $catcol = ", name";
         $cattab = ", {$_TABLES['dailyquote_cat']} c";
         $catwh = " AND c.id=l.cid";
     }
 
     $sql = "SELECT DISTINCT 
-        q.id, content, quoted, title, source, sourcedate, dt, q.uid";
+        q.id, quote, quoted, title, source, sourcedate, dt, q.uid";
     if ($sort == '3') {
         $sql .= $catcol;
     }
-    $sql .= " FROM {$_TABLES['dailyquote_quotes']} q, 
-            {$_TABLES['dailyquote_lookup']} l";
+    /*$sql .= " FROM {$_TABLES['dailyquote_quotes']} q, 
+            {$_TABLES['dailyquote_lookup']} l";*/
+    $sql .= " FROM {$_TABLES['dailyquote_quotes']} q ";
+
     if ($sort == '3') {
         $sql .= $cattab;
     }
@@ -92,11 +96,11 @@ function display_quote($sort, $asc, $page){
     if ($sort == '3') {
         $sql .= $catwh;
     }
-    $sql .= " AND l.status='1' AND l.qid=q.id";
+    //$sql .= " AND l.status='1' AND l.qid=q.id";
 
     switch ($sort) {
     case 1:
-        $sorted = 'content';
+        $sorted = 'quote';
         break;
     case 2:
         $sorted = 'quoted';
@@ -129,19 +133,17 @@ function display_quote($sort, $asc, $page){
     $sql .= " LIMIT $limit, $displim";
 
     $result = DB_query($sql);
-    if (!$result){
+    if (!$result) {
         $retval = $LANG_DQ['disperror'];
         COM_errorLog("An error occured while retrieving list of quotes",1);
-    }
-
-    //display quotes if any to display
-    else {
+    } else {
+        //display quotes if any to display
         $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
         $T->set_file('page', 'dispquotesheader.thtml');
         $T->parse('output','page');
         $retval .= $T->finish($T->get_var('output'));
-        $numrows = DB_numRows($result);
-        if ($numrows>0){
+//        $numrows = DB_numRows($result);
+//        if ($numrows>0){
             $retval .= display_pagenav($sort, $asc, $page);
             while ($row = DB_fetchArray($result)){
                 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
@@ -152,7 +154,7 @@ function display_quote($sort, $asc, $page){
                     $title .= '</p>';
                     $T->set_var('title', $title);
                 }
-                $T->set_var('quote', $row['content']);
+                $T->set_var('quote', $row['quote']);
                 $quoted = ggllink($row['quoted']);
                 $T->set_var('quoted', $quoted);
                 if (!empty($row['Source'])){
@@ -203,12 +205,14 @@ function display_quote($sort, $asc, $page){
                 $retval .= $T->finish($T->get_var('output'));
             }
             $retval .= display_pagenav($sort, $asc, $page);
-        }
-        else $retval .= "<p align=\"center\">".$LANG_DQ['StatsMsg2']."</p>";
-            $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-            $T->set_file('page', 'dispquotesfooter.thtml');
-            $T->parse('output','page');
-            $retval .= $T->finish($T->get_var('output'));
+//        } else  {
+//            $retval .= "<p align=\"center\">".$LANG_DQ['StatsMsg2']."</p>";
+//        }
+
+        $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+        $T->set_file('page', 'dispquotesfooter.thtml');
+        $T->parse('output','page');
+        $retval .= $T->finish($T->get_var('output'));
     }
     return $retval;
 }
@@ -242,7 +246,7 @@ $T->set_var('indexintro', $LANG_DQ['indexintro']);
 $T->parse('output','page');
 $display .= $T->finish($T->get_var('output'));
 
-$display .= random_quote($id);
+$display .= DQ_random_quote($id);
 
 //display the sort by menu
 $display .= sort_by_menu();

@@ -69,18 +69,20 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
         $T->set_var('catinput', '<input name="cat[]" type="text" size="18" value="" />');
     } else {
         //check perm to create category
-        if (!$query = DB_query("SELECT loginaddcat 
-                                FROM {$_TABLES['dailyquote_settings']}")) {
-            $errstatus = 1;
-        } else {
-            list($loginaddcat) = DB_fetchArray($query);
-            if (($loginaddcat == 0) && (!SEC_hasRights('dailyquote.edit'))){
+        //if (!$query = DB_query("SELECT loginaddcat 
+        //                        FROM {$_TABLES['dailyquote_settings']}")) {
+        //if (!$_CONF_DQ['loginaddcat']) {
+        //    $errstatus = 1;
+        //} else {
+            //list($loginaddcat) = DB_fetchArray($query);
+            if ($_CONF_DQ['loginaddcat'] == 0 && 
+                    !SEC_hasRights('dailyquote.edit')) {
                 $T->set_var('choosecat', $LANG_DQ['choosecat']);
             } else {
                 $T->set_var('choosecat', $LANG_DQ['choosecat1']);
                 $T->set_var('catinput', '<input name="cat[]" type="text" size="18" value="" />');
             }
-        }
+        //}
     }
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
@@ -102,7 +104,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
         while ($row = DB_fetchArray($result)) {
             $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
             $T->set_file('page', 'catoption.thtml');
-            if ($chkst = DB_query(
+            /*if ($chkst = DB_query(
                     "SELECT * FROM {$_TABLES['dailyquote_lookup']} 
                     WHERE cid='{$row['id']}' 
                     AND status='0' 
@@ -110,12 +112,18 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
                 if (DB_numRows($chkst) > 0) {
                     $T->set_var('discat', ' color: #808080;');
                 }
+            }*/
+            if (DB_getItem($_TABLES['dailyquote_lookup'], 'qid', 
+                    "cid={$row['id']} AND qid = '{$A['id']}'") == $A['id']) {
+                $T->set_var('checked', ' checked ');
+            } else {
+                $T->set_var('checked', '');
             }
             $T->set_var('catoption', $row['name']);
             $T->parse('output','page');
             $retval .= $T->finish($T->get_var('output'));
             $i++;
-            if (($i % $down === 0) && ($i % $colnum !== 0)){
+            if ($i % $down === 0 && $i % $colnum !== 0) {
                 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
                 $T->set_file('page', 'addcol2.thtml');
                 $T->parse('output','page');
