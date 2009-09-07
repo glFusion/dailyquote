@@ -16,6 +16,7 @@ require_once('../../../lib-common.php');
 /** Import database functions - DEPRECATED */
 require_once('dqdatabase.php');
 
+USES_dailyquote_class_quote();
 
 /**
 *   Create an admin list of quotes
@@ -82,7 +83,6 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
     switch($fieldname) {
     case 'edit':
-var_dump($icon_arr);
         $retval .= COM_createLink(
             $icon_arr['edit'],
             "{$_CONF['site_admin_url']}/plugins/dailyquote/index.php?mode=edit&amp;id={$A['id']}"
@@ -100,9 +100,15 @@ var_dump($icon_arr);
                 "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
                 "\"quote\", \"{$_CONF['site_url']}\");'>\n" .
                 "</span>\n";
-        $retval .= COM_createLink(
-            $_CONF['site_url'].'/dailyquote/images/delete.png',
-            'http://www.leegarner.com');
+        $retval .= COM_createLink(COM_createImage(
+                $_CONF['site_url'].'/dailyquote/images/deleteitem.png',
+                'Delete this quote',
+            array('class'=>'gl_mootip',
+                'onclick'=>'return confirm(\'Do you really want to delete this item?\');',
+                'title' => 'Delete this quote',
+            )),
+            $pi_admin_url . '?mode=deletequote&id=' . $A['id']
+        );
 /*        $retval .= '<form action={action_url} method="post">
             <input type=hidden name="id" value="' . $A['id'] . '">
             <input type=hidden name="action" value="deletequote">
@@ -138,7 +144,7 @@ var_dump($icon_arr);
 *   MAIN
 */
 // If plugin is installed but not enabled, display an error and exit gracefully
-if (!in_array($_CONF_DQ['pi_name'], $_PLUGINS)) {
+if (!in_array('dailyquote', $_PLUGINS)) {
     $display = COM_siteHeader();
     $display .= "<span class=\"alert\">";
     $display .= COM_startBlock ('Alert');
@@ -186,12 +192,36 @@ $admin_url = $_CONF['site_admin_url']. '/plugins/'.
 
 switch ($mode) {
 case 'edit':
+case 'editsubmission':
+    // These just pass the page name to the next switch block
+    break;
+
+case $LANG_ADMIN['save']:
+case $LANG12[8]:
     if ($q_id != '') {
-        $result = DB_query("SELECT * from {$_TABLES['dailyquote_quotes']}
+        USES_dailyquote_functions();
+        DQ_updateQuote($_POST);
+    }
+    break;
+
+case 'deletequote':
+    DailyQuote::Delete($_REQUEST['id']);
+    break;
+
+default:
+    $page = 'adminlist';
+    break;
+}
+
+switch ($page) {
+case 'edit':
+    if ($q_id != '') {
+        $A = DailyQuote::getQuote($q_id);
+        /*$result = DB_query("SELECT * from {$_TABLES['dailyquote_quotes']}
                 WHERE ID='$q_id'");
         if ($result && DB_numRows($result) == 1) {
             $A = DB_fetchArray($result);
-        }
+        }*/
     }
     USES_dailyquote_submitform();
     $content .= DQ_editForm($mode, $A, true);
@@ -209,20 +239,11 @@ case 'editsubmission':
     $content .= DQ_editForm($mode, $A, true);
     break;
 
-case $LANG_ADMIN['save']:
-case $LANG12[8]:
-    if ($q_id != '') {
-        USES_dailyquote_functions();
-        DQ_updateQuote($_POST);
-    }
-    $content .= DQ_adminList();
-    break;
-
+case 'adminlist':
 default:
     $content .= DQ_adminList();
     break;
 }
-
 
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
 $T->set_file('page', 'dqheader.thtml');
@@ -257,4 +278,5 @@ $display .= $T->finish($T->get_var('output'));*/
 $display .= COM_siteFooter();
 
 echo $display;
+
 ?>
