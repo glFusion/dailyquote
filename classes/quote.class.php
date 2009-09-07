@@ -1,7 +1,7 @@
 <?php
 //  $Id$
 /**
-*   Class to handle banner ads
+*   Class to handle quotes
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
@@ -244,7 +244,7 @@ class DailyQuote
         DB_query($sql);
 
         // Add categories
-        $catlist = array();     // used to populate lookup table
+        /*$catlist = array();     // used to populate lookup table
         if (empty($A['cat'][0]))
             $A['cat'][0] = 'Miscellaneous';
         foreach ($A['cat'] as $key=>$catname) {
@@ -280,17 +280,20 @@ class DailyQuote
 
             if (DB_error())
                 return DB_error();
-        }
+        }*/
+
+        DB_delete($_TABLES['dailyquote_category'], 'qid', $A['id']);
 
         // Now, add records to the lookup table to link the categories
         // to the quote.  Only if bypassing the submission queue; if
         // the queue is used $catlist will be empty.
-        if (!empty($catlist)) {
-            foreach($catlist as $catid) {
+        if (is_array($A['cat'])) {
+            foreach($A['cat'] as $key => $name) {
+                $key = (int)$key;
                 $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
                         (qid, cid, uid, status)
                     VALUES (
-                        '{$A['id']}', $catid, {$A['uid']}, 1
+                        '{$A['id']}', $key, {$A['uid']}, 1
                     )";
                 //echo $sql;
                 @DB_query($sql);
@@ -314,10 +317,7 @@ class DailyQuote
         global $_TABLES;
 
         //get random quote
-        $sql = "SELECT 
-                    q.quote, q.source, q.quoted, q.title, 
-                    q.source, q.sourcedate, 
-                    q.dt
+        $sql = "SELECT  q.*
                 FROM 
                     {$_TABLES['dailyquote_quotes']} q 
                 WHERE 

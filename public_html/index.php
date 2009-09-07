@@ -14,6 +14,7 @@
 /** Import core glFusion functions */
 require_once('../lib-common.php');
 
+USES_dailyquote_class_quote();
 USES_dailyquote_functions();
 
 // Retrieve access settings
@@ -73,29 +74,29 @@ function display_quote($sort, $asc, $page){
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
     global $_SYSTEM, $_USER;
 
-    if ($sort == '3') {
+    /*if ($sort == '3') {
         //this sort option to be removed ... category index page is sufficient
         $catcol = ", name";
         $cattab = ", {$_TABLES['dailyquote_cat']} c";
         $catwh = " AND c.id=l.cid";
-    }
+    }*/
 
     $sql = "SELECT DISTINCT 
         q.id, quote, quoted, title, source, sourcedate, dt, q.uid";
-    if ($sort == '3') {
+    /*if ($sort == '3') {
         $sql .= $catcol;
-    }
+    }*/
     /*$sql .= " FROM {$_TABLES['dailyquote_quotes']} q, 
             {$_TABLES['dailyquote_lookup']} l";*/
     $sql .= " FROM {$_TABLES['dailyquote_quotes']} q ";
 
-    if ($sort == '3') {
+    /*if ($sort == '3') {
         $sql .= $cattab;
-    }
+    }*/
     $sql .= " WHERE q.status='1'";
-    if ($sort == '3') {
+    /*if ($sort == '3') {
         $sql .= $catwh;
-    }
+    }*/
     //$sql .= " AND l.status='1' AND l.qid=q.id";
 
     switch ($sort) {
@@ -171,7 +172,7 @@ function display_quote($sort, $asc, $page){
                 $username = prflink($uid,$username);
                 $T->set_var('contr', $username);
                 $T->set_var('datecontr', strftime($_CONF['shortdate'], $row['Date']));
-                $cat = DB_query("SELECT c.id, c.name 
+                /*$cat = DB_query("SELECT c.id, c.name 
                                 FROM {$_TABLES['dailyquote_cat']} c, 
                                     {$_TABLES['dailyquote_lookup']} l 
                                 WHERE 
@@ -191,7 +192,7 @@ function display_quote($sort, $asc, $page){
                     $i++;
                 }
                 $T->set_var('cat', $LANG_DQ['cat']);
-                $T->set_var('dispcat', $catlist);
+                $T->set_var('dispcat', $catlist);*/
                 if(SEC_hasRights('dailyquote.edit')){
                     $editlink = '<a href="' . $_CONF['site_url'] . '/dailyquote/manage.php?qid=';
                     $editlink .= $row['ID'] . '">';
@@ -242,7 +243,8 @@ if (isset($_GET['msg'])){
 }
 
 $T->set_var('indextitle', $LANG_DQ['indextitle']);
-$T->set_var('indexintro', $LANG_DQ['indexintro']);
+$T->set_var('indexintro', sprintf($LANG_DQ['indexintro'], 
+    $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']));
 $T->parse('output','page');
 $display .= $T->finish($T->get_var('output'));
 

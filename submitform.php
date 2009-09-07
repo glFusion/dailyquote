@@ -30,10 +30,19 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
     $T->set_file('page', 'editform.thtml');
 
     if ($admin) {
-        $T->set_var('action_url', $_CONF['site_admin_url']. '/plugins/'. $_CONF_DQ['pi_name']. '/index.php');
+        if ($mode == 'editsubmission') {
+            $action_url = $_CONF['site_url'] . '/moderation.php';
+            $mode = 'moderation';
+        } else {
+            $action_url = $_CONF['site_admin_url']. '/plugins/'. 
+                    $_CONF_DQ['pi_name']. '/index.php';
+        }
     } else {
-        $T->set_var('action_url', $_CONF['site_url']. '/plugins/'. $_CONF_DQ['pi_name']. '/index.php');
+        $action_url = $_CONF['site_url']. '/submit.php';
     }
+    $T->set_var('action_url', $action_url);
+    $T->set_var('mode', $mode);
+
     // Load existing values, if any
     if (is_array($A) && !empty($A)) {
         $T->set_var('quote', $A['quote']);
@@ -54,7 +63,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
     $T->set_var('pi_name', $_CONF_DQ['pi_name']);
 
     //retrieve categories from db if any and display
-    if (!$result = DB_query("SELECT id, name 
+    /*if (!$result = DB_query("SELECT id, name 
                             FROM {$_TABLES['dailyquote_cat']} 
                             WHERE status='1' 
                             ORDER BY name")) {
@@ -83,7 +92,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
                 $T->set_var('catinput', '<input name="cat[]" type="text" size="18" value="" />');
             }
         //}
-    }
+    }*/
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
 
@@ -140,14 +149,14 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
 
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+    /*$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
     if ($mode == 'editsubmission') {
         $T->set_file('page', 'closeeditsubmission.thtml');
     } else {
         $T->set_file('page', 'addformfooter.thtml');
     }
     $T->parse('output','page');
-    $retval .= $T->finish($T->get_var('output'));
+    $retval .= $T->finish($T->get_var('output'));*/
 
     return $retval;
 }

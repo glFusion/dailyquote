@@ -191,11 +191,6 @@ $admin_url = $_CONF['site_admin_url']. '/plugins/'.
 
 
 switch ($mode) {
-case 'edit':
-case 'editsubmission':
-    // These just pass the page name to the next switch block
-    break;
-
 case $LANG_ADMIN['save']:
 case $LANG12[8]:
     if ($q_id != '') {
@@ -208,10 +203,20 @@ case 'deletequote':
     DailyQuote::Delete($_REQUEST['id']);
     break;
 
-default:
-    $page = 'adminlist';
+case 'savecategory':
+    USES_dailyquote_class_category();
+    $C = new Category($_POST['id']);
+    $C->Save($_POST);
+    $page = 'categories';
+    break;
+
+case 'deletecat':
+    USES_dailyquote_class_category();
+    Category::Delete($_REQUEST['id']);
+    $page = 'categories';
     break;
 }
+
 
 switch ($page) {
 case 'edit':
@@ -239,6 +244,17 @@ case 'editsubmission':
     $content .= DQ_editForm($mode, $A, true);
     break;
 
+case 'categories':
+    USES_dailyquote_class_category();
+    $content .= Category::AdminList();
+    break;
+
+case 'editcategory':
+    USES_dailyquote_class_category();
+    $C = new Category($q_id);
+    $content .= $C->EditForm();
+    break;
+
 case 'adminlist':
 default:
     $content .= DQ_adminList();
@@ -257,13 +273,13 @@ $T->parse('output','page');
 $display = COM_siteHeader();
 //$display .= $T->finish($T->get_var('output'));
 
-if (isset($_POST['submit'])){
+/*if (isset($_POST['submit'])){
     if ($_POST['submit'] == $LANG_DQ['update']){
         $display .= update_config();
     } elseif ($_POST['submit'] == $LANG_DQ['default']){
         $display .= default_cfg();
     }
-}
+}*/
 //$display .= link_row();
 
 //$display .= config_form();

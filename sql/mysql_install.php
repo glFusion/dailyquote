@@ -44,7 +44,7 @@ $_SQL['dailyquote_submission'] =
 // Categories Table
 $_SQL['dailyquote_cat'] = 
   "CREATE TABLE {$_TABLES['dailyquote_cat']} (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  id VARCHAR(40) NOT NULL PRIMARY KEY,
   name VARCHAR(64) NOT NULL default 'Miscellany',
   status TINYINT(1) NOT NULL default '1',
   UNIQUE idx_name (name(10))
@@ -54,7 +54,7 @@ $_SQL['dailyquote_cat'] =
 $_SQL['dailyquote_lookup'] = 
   "CREATE TABLE {$_TABLES['dailyquote_lookup']} (
   qid VARCHAR(40) NOT NULL,
-  cid INT UNSIGNED NOT NULL,
+  cid VARCHAR(40) UNSIGNED NOT NULL,
   uid INT UNSIGNED NOT NULL,
   status TINYINT(1) UNSIGNED NOT NULL default '1',
   PRIMARY KEY(qid,cid,uid)

@@ -15,10 +15,10 @@ if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
 }
 
-//  Check and see if we need to load the plugin configuration
 /** @global array $_CONF_DQ */
 global $_CONF_DQ;
 
+//  Check and see if we need to load the plugin configuration
 if (!isset($_CONF_DQ['quoteperpage'])) {
     /** Import configuration-handling class */
     require_once $_CONF['path_system'] . 'classes/config.class.php';
@@ -47,6 +47,8 @@ require_once "$langpath/$langfile";
 
 define('DQ_PI_PATH', 
     $_CONF['path'].'plugins/'.$_CONF_DQ['pi_name']);
+define('DQ_ADMIN_URL', 
+    $_CONF['site_url'].'/admin/plugins/'.$_CONF_DQ['pi_name']);
 
 function USES_dailyquote_submitform()
 {
@@ -61,6 +63,11 @@ function USES_dailyquote_functions()
 function USES_dailyquote_class_quote()
 {
     include_once DQ_PI_PATH . '/classes/quote.class.php';
+}
+
+function USES_dailyquote_class_category()
+{
+    include_once DQ_PI_PATH . '/classes/category.class.php';
 }
 
 
@@ -233,21 +240,27 @@ function plugin_getadminoption_dailyquote()
 *
 * @return   array   Array containing (plugin name, plugin user url, 0)
 */
-function plugin_getuseroption_dailyquote()
+function X_plugin_getuseroption_dailyquote()
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
 
+    $url = '';
     if (SEC_hasRights('dailyquote.edit')) {
         $url = $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name'] . '/manage.php';
     } elseif ($_CONF_DQ['anonadd'] == '1' || 
             ($_CONF_DQ['loginadd'] == '1' && !COM_isAnonUser()) || 
             SEC_hasRights('dailyquote.add')) {
-        $url = $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name'] . '/add.php'; 
+        //$url = $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name'] . '/add.php'; 
+        $url = $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name'] . '/index.php'; 
     }
-    return array(
-        $LANG_DQ['plugin_name'],
-        $url,
-        0);
+    if ($url != '') {
+        return array(
+            $LANG_DQ['plugin_name'],
+            $url,
+            0);
+    } else {
+        return array();
+    }
 }
 
 
@@ -475,8 +488,8 @@ function plugin_autouninstall_dailyquote()
     $out = array (
         'tables'    => array($_CONF_DQ['pi_name']. '_quotes',
                             $_CONF_DQ['pi_name']. '_submission',
-                            $_CONF_DQ['pi_name']. '_category',
-                            $_CONF_DQ['pi_name']. '_lookup',
+                            //$_CONF_DQ['pi_name']. '_category',
+                            //$_CONF_DQ['pi_name']. '_lookup',
                         ),
         'groups'    => array($_CONF_DQ['pi_name'] . ' Admin'),
         'features'  => array($_CONF_DQ['pi_name'] . '.add', 
@@ -513,9 +526,11 @@ function plugin_uninstall_dailyquote($installCheck='')
     global $_TABLES, $LANG_DQ00, $LANG_DQ, $_CONF_DQ;
 
     $pi_name=addslashes($_CONF_DQ['pi_name']);
-    $FEATURES = array ( 'dailyquote.edit', 'dailyquote.view', 'dailyquote.add');
-    $TABLES = array ('dailyquote_quotes', 'dailyquote_submission', 
-            'dailyquote_cat','dailyquote_lookup');
+    $FEATURES = array( 'dailyquote.edit', 'dailyquote.view', 'dailyquote.add');
+    $TABLES = array('dailyquote_quotes', 
+                'dailyquote_submission', 
+                //'dailyquote_cat',
+                'dailyquote_lookup');
     
     // Check and see if plugin is still enabled - if so display warning and exit
     if ($installCheck != '' && DB_getItem($_TABLES['plugins'],'pi_enabled', 'pi_name = "' .$pi_name. '"')) {
@@ -970,7 +985,7 @@ function link_row()
         $T->set_var('indexlink', $index);
     }
     //link to the catlist page
-    if (!eregi('catindex', $_SERVER['REQUEST_URI'])) {
+    /*if (!eregi('catindex', $_SERVER['REQUEST_URI'])) {
         $catnum = DB_count($_TABLES['dailyquote_cat'], 'Status', '1');
         if ($catnum > '1') {
             $catlst = "&nbsp;&nbsp;<a href=\"" . $_CONF['site_url'] . "/dailyquote/catindex.php\">";
@@ -980,9 +995,9 @@ function link_row()
             $catlst .= "</a>&nbsp;&nbsp;";
             $T->set_var('catindexlink', $catlst);
         }
-    } else {
+    } else {*/
         $T->set_var('indexlink', $index);
-    }
+    //}
 
     $T->parse('output','page');
     $retval = $T->finish($T->get_var('output'));
@@ -1099,7 +1114,7 @@ function plugin_moderationvalues_dailyquote()
     return array(
         'id', 
         $_TABLES['dailyquote_quotes'], 
-        'id, source, quoted, title, source, sourcedate, dt, uid',
+        'id, quote, quoted, title, source, sourcedate, dt, uid',
         $_TABLES['dailyquote_submission']);
 }
 
@@ -1162,7 +1177,7 @@ function plugin_moderationapprove_dailyquote($id, $owner_id=0)
             SET status = 1
             WHERE id='$id'");
 
-    $sql = "SELECT name
+    /*$sql = "SELECT name
            FROM {$_TABLES['dailyquote_cat_sub']}
            WHERE qid = '$id'";
     $result = DB_query($sql);
@@ -1200,7 +1215,7 @@ function plugin_moderationapprove_dailyquote($id, $owner_id=0)
     // Finally, delete the category submissions
     DB_query("DELETE FROM {$_TABLES['dailyquote_cat_sub']}
             WHERE qid='$id'");
-
+    */
     return '';
 }
 
@@ -1252,7 +1267,7 @@ function plugin_savesubmission_dailyquote($A)
     }
 
     // Determine which table and success message to display
-    if (SEC_hasRights($_CONF_DQ['pi_name']. '.submit') || $_CONF_DQ['submission'] == false) {
+    if (SEC_hasRights($_CONF_DQ['pi_name']. '.submit') || $_CONF_DQ['queue'] == false) {
         $table = 'dailyquote_quote';
         $msg = '02';    // "ad has been save" message
     } else {
