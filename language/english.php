@@ -32,8 +32,8 @@ $LANG_DQ00 = array (
 );
 
 $LANG_DQ= array(
-'absentfile'            => 'Error: You must specify a file to upload.',
-'add2intro'             => 'You may import a batch of quotations into the database using this form.  Simply import your tab-delimited text file into the box below ensuring that there is only one entry per line.  Each line, therefore, must contain a value for the following fields: quotation; name of person being quoted; category; title; source; and source date--in that order.  If the second field is left blank, &quot;Unknown&quot; will be used.  Please do not enclose your quotation inside quotation marks.  You can view an example text file at the bottom of this page.',
+    'absentfile'            => 'Error: You must specify a file to upload.',
+    'add2intro'             => 'You may import a batch of quotations into the database using this form.  Simply import your tab-delimited text file into the box below ensuring that there is only one entry per line.  Each line, therefore, must contain a value for the following fields: quotation; name of person being quoted; category; title; source; and source date--in that order.  If the second field is left blank, &quot;Unknown&quot; will be used.  Please do not enclose your quotation inside quotation marks.  You can view an example text file at the bottom of this page.',
     'addcat'                => 'New Category',
     'addcaterr'             => 'An error has occurred while attempting to add your category to the database.',
     'addcatsuc'             => 'Your category has been successfully added to the database.  Add another?',
@@ -343,6 +343,7 @@ $LANG_configselects['dailyquote'] = array(
     3 => array('Yes' => 1, 'No' => 0),
     4 => array('On' => 1, 'Off' => 0),
     5 => array('Top of Page' => 1, 'Below Featured Article' => 2, 'Bottom of Page' => 3),
+    9 => array('Never' => 0, 'If Submission Queue' => 1, 'Always' => 2),
     10 => array('5' => 5, '10' => 10, '25' => 25, '50' => 50),
     12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3)
 );

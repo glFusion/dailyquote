@@ -31,6 +31,7 @@ $_CONF_DQ['pi_version'] = '0.01';
 $_CONF_DQ['pi_name'] = 'dailyquote';
 $_CONF_DQ['gl_version'] = '1.1.4';
 $_CONF_DQ['pi_url'] = 'http://www.leegarner.com';
+$_CONF_DQ['pi_display_name'] = 'Daily Quotes';
 
 
 // Temporary storage for items yet to be moved to the configuration system

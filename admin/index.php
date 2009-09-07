@@ -429,17 +429,17 @@ function DQ_adminList()
     global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
     global $_CONF_DQ, $LANG_DQ;
 
-    require_once $_CONF['path_system'] . 'lib-admin.php';
+    USES_lib_admin();
 
     $retval = '';
 
     $header_arr = array(      # display 'text' and use table field 'field'
         array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
-        array('text' => 'Quote ID', 'field' => 'ID', 'sort' => true),
-        array('text' => 'Date', 'field' => 'Date', 'sort' => true),
-        array('text' => 'Quoted', 'field' => 'Quoted', 'sort' => true),
-        array('text' => 'Title', 'field' => 'Title', 'sort' => true),
-        array('text' => 'Content', 'field' => 'Quotes', 'sort' => true),
+        array('text' => 'Quote ID', 'field' => 'id', 'sort' => true),
+        array('text' => 'Date', 'field' => 'dt', 'sort' => true),
+        array('text' => 'Quoted', 'field' => 'quoted', 'sort' => true),
+        array('text' => 'Title', 'field' => 'title', 'sort' => true),
+        array('text' => 'Content', 'field' => 'quotes', 'sort' => true),
         //array('text' => $LANG_ACCESS['access'], 'field' => 'access', 'sort' => false)
     );
 
@@ -448,7 +448,7 @@ function DQ_adminList()
               'text' => $LANG_DQ['newquote'])
     );
 
-    $defsort_arr = array('field' => 'date', 'direction' => 'desc');
+    $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
 
     $menu_arr[] = array('url' => $_CONF['site_admin_url'],
                         'text' => $LANG_ADMIN['admin_home']);
@@ -464,7 +464,7 @@ function DQ_adminList()
 
     $query_arr = array('table' => 'dailyquote',
         'sql' => "SELECT * FROM {$_TABLES['dailyquote_quotes']} ",
-        'query_fields' => array('Title', 'Quotes', 'Quoted'),
+        'query_fields' => array('title', 'quotes', 'quoted'),
         'default_filter' => 'WHERE 1=1'
         //'default_filter' => COM_getPermSql ()
     );
@@ -477,10 +477,8 @@ function DQ_adminList()
 }
 
 /**
-* Main 
+*   MAIN
 */
-
-
 // If plugin is installed but not enabled, display an error and exit gracefully
 if (!in_array($_CONF_DQ['pi_name'], $_PLUGINS)) {
     $display = COM_siteHeader();
@@ -494,7 +492,6 @@ if (!in_array($_CONF_DQ['pi_name'], $_PLUGINS)) {
     exit;
 }
 
-$plugin_path = "{$_CONF['path']}plugins/{$_CONF_DQ['pi_name']}";
 // Only let admin users access this page
 if (!SEC_inGroup('Root')) {
     // Someone is trying to illegally access this page
@@ -538,7 +535,7 @@ case 'edit':
             $A = DB_fetchArray($result);
         }
     }
-    include_once $plugin_path . '/submitform.php';
+    USES_dailyquote_submitform();
     $content .= DQ_editForm($mode, $A, true);
     break;
 
@@ -550,7 +547,7 @@ case 'editsubmission':
             $A = DB_fetchArray($result);
         }
     }
-    include_once $plugin_path . '/submitform.php';
+    USES_dailyquote_submitform();
     $content .= DQ_editForm($mode, $A, true);
     break;
 

@@ -1,0 +1,21 @@
+<br />
+<h2>{$LANG_DQ['addquote']}<br />
+<span style="font-weight: normal;">{$LANG_DQ['nomarks']}</span></h2>
+<form action="{action_url}" method="POST">
+  {hidden_vars}
+  <input type="hidden" name="type" value="{pi_name}">
+  <input type="hidden" name="uid" value="{uid}">
+  <label for="title" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addtitle']}:&nbsp;&nbsp;</label>
+  <input name="title" type="text" size="32" value="{title}" /><br /><br />
+  <label for="quote" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['quotation']}:&nbsp;&nbsp;</label>
+  <textarea name="quote" cols="65" rows="6" wrap="virtual">{quote}</textarea><br /><br />
+  <label for="quoted" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['quoted']}:&nbsp;&nbsp;</label>
+  <input name="quoted" type="text" size="32" value="{quoted}" /><br /><br />
+  <label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addsource']}:&nbsp;&nbsp;</label>
+  <input name="source" type="text" size="32" value="{source}" /><br /><br />
+  <label for="sourcedate" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addsourcedate']}:&nbsp;&nbsp;</label>
+  <input name="sourcedate" type="text" size="32" value="{sourcedate}" />
+  <span style="color: red; text-align: center;">{$LANG_DQ['srcdateformat']}</span><br /><br />
+  <label for="cat" style="display: inline; font-weight: bold;">{choosecat}{firstcat}:&nbsp;&nbsp;</label>
+  {catinput}<br /><br />
+

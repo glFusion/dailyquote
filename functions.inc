@@ -45,6 +45,14 @@ if (!file_exists($langfile)) {
 require_once "$langpath/$langfile";
 
 
+define('DQ_PI_PATH', 
+    $_CONF['path'].'plugins/'.$_CONF_DQ['pi_name']);
+
+function USES_dailyquote_submitform()
+{
+    include_once DQ_PI_PATH . '/submitform.php';
+}
+
 
 /**
 *   Returns the items for this plugin that should appear on the main menu.
@@ -52,27 +60,20 @@ require_once "$langpath/$langfile";
 *   NOTE: this MUST return the url/value pairs in the following format
 *   $<arrayname>[<label>] = <url>
 *
-*   @todo   Get anonview setting from configuration system
 *   @return    array   Associative array of menu items to be added to menu
 */
 function plugin_getmenuitems_dailyquote()
 {
-    global $_CONF, $_USER, $LANG_DQ, $_TABLES;
+    global $_CONF, $LANG_DQ;
 
-    // TODO: Get this from $_CONF_DQ
-    // Retrieve access Settings
-    $query = DB_query("SELECT anonview FROM {$_TABLES['dailyquote_settings']}");
-    list($anonview) = DB_fetchArray($query);
-
-    $menulabel = "{$LANG_DQ['menulabel']}";
-    $menurul = $_CONF['site_url'] . "/dailyquote/index.php";
-    
     $menuitems = array();
 
     // Check user has rights to view this cb, if so, do it.
-    if ($anonview == '1' || !COM_isAnonUser()) {
-        $menuitems["$menulabel"] = $menurul;
+    if ($_CONF_DQ['anonview'] == '1' || !COM_isAnonUser()) {
+        $menuitems[$LANG_DQ['menulable']] = 
+            $_CONF['site_url'] . "/dailyquote/index.php";
     }
+
     return $menuitems;
 }
 
@@ -175,7 +176,7 @@ function plugin_cclabel_dailyquote()
     return array(
         $LANG_DQ['plugin_name'],
         $_CONF['site_admin_url'] . '/plugins/' . $_CONF_DQ['pi_name'] . '/index.php',
-        $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name']. '/images/dailyquote.gif'
+        $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name']. '/images/dailyquote.png'
     );
 }
 
@@ -208,11 +209,7 @@ function plugin_getadminoption_dailyquote()
 */
 function plugin_getuseroption_dailyquote()
 {
-    global $_CONF, $_USER, $LANG_DQ, $_TABLES, $_CONF_DQ;
-
-    // Retrieve access settings
-    $query = DB_query("SELECT anonadd, loginadd FROM {$_TABLES['dailyquote_settings']}");
-    list($anonadd,$loginadd) = DB_fetchArray($query);
+    global $_CONF, $LANG_DQ, $_CONF_DQ;
 
     if (SEC_hasRights('dailyquote.edit')) {
         return array(
@@ -220,9 +217,9 @@ function plugin_getuseroption_dailyquote()
             $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name'] . '/manage.php', 
             0
         );
-    } elseif (($anonadd == '1') && ($_USER['uid'] < 2) || 
-            ($loginadd == '1' && $_USER['uid'] > 2) || 
-            SEC_hasRights('dailyquote.add')
+    } elseif ($_CONF_DQ['anonadd'] == '1' ||
+                ($_CONF_DQ['loginadd'] == '1' && !COM_isAnonUser()) || 
+                SEC_hasRights('dailyquote.add') 
         ) {
         return array(
             $LANG_DQ['user_menu1'], 
@@ -236,19 +233,16 @@ function plugin_getuseroption_dailyquote()
 //adds variables to the user's profile
 function plugin_profilevariablesdisplay_dailyquote($uid, &$template)
 {
-    global $_TABLES, $_CONF, $LANG_DQ, $_USER, $_CONF_DQ;
-
-    // Retrieve access Settings
-    $anonview = DB_getItem($_TABLES['dailyquote_settings'],'anonview');
+    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
 
     // Check user has rights to view this, if so, do it.
-    if (($anonview == '1') || ($_USER['uid'] >= '2')) {
+    if ($$_CONF_DQ['anonview'] == '1' || !COM_isAnonUser()) {
         $postlimit="10";        // How many posts you want displayed
 
-        $query = DB_query ("SELECT id, Quotes, Date 
+        $query = DB_query ("SELECT id, source, dt 
                 FROM {$_TABLES['dailyquote_quotes']} 
-                WHERE UID='$uid' AND Status='1' 
-                ORDER BY Date DESC 
+                WHERE uid='$uid' AND status='1' 
+                ORDER BY dt DESC 
                 LIMIT {$postlimit}");
         //************************
         $template->set_var ('end_block', COM_endBlock());
@@ -288,13 +282,10 @@ function plugin_profilevariablesdisplay_dailyquote($uid, &$template)
 //addds total stats to the user's profile
 function plugin_profilestatsvariablesdisplay_dailyquote ($uid, &$template)
 {
-    global $LANG_DQ, $_TABLES, $_USER;
-
-    // Retrieve access Settings
-    $anonview = DB_getItem($_TABLES['dailyquote_settings'],'anonview');
+    global $LANG_DQ, $_TABLES;
 
     // Check user has rights to view this, if so, do it.
-    if (($anonview == '1') || ($_USER['uid'] > '1')) {
+    if ($_CONF_DQ['anonview'] == '1' || !COM_isAnonUser()) {
         $count = DB_count ($_TABLES['dailyquote_quotes'], array('UID', 'Status'), array($uid, '1'));
         $template->set_var ('lang_number_plugin', $LANG_DQ['profnumqtxt']);
         $template->set_var ('number_plugin', $count);
@@ -343,13 +334,8 @@ function plugin_dopluginsearch_dailyquote(
 {
     global $_TABLES, $_CONF, $_USER, $LANG_DQ00, $LANG_DQ, $_CONF_DQ;
 
-    // Retrieve access Settings
-    //$access = DB_query("SELECT anonview FROM {$_TABLES['dailyquote_settings']}");
-    //list($anonview) = DB_fetchArray($access);
-    $anonview = 1;
-
     // Check user has rights to view this results, if so, do it.
-    if ($anonview != 1  && COM_isAnonUser()) {
+    if ($_CONF_DQ['anonview'] != 1  && COM_isAnonUser()) {
         return '';
     }
 
@@ -357,14 +343,14 @@ function plugin_dopluginsearch_dailyquote(
 
     // Build search SQL
     $sql = "SELECT 
-            q.id as id, q.Quotes as description, 
-            q.Title as title, q.UID as uid, 
-            q.Date as date,
+            q.id as id, q.source as description, 
+            q.title as title, q.uid as uid, 
+            q.dt as date,
             CONCAT('/{$_CONF_DQ['pi_name']}/index.php?mode=detail&id=',q.id,'&query=$htmlquery') as url
         FROM 
             {$_TABLES['dailyquote_quotes']} q
         WHERE 
-            q.Status = 1
+            q.status = 1
     ";
 
     if (!empty($datestart) && !empty($dateend)) {
@@ -373,15 +359,15 @@ function plugin_dopluginsearch_dailyquote(
             $DE = explode($delim,$dateend);
             $startdate = mktime(0,0,0,$DS[1],$DS[2],$DS[0]);
             $enddate = mktime(0,0,0,$DE[1],$DE[2],$DE[0]) + 3600;
-            $sql .= " AND (q.Date BETWEEN '$startdate' AND '$enddate') ";
+            $sql .= " AND (q.dt BETWEEN '$startdate' AND '$enddate') ";
     }
 
     if (!empty($author)) {
-        $sql .= " AND (q.UID='$author') ";
+        $sql .= " AND (q.uid='$author') ";
     }
 
     $search = new SearchCriteria($_CONF_DQ['pi_name'], $LANG_DQ['plugin_name']);
-    $columns = array('q.Title', 'q.Quotes', 'q.Quoted');
+    $columns = array('q.title', 'q.source', 'q.quoted');
     list($sql, $ftsql) = $search->buildSearchSQL($keyType, $query, $columns, $sql);
     //echo $sql;
     $search->setSQL($sql);
@@ -396,15 +382,15 @@ function plugin_dopluginsearch_dailyquote(
 */
 function plugin_whatsnewsupported_dailyquote()
 {
-    global $_CONF, $_TABLES, $LANG_DQ, $_CONF_DQ, $_USER;
+    global $_CONF, $LANG_DQ, $_CONF_DQ;
 
-    $result = DB_query("SELECT anonview, whatsnew FROM {$_TABLES['dailyquote_settings']}");
-    list($anonview,$whatsnew) = DB_fetchArray($result);
-
-    if ((!$result) || ($whatsnew == '0') || (($anonview == '0') && ($_USER['uid'] < 2))) {
+    if ($_CONF_DQ['whatsnew'] == '0' || 
+            ($_CONF_DQ['anonview'] == '0') && COM_isAnonUser()) {
         return;
     } else {
-        return array($LANG_DQ['whatsnewlabel'],sprintf($LANG_DQ['whatsnewperiod'], $_CONF_DQ['whatsnewperioddays']));
+        return array(
+            $LANG_DQ['whatsnewlabel'],
+            sprintf($LANG_DQ['whatsnewperiod'], $_CONF_DQ['whatsnewperioddays']));
     }
 }
 
@@ -458,10 +444,8 @@ function plugin_chkVersion_dailyquote()
 
 
 /**
- *  @function plugin_autouninstall_dailyquote
- *  @return array Array of plugin elements to remove
- *
  *  Automatically uninstall the plugin
+ *  @return array Array of plugin elements to remove
  */
 function plugin_autouninstall_dailyquote()
 {
@@ -469,9 +453,9 @@ function plugin_autouninstall_dailyquote()
 
     $out = array (
         'tables'    => array($_CONF_DQ['pi_name']. '_quotes',
+                            $_CONF_DQ['pi_name']. '_submission',
                             $_CONF_DQ['pi_name']. '_category',
                             $_CONF_DQ['pi_name']. '_lookup',
-                            $_CONF_DQ['pi_name']. '_settings',
                         ),
         'groups'    => array($_CONF_DQ['pi_name'] . ' Admin'),
         'features'  => array($_CONF_DQ['pi_name'] . '.add', 
@@ -509,7 +493,8 @@ function plugin_uninstall_dailyquote($installCheck='')
 
     $pi_name=addslashes($_CONF_DQ['pi_name']);
     $FEATURES = array ( 'dailyquote.edit', 'dailyquote.view', 'dailyquote.add');
-    $TABLES = array ('dailyquote_quotes','dailyquote_cat','dailyquote_lookup','dailyquote_settings');
+    $TABLES = array ('dailyquote_quotes', 'dailyquote_submission', 
+            'dailyquote_cat','dailyquote_lookup');
     
     // Check and see if plugin is still enabled - if so display warning and exit
     if ($installCheck != '' && DB_getItem($_TABLES['plugins'],'pi_enabled', 'pi_name = "' .$pi_name. '"')) {
@@ -632,13 +617,13 @@ function DQ_getQuote($id='')
 
     //get random quote
     $sql = "SELECT 
-                q.Quotes, q.Quoted, q.Title, 
-                q.Source, q.Sourcedate, 
-                q.Date
+                q.source, q.quoted, q.title, 
+                q.source, q.sourcedate, 
+                q.dt
             FROM 
                 {$_TABLES['dailyquote_quotes']} q 
             WHERE 
-                q.Status = '1'";
+                q.status = '1'";
     if ($id == '') {
         $sql .= " ORDER BY rand() LIMIT 1";
     } else {
@@ -652,8 +637,9 @@ function DQ_getQuote($id='')
     }
 
     $row = DB_fetchArray($dbquote, false);
+    if (!empty($row))
+        $row['quoted'] = ggllink($row['quoted']);
 
-    $row['Quoted'] = ggllink($row['Quoted']);
     return $row;
 }
 
@@ -819,7 +805,7 @@ function phpblock_dailyquote_dqmenu()
     }
     //link to the batch add form
     if (SEC_hasRights('dailyquote.add') || 
-        ($loginbatch == '1' && $_USER['uid'] > 2)) {
+        ($_CONF_DQ['loginbatch'] == '1' && $_USER['uid'] > 2)) {
         $href = is_curpage('add2.php',$LANG_DQ['batchaddlink']);
         $content .= $href . '<br />';
     }
@@ -863,10 +849,6 @@ function link_row()
 {
     global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
 
-    // Retrieve access settings
-    $query = DB_query("SELECT anonadd, anonview, loginadd, loginbatch FROM {$_TABLES['dailyquote_settings']}");
-    list($anonadd,$anonview,$loginadd,$loginbatch) = DB_fetchArray($query);
-
     $T = new Template($_CONF['path'] . 'plugins/' . $_CONF_DQ['pi_name'] . '/templates');
     $T->set_file('page', 'linkrow.thtml');
 
@@ -878,7 +860,9 @@ function link_row()
 
     //link to the add form
     if (!eregi('add.php', $_SERVER['REQUEST_URI'])) {
-        if ((($anonadd == '1') && ($_USER['uid'] < 2)) || (($loginadd == '1') && ($_USER['uid'] > 2)) || (SEC_hasRights('dailyquote.add'))) {
+        if (($_CONF_DQ['anonadd'] == '1' && COM_isAnonUser()) || 
+                ($_CONF_DQ['loginadd'] == '1' && !COM_isAnonUser()) || 
+                SEC_hasRights('dailyquote.add')) {
             $link = "&nbsp;&nbsp;<a href=\"{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/add.php\">";
             //$link .= "<img src=\"" . $_CONF['site_url'] . "/dailyquote/images/add.gif" . "\" alt=\"";
             $link .= '&gt;' . $LANG_DQ['addformlink'];
@@ -892,7 +876,7 @@ function link_row()
     //link to the batch add form
     if (!eregi('add2', $_SERVER['REQUEST_URI'])) {
         if (SEC_hasRights('dailyquote.add') || 
-            ($loginbatch == '1' && $_USER['uid'] > 2)) {
+            ($_CONF_DQ['loginbatch'] == '1' && !COM_isAnonUser())) {
             $batch = "&nbsp;&nbsp;<a href=\"{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/add2.php\">";
             //$batch .= "<img src=\"" . $_CONF['site_url'] . "/dailyquote/images/batch.gif" . "\" alt=\"";
             $batch .= '&gt;' . $LANG_DQ['batchaddlink'];
@@ -975,22 +959,23 @@ function link_row()
 }
 
 
-// function that displays a random quote from your database in a phpblock if you have the dailyquote
-// plugin installed.
-// easily modified to use without the dailyquote plugin--just point to your own table and fields.
-function phpblock_dailyquote_random_quote()
+/**
+*   Displays a random quote from your database in a block.
+*   @return string  HTML for the block contents.
+*/
+function phpblock_dailyquote_random()
 {
     global $_CONF, $_CONF_DQ;
    
     $retval = '';
  
     $row = DQ_getQuote();
-    if (is_array($row)) {
+    if (!empty($row)) {
         $T = new Template($_CONF['path'] . 'plugins/' . $_CONF_DQ['pi_name'] . '/templates');
         $T->set_file('page', 'blk_random.thtml');
-        $T->set_var('randomquote', htmlspecialchars($row['Quotes']));
-        $T->set_var('quoted', $row['Quoted']);
-        $T->set_var('sourcedate', $row['Sourcedate']);
+        $T->set_var('randomquote', htmlspecialchars($row['source']));
+        $T->set_var('quoted', $row['quoted']);
+        $T->set_var('sourcedate', $row['sourcedate']);
         $T->set_var('source', $row['source']);
         $T->parse('output','page');
         $retval = $T->finish($T->get_var('output'));
@@ -1131,7 +1116,7 @@ function plugin_moderationvalues_dailyquote()
     return array(
         'id', 
         $_TABLES['dailyquote_quotes'], 
-        'id, Quotes, Quoted, Title, Source, Sourcedate, Date, UID',
+        'id, source, quoted, title, source, sourcedate, dt, uid',
         $_TABLES['dailyquote_submission']);
 }
 
@@ -1152,7 +1137,7 @@ function plugin_itemlist_dailyquote()
         $plugin = new Plugin();
         //$plugin->submissionlabel = $LANG_DQ['menuitem'];
         $plugin->submissionlabel = 'Daily Quotes';
-        $plugin->getsubmissionssql = "SELECT id, Quoted, Quotes FROM "
+        $plugin->getsubmissionssql = "SELECT id, quoted, source FROM "
                                    . $_TABLES['dailyquote_submission'];
         $plugin->addSubmissionHeading('Quote From');
         $plugin->addSubmissionHeading('Quote Text');
@@ -1350,11 +1335,11 @@ function DQ_updateQuote($A, $table='dailyquote_quote')
         UPDATE
             $table
         SET
-            Quotes = '" . glfPrepareForDB(COM_checkwords($A['quote'])). "',
-            Quoted = '" . glfPrepareForDB(COM_checkwords($A['quoted']) ). "',
-            Title = '" . glfPrepareForDB(COM_checkwords($A['title'])) . "',
-            Source = '" . glfPrepareForDB(COM_checkwords($A['source'])) . "',
-            Sourcedate = '" . glfPrepareForDB(COM_checkwords($A['sourcedate'])) . "'
+            content = '" . glfPrepareForDB(COM_checkwords($A['content'])). "',
+            quoted = '" . glfPrepareForDB(COM_checkwords($A['quoted']) ). "',
+            title = '" . glfPrepareForDB(COM_checkwords($A['title'])) . "',
+            source = '" . glfPrepareForDB(COM_checkwords($A['source'])) . "',
+            sourcedate = '" . glfPrepareForDB(COM_checkwords($A['sourcedate'])) . "'
         WHERE
             id = '{$A['id']}'
     ";
@@ -1370,7 +1355,7 @@ function DQ_updateQuote($A, $table='dailyquote_quote')
             $sql = "
                 INSERT INTO
                     $cat_table
-                    (QID, Name)
+                    (qid, name)
                 VALUES (
                     '{$A['id']}',
                     '" . glfPrepareForDB(COM_checkwords($catname)) . "'
@@ -1380,7 +1365,7 @@ function DQ_updateQuote($A, $table='dailyquote_quote')
             $sql = "
                 INSERT IGNORE INTO
                     $cat_table
-                    (Name)
+                    (name)
                 VALUES (
                     '" . glfPrepareForDB(COM_checkwords($catname)) . "'
                 )";
@@ -1389,8 +1374,8 @@ function DQ_updateQuote($A, $table='dailyquote_quote')
             if ($catid == 0) {
                 $catid = DB_getItem(
                         $_TABLES['dailyquote_cat'],
-                        'ID', 
-                        "Name='$catname'");
+                        'id', 
+                        "name='$catname'");
             }
             $catlist[] = $catid;
         }
@@ -1405,7 +1390,7 @@ function DQ_updateQuote($A, $table='dailyquote_quote')
     if (!empty($catlist)) {
     foreach($catlist as $catid) {
         $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
-                (QID, CID, UID, Status)
+                (qid, cid, uid, status)
             VALUES (
                 '{$A['id']}', $catid, {$A['uid']}, 1
             )";
@@ -1436,7 +1421,7 @@ function DQ_insertSubmission($A, $table='dailyquote_submission')
     $sql = "
         INSERT INTO
             $table
-            (id, Quotes, Quoted, Title, Source, Sourcedate, Date, UID)
+            (id, content, quoted, title, source, sourcedate, dt, uid)
         VALUES (
             '{$A['id']}',
             '" . glfPrepareForDB(COM_checkwords($A['quote'])). "',
@@ -1459,7 +1444,7 @@ function DQ_insertSubmission($A, $table='dailyquote_submission')
             $sql = "
                 INSERT INTO
                     $cat_table
-                    (QID, Name)
+                    (qid, name)
                 VALUES (
                     '{$A['id']}',
                     '" . glfPrepareForDB(COM_checkwords($catname)) . "'
@@ -1469,7 +1454,7 @@ function DQ_insertSubmission($A, $table='dailyquote_submission')
             $sql = "
                 INSERT IGNORE INTO
                     $cat_table
-                    (Name)
+                    (name)
                 VALUES (
                     '" . glfPrepareForDB(COM_checkwords($catname)) . "'
                 )";
@@ -1478,8 +1463,8 @@ function DQ_insertSubmission($A, $table='dailyquote_submission')
             if ($catid == 0) {
                 $catid = DB_getItem(
                         $_TABLES['dailyquote_cat'],
-                        'ID', 
-                        "Name='$catname'");
+                        'id', 
+                        "name='$catname'");
             }
             $catlist[] = $catid;
         }
@@ -1492,17 +1477,16 @@ function DQ_insertSubmission($A, $table='dailyquote_submission')
     // to the quote.  Only if bypassing the submission queue; if
     // the queue is used $catlist will be empty.
     if (!empty($catlist)) {
-    foreach($catlist as $catid) {
-        $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
-                (QID, CID, UID, Status)
-            VALUES (
+        foreach($catlist as $catid) {
+            $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
+                    (qid, cid, uid, status)
+                VALUES (
                 '{$A['id']}', $catid, {$A['uid']}, 1
-            )";
-        //echo $sql;
-        @DB_query($sql);
+                )";
+            //echo $sql;
+            @DB_query($sql);
+        }
     }
-    }
-
 
     return '';
 
@@ -1522,14 +1506,14 @@ function plugin_getListField_dailyquote($fieldname, $fieldvalue, $A, $icon_arr)
             "{$_CONF['site_admin_url']}/plugins/dailyquote/index.php?mode=edit&amp;id={$A['id']}"
         );
         break;
-    case 'Title':
-        $retval = stripslashes($A['Title']);
+    case 'title':
+        $retval = stripslashes($A['title']);
         break;
-    case 'Quotes':
-        $retval = substr(stripslashes($A['Quotes']), 0, 100);
+    case 'content':
+        $retval = substr(stripslashes($A['content']), 0, 100);
         break;
-    case 'Date';
-        $retval = date('Y-m-d', $A['Date']);
+    case 'dt';
+        $retval = date('Y-m-d', $A['dt']);
         break;
     default:
         $retval = $fieldvalue;
@@ -1549,7 +1533,7 @@ function plugin_geticon_dailyquote()
 {
     global $_CONF;
 
-    return $_CONF['site_url'] . '/dailyquote/images/dailyquote.gif';
+    return $_CONF['site_url'] . '/dailyquote/images/dailyquote.png';
 }
 
 
@@ -1575,11 +1559,11 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
             break;
 
         case 'quoted':
-        case 'quotes':
+        case 'content':
             $qid = COM_sanitizeID($autotag['parm2']);
             if ($qid != '') {
                 $quote = DQ_getQuote($qid);
-                return htmlspecialchars($quote['Quotes']);
+                return htmlspecialchars($quote['content']);
             } else {
                 return '';
             }

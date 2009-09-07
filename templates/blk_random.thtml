@@ -1,0 +1,12 @@
+{randomquote}<br />
+{!if quoted}
+  <div style="text-align:right;">
+  {quoted}<br />
+  {!if source}
+    <i>{source}&nbsp;</i>
+  {!endif}
+  {!if sourcedate}
+    <i>({sourcedate})</i>
+  {!endif}
+  </div>
+{!endif}

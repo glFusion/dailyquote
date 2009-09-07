@@ -36,10 +36,8 @@ function display_pagenav($sort, $asc, $page)
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
 
     //print page nav here
-    $query1 = DB_query ("SELECT COUNT(*) AS numquotes FROM {$_TABLES['dailyquote_quotes']} WHERE Status='1'");
-    list($numquotes) = DB_fetchArray($query1);
-    $query2 = DB_query("SELECT indexdisplim AS displim FROM {$_TABLES['dailyquote_settings']}");
-    list( $displim) = DB_fetchArray($query2);
+    $numquotes = DB_count($_TABLES['dailyquote_quotes'], 'status', "1");
+    $displim = $_CONF_DQ['indexdisplim'];
     if ($numquotes > $displim) {
         $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
         $T->set_file('page', 'pagenav.thtml');
@@ -70,18 +68,18 @@ function display_pagenav($sort, $asc, $page)
 *   Displays the quotes listing.
 */
 function display_quote($sort, $asc, $page){
-    global $_TABLES, $_CONF, $LANG_DQ;
+    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
     global $_SYSTEM, $_USER;
 
     if ($sort == '3') {
         //this sort option to be removed ... category index page is sufficient
         $catcol = ", Name";
         $cattab = ", {$_TABLES['dailyquote_cat']} c";
-        $catwh = " AND c.ID=l.CID";
+        $catwh = " AND c.id=l.cid";
     }
 
     $sql = "SELECT DISTINCT 
-        q.ID, Quotes, Quoted, Title, Source, Sourcedate, Date, q.UID";
+        q.id, content, quoted, title, source, sourcedate, dt, q.uid";
     if ($sort == '3') {
         $sql .= $catcol;
     }
@@ -90,28 +88,28 @@ function display_quote($sort, $asc, $page){
     if ($sort == '3') {
         $sql .= $cattab;
     }
-    $sql .= " WHERE q.Status='1'";
+    $sql .= " WHERE q.status='1'";
     if ($sort == '3') {
         $sql .= $catwh;
     }
-    $sql .= " AND l.Status='1' AND l.QID=q.ID";
+    $sql .= " AND l.status='1' AND l.qid=q.id";
 
     switch ($sort) {
     case 1:
-        $sorted = 'Quotes';
+        $sorted = 'content';
         break;
     case 2:
-        $sorted = 'Quoted';
+        $sorted = 'quoted';
         break;
     case 3:
-        $sorted = 'Name';
+        $sorted = 'name';
         break;
     case 4:
-        $sorted = 'UID';
+        $sorted = 'uid';
         break;
     case 5:
     default:
-        $sorted = 'Date';
+        $sorted = 'dt';
         break;
     }
     $sql .= " ORDER BY $sorted";
@@ -122,10 +120,11 @@ function display_quote($sort, $asc, $page){
         $sql .= ' DESC';
 
     // Retrieve results per page setting
-    $query = DB_query("SELECT 
-            indexdisplim AS displim 
-            FROM {$_TABLES['dailyquote_settings']}");
-    list($displim) = DB_fetchArray($query);
+    //$query = DB_query("SELECT 
+    //        indexdisplim AS displim 
+    //        FROM {$_TABLES['dailyquote_settings']}");
+    //list($displim) = DB_fetchArray($query);
+    $displim = $_CONF_DQ['indexdisplim'];
     $limit = ($displim * $page) - $displim;
     $sql .= " LIMIT $limit, $displim";
 
@@ -147,14 +146,14 @@ function display_quote($sort, $asc, $page){
             while ($row = DB_fetchArray($result)){
                 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
                 $T->set_file('page', 'singlequote.thtml');
-                if (!empty($row['Title'])){
+                if (!empty($row['title'])){
                     $title = '<p style="text-align: left; font-weight: bold; text-decoration: underline;">';
-                    $title .= $row['Title'];
+                    $title .= $row['title'];
                     $title .= '</p>';
                     $T->set_var('title', $title);
                 }
-                $T->set_var('quote', $row['Quotes']);
-                $quoted = ggllink($row['Quoted']);
+                $T->set_var('quote', $row['content']);
+                $quoted = ggllink($row['quoted']);
                 $T->set_var('quoted', $quoted);
                 if (!empty($row['Source'])){
                     $T->set_var('source', '&nbsp;--&nbsp;' . $row['Source']);
@@ -163,12 +162,22 @@ function display_quote($sort, $asc, $page){
                     $T->set_var('sourcedate', '&nbsp;&nbsp;(' . $row['Sourcedate'] . ')');
                 }
                 $T->set_var('subm_by', $LANG_DQ['subm_by']);
-                $contr = DB_query("SELECT UID, username FROM {$_TABLES['users']} WHERE uid={$row['UID']}");
+                $contr = DB_query("SELECT uid, username 
+                                FROM {$_TABLES['users']} 
+                                WHERE uid={$row['uid']}");
                 list($uid,$username) = DB_fetchArray($contr);
                 $username = prflink($uid,$username);
                 $T->set_var('contr', $username);
                 $T->set_var('datecontr', strftime($_CONF['shortdate'], $row['Date']));
-                $cat = DB_query("SELECT c.ID, c.Name FROM {$_TABLES['dailyquote_cat']} c, {$_TABLES['dailyquote_lookup']} l WHERE {$row['ID']}=l.QID AND c.ID=l.CID AND l.Status='1'");
+                $cat = DB_query("SELECT c.id, c.name 
+                                FROM {$_TABLES['dailyquote_cat']} c, 
+                                    {$_TABLES['dailyquote_lookup']} l 
+                                WHERE 
+                                    {$row['id']}=l.qid 
+                                AND 
+                                    c.id=l.cid 
+                                AND 
+                                    l.status='1'");
                 $i = 0;
                 $catlist = "";
                 while ($catrow = DB_fetchArray($cat)){
@@ -214,6 +223,7 @@ $id = isset($_REQUEST['id']) ? COM_sanitizeID($_REQUEST['id']) : '';
 $sort = isset($_GET['sort']) ? (int)$_GET['sort'] : 0;
 $asc = isset($_GET['asc']) ? (int)$_GET['asc'] : 0;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
 
 $display = COM_siteHeader();
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');

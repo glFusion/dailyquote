@@ -3,7 +3,7 @@
 	<tr>
 		<td>
 			<p style="text-align: center; font-weight: bold; color: red;">{msg}</p>
-			<div style="float:right;"><a href="{site_url}/dailyquote/index.php"><img src="{site_url}/dailyquote/images/dailyquote.gif" border="0" width="48" height="48"></a></div>
+			<div style="float:right;"><a href="{site_url}/dailyquote/index.php"><img src="{site_url}/dailyquote/images/dailyquote.png" border="0" width="48" height="48"></a></div>
 			<h1>{indextitle}</h1>
 			<p>{indexintro}</p>
 		</td>

@@ -10,48 +10,54 @@
 *   @filesource
 */
 
+$_SQL = array();
+
 // Main quote table
-$_SQL[] = "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
+$_SQL['dailyquote_quotes'] = 
+  "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
   id VARCHAR(40) NOT NULL PRIMARY KEY,
-  Quote TEXT,
-  Quoted TEXT,
-  Title TEXT,
-  Source TEXT,
-  Sourcedate VARCHAR(16),
-  Date INT(11) DEFAULT 0,
-  UID INT NOT NULL default '1',
-  Status TINYINT(1) NOT NULL DEFAULT '1',
-  UNIQUE Quote (Quote(32))
+  content TEXT,
+  quoted TEXT,
+  title TEXT,
+  source TEXT,
+  sourcedate VARCHAR(16),
+  dt INT(11) DEFAULT 0,
+  uid INT NOT NULL default '1',
+  status TINYINT(1) NOT NULL DEFAULT '1',
+  UNIQUE idx_quote (content(32))
 ) TYPE=MyISAM";
 
 // Submission Table
-$_SQL[] = "CREATE TABLE {$_TABLES['dailyquote_submission']} (
+$_SQL['dailyquote_submission'] = 
+  "CREATE TABLE {$_TABLES['dailyquote_submission']} (
   id VARCHAR(40) NOT NULL PRIMARY KEY,
-  Quote TEXT,
-  Quoted TEXT,
-  Title TEXT,
-  Source TEXT,
-  Sourcedate VARCHAR(16),
-  Date INT(11) DEFAULT 0,
-  UID INT NOT NULL default '1',
-  UNIQUE quote (quote(32))
+  content TEXT,
+  quoted TEXT,
+  title TEXT,
+  source TEXT,
+  sourcedate VARCHAR(16),
+  dt INT(11) DEFAULT 0,
+  uid INT NOT NULL default '1',
+  UNIQUE idx_quote (content(32))
 ) TYPE=MyISAM";
 
 // Categories Table
-$_SQL[] = "CREATE TABLE {$_TABLES['dailyquote_cat']} (
-  ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  Name VARCHAR(64) NOT NULL default 'Miscellany',
-  Status TINYINT(1) NOT NULL default '1',
-  UNIQUE Name (Name(10))
+$_SQL['dailyquote_cat'] = 
+  "CREATE TABLE {$_TABLES['dailyquote_cat']} (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL default 'Miscellany',
+  status TINYINT(1) NOT NULL default '1',
+  UNIQUE idx_name (name(10))
 ) TYPE=MyISAM";
 
 // Lookup Table
-$_SQL[] = "CREATE TABLE {$_TABLES['dailyquote_lookup']} (
-  QID VARCHAR(40) NOT NULL,
-  CID MEDIUMINT UNSIGNED NOT NULL,
-  UID MEDIUMING UNSIGNED NOT NULL,
-  Status TINYINT(1) NOT NULL default '1',
-  PRIMARY KEY(QID,CID,UID)
+$_SQL['dailyquote_lookup'] = 
+  "CREATE TABLE {$_TABLES['dailyquote_lookup']} (
+  qid VARCHAR(40) NOT NULL,
+  cid INT UNSIGNED NOT NULL,
+  uid INT UNSIGNED NOT NULL,
+  status TINYINT(1) UNSIGNED NOT NULL default '1',
+  PRIMARY KEY(qid,cid,uid)
 ) TYPE=MyISAM";
 
 
