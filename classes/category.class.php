@@ -210,7 +210,7 @@ class Category
 
     function AdminMenu()
     {
-        global $_CONF, $LANG_ADMIN;
+        global $_CONF, $LANG_ADMIN, $LANG_DQ;
 
         USES_lib_admin();
 
@@ -221,7 +221,7 @@ class Category
             array('url' => DQ_ADMIN_URL . '/index.php?mode=editcategory',
                     'text' => 'New Category'),
             array('url' => DQ_ADMIN_URL,
-                  'text' => $LANG_DQ['quotes']),
+                  'text' => $LANG_DQ['user_menu2']),
         );
         return $menu_arr;
     }
@@ -255,7 +255,7 @@ class Category
 
         $text_arr = array(
             'has_extras' => true,
-            'form_url' => "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php"
+            'form_url' => DQ_ADMIN_URL . '/index.php?mode=categories'
         );
 
         $query_arr = array('table' => 'dailyquote_cat',
@@ -331,7 +331,7 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 "<img src=\"{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}" . 
                     "/images/{$ena_icon}\" ".
                 "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
-                "\"quote\", \"{$_CONF['site_url']}\");'>\n" .
+                "\"category\", \"{$_CONF['site_url']}\");'>\n" .
                 "</span>\n";
         $retval .= COM_createLink(COM_createImage(
                 $_CONF['site_url'].'/dailyquote/images/deleteitem.png',

@@ -63,7 +63,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
     $T->set_var('pi_name', $_CONF_DQ['pi_name']);
 
     //retrieve categories from db if any and display
-    /*if (!$result = DB_query("SELECT id, name 
+    if (!$result = DB_query("SELECT id, name 
                             FROM {$_TABLES['dailyquote_cat']} 
                             WHERE status='1' 
                             ORDER BY name")) {
@@ -72,7 +72,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
         $numrows = DB_numRows($result);
     }
 
-    if ($numrows == 0) {
+    /*if ($numrows == 0) {
         //first cat must be created--doesn't matter who does it
         $T->set_var('firstcat', $LANG_DQ['firstcat']);
         $T->set_var('catinput', '<input name="cat[]" type="text" size="18" value="" />');
@@ -129,6 +129,8 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
                 $T->set_var('checked', '');
             }
             $T->set_var('catoption', $row['name']);
+            $T->set_var('catid', $row['id']);
+
             $T->parse('output','page');
             $retval .= $T->finish($T->get_var('output'));
             $i++;

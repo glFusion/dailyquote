@@ -710,12 +710,13 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
     // Check if there are no featured articles in this topic 
     // and if so then place it at the top of the page
     if ($topic != "") {
-        $wherenames = array('tid', 'featured');
-        $wherevalues = array($topic, 0);
+        $wherenames = array('tid', 'featured', 'draft_flag');
+        $wherevalues = array($topic, 0, 0);
+        
 //        $wheresql = "WHERE tid='$topic' AND featured > 0";
     } else {
-        $wherenames = 'featured';
-        $wherevalues = 1;
+        $wherenames = array('featured', 'draft_flag');
+        $wherevalues = array(1, 0);
 //        $wheresql = "WHERE featured = 1";
     }
 

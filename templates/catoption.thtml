@@ -1,2 +1,2 @@
 
-				<label for="cat" style="display: inline; font-weight: bold; vertical-align: top;{discat}">{catoption}</label><input name="cat[]" type="checkbox" value="{catoption}" {checked} /><br />
+				<label for="cat" style="display: inline; font-weight: bold; vertical-align: top;{discat}">{catoption}</label><input name="cat[{catid}]" type="checkbox" value="{catoption}" {checked} /><br />

@@ -45,8 +45,10 @@ function DQ_adminList()
     $menu_arr = array (
         array('url' => $_CONF['site_admin_url'],
                 'text' => $LANG_ADMIN['admin_home']),
-        array('url' => $pi_admin_url . '?mode=edit',
+        array('url' => DQ_ADMIN_URL . '/index.php?mode=edit',
               'text' => $LANG_DQ['newquote']),
+        array('url' => DQ_ADMIN_URL . '/index.php?mode=categories',
+              'text' => $LANG_DQ['manage_cats']),
     );
 
     $defsort_arr = array('field' => 'dt', 'direction' => 'desc');

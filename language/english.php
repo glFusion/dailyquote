@@ -276,6 +276,8 @@ $LANG_DQ= array(
     'whatsnewperiod'        => ' last %s days',
     'yes'                   => 'Yes',
     'admin_hdr'  => 'To modify or delete a quotation, click on that item\'s edit icon below. To create a new quotation, click on "New Quote" above.',
+'manage_cats'       => 'Manage Categories',
+
 );
 
 
