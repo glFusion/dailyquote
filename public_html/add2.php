@@ -36,11 +36,7 @@
 
 require_once('../lib-common.php');
 
-// Retrieve access settings
-$query = DB_query("SELECT loginbatch FROM {$_TABLES['dailyquote_settings']}");
-list($loginbatch) = DB_fetchArray($query);
-// Check user has rights to access this page
-if (($_USER['uid'] < 2) || (($loginbatch == '0') && (!SEC_hasRights('dailyquote.edit')))){
+if (!SEC_hasRights('dailyquote.admin')) {
     // Someone is trying to illegally access this page
     COM_errorLog("Someone has tried to illegally access the dailyquote page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
     $display = COM_siteHeader();

@@ -70,6 +70,11 @@ function USES_dailyquote_class_category()
     include_once DQ_PI_PATH . '/classes/category.class.php';
 }
 
+function USES_dailyquote_batch()
+{
+    include_once DQ_PI_PATH . '/batch.php';
+}
+
 
 /**
 *   Returns the items for this plugin that should appear on the main menu.

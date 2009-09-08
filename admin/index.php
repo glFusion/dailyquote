@@ -16,7 +16,31 @@ require_once('../../../lib-common.php');
 /** Import database functions - DEPRECATED */
 require_once('dqdatabase.php');
 
+USES_lib_admin();
 USES_dailyquote_class_quote();
+
+
+function DQ_adminMenu()
+{
+    global $_CONF, $LANG_ADMIN, $LANG_DQ;
+
+    $menu_arr = array (
+        array('url' => $_CONF['site_admin_url'],
+                'text' => $LANG_ADMIN['admin_home']),
+        array('url' => DQ_ADMIN_URL . '/index.php?mode=edit',
+              'text' => $LANG_DQ['newquote']),
+        array('url' => DQ_ADMIN_URL . '/index.php?mode=categories',
+              'text' => $LANG_DQ['manage_cats']),
+        array('url' => DQ_ADMIN_URL . '/index.php?mode=batchform',
+              'text' => $LANG_DQ['batchaddlink']),
+    );
+    $retval = ADMIN_createMenu($menu_arr, $LANG_DQ['admin_hdr'], 
+            plugin_geticon_dailyquote());
+
+    return $retval;
+
+}
+
 
 /**
 *   Create an admin list of quotes
@@ -27,9 +51,6 @@ function DQ_adminList()
     global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
     global $_CONF_DQ, $LANG_DQ;
 
-    USES_lib_admin();
-
-    $pi_admin_url = "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php";
     $retval = '';
 
     $header_arr = array(      # display 'text' and use table field 'field'
@@ -42,20 +63,11 @@ function DQ_adminList()
         //array('text' => $LANG_ACCESS['access'], 'field' => 'access', 'sort' => false)
     );
 
-    $menu_arr = array (
-        array('url' => $_CONF['site_admin_url'],
-                'text' => $LANG_ADMIN['admin_home']),
-        array('url' => DQ_ADMIN_URL . '/index.php?mode=edit',
-              'text' => $LANG_DQ['newquote']),
-        array('url' => DQ_ADMIN_URL . '/index.php?mode=categories',
-              'text' => $LANG_DQ['manage_cats']),
-    );
-
     $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
 
     $retval .= COM_startBlock('WhereAmI', '', COM_getBlockTemplate('_admin_block', 'header'));
 
-    $retval .= ADMIN_createMenu($menu_arr, $LANG_DQ['admin_hdr'], plugin_geticon_dailyquote());
+    $retval .= DQ_adminMenu();
 
     $text_arr = array(
         'has_extras' => true,
@@ -109,7 +121,7 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 'onclick'=>'return confirm(\'Do you really want to delete this item?\');',
                 'title' => 'Delete this quote',
             )),
-            $pi_admin_url . '?mode=deletequote&id=' . $A['id']
+            DQ_ADMIN_URL . '/index.php?mode=deletequote&id=' . $A['id']
         );
 /*        $retval .= '<form action={action_url} method="post">
             <input type=hidden name="id" value="' . $A['id'] . '">
@@ -217,6 +229,13 @@ case 'deletecat':
     Category::Delete($_REQUEST['id']);
     $page = 'categories';
     break;
+
+case 'processbatch':
+    USES_dailyquote_batch();
+    $content .= DQ_process_batch();
+    $page = 'adminlist';
+    break;
+
 }
 
 
@@ -255,6 +274,12 @@ case 'editcategory':
     USES_dailyquote_class_category();
     $C = new Category($q_id);
     $content .= $C->EditForm();
+    break;
+
+case 'batchform':
+    USES_dailyquote_batch();
+    $content .= DQ_adminMenu();
+    $content .= DQ_batch_form();
     break;
 
 case 'adminlist':

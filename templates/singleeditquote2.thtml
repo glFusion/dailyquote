@@ -1,14 +1,14 @@
 
-					<label for="title" style="width: 20%; text-align: right; float: left; font-weight: bold;">{title}:&nbsp;&nbsp;</label>
-						<input name="title" type="text" size="75" value="{disptitle}" /><br /><br />
-					<label for="quoted" style="width: 20%; text-align: right; float: left; font-weight: bold;">{quotation}:&nbsp;&nbsp;</label>
-						<textarea name="quote" cols="72" rows="6" wrap="virtual">{dispquote}</textarea><br /><br />
-					<label for="quoted" style="width: 20%; text-align: right; float: left; font-weight: bold;">{quoted}:&nbsp;&nbsp;</label>
-						<input name="quoted" type="text" size="32" value="{dispquoted}" /><br /><br />
-					<label for="source" style="width: 20%; text-align: right; float: left; font-weight: bold;">{source}:&nbsp;&nbsp;</label>
-						<input name="source" type="text" size="32" value="{dispsource}" /><br /><br />
-					<label for="sourcedate" style="width: 20%; text-align: right; float: left; font-weight: bold;">{sourcedate}:&nbsp;&nbsp;</label>
-						<input name="sourcedate" type="text" size="24" value="{dispsourcedate}" />
-							<span style="color: red; text-align: center;">{dateformat}</span><br /><br />
-					<p style="text-align: right; font-size: 8pt; font-weight: bold;">
-								{subm_by}:&nbsp;<select name="contr">
+                    <label for="title" style="width: 20%; text-align: right; float: left; font-weight: bold;">{title}:&nbsp;&nbsp;</label>
+                        <input name="title" type="text" size="75" value="{disptitle}" /><br /><br />
+                    <label for="quoted" style="width: 20%; text-align: right; float: left; font-weight: bold;">{quotation}:&nbsp;&nbsp;</label>
+                        <textarea name="quote" cols="72" rows="6" wrap="virtual">{dispquote}</textarea><br /><br />
+                    <label for="quoted" style="width: 20%; text-align: right; float: left; font-weight: bold;">{quoted}:&nbsp;&nbsp;</label>
+                        <input name="quoted" type="text" size="32" value="{dispquoted}" /><br /><br />
+                    <label for="source" style="width: 20%; text-align: right; float: left; font-weight: bold;">{source}:&nbsp;&nbsp;</label>
+                        <input name="source" type="text" size="32" value="{dispsource}" /><br /><br />
+                    <label for="sourcedate" style="width: 20%; text-align: right; float: left; font-weight: bold;">{sourcedate}:&nbsp;&nbsp;</label>
+                        <input name="sourcedate" type="text" size="24" value="{dispsourcedate}" />
+                            <span style="color: red; text-align: center;">{dateformat}</span><br /><br />
+                    <p style="text-align: right; font-size: 8pt; font-weight: bold;">
+                                {subm_by}:&nbsp;<select name="contr">
