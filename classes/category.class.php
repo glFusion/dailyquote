@@ -208,13 +208,16 @@ class Category
     }
 
 
+    /**
+    *   Administrator menu for categories
+    *   @return string      HTML for menu block
+    */
     function AdminMenu()
     {
         global $_CONF, $LANG_ADMIN, $LANG_DQ;
 
         USES_lib_admin();
 
-        //$pi_admin_url = "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php";
         $menu_arr = array (
             array('url' => $_CONF['site_admin_url'],
                     'text' => $LANG_ADMIN['admin_home']),
@@ -273,6 +276,10 @@ class Category
     }
 
 
+    /**
+    *   Creates a form for editing or creating new categories
+    *   @return string      HTML for the form
+    */
     function EditForm()
     {
         global $_CONF, $LANG_DQ;
@@ -292,9 +299,12 @@ class Category
 
         $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
         $T->set_file('page', 'catform.thtml');
-        $T->set_var('name', $this->name);
-        $T->set_var('id', $this->id);
-        $T->set_var('chk', $this->enabled == 1 ? ' checked ' : '');
+        $T->set_var(array(
+            'name'      => $this->name,
+            'id'        => $this->id,
+            'chk'       => ($this->enabled == 1 || $this->id == '') ? 
+                            ' checked ' : '',
+        ));
         $T->parse('output','page');
 
         $retval .= $T->finish($T->get_var('output'));
@@ -306,19 +316,25 @@ class Category
 
 
 
-
+/**
+*   Display a single field in the category admin list
+*   @param  string  $fieldname  Name of field
+*   @param  mixed   $fieldvalue Value of field
+*   @param  array   $A          Array of all fields and values
+*   @param  array   $icon_arr   Array of standard icons
+*   @return string              HTML to properly display field value
+*/
 function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ;
 
-    $pi_admin_url = "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php";
     $retval = '';
 
     switch($fieldname) {
     case 'edit':
         $retval .= COM_createLink(
             $icon_arr['edit'],
-            "{$_CONF['site_admin_url']}/plugins/dailyquote/index.php?mode=edit&amp;id={$A['id']}"
+            DQ_ADMIN_URL . "/index.php?mode=editcategory&amp;id={$A['id']}"
         );
         if ($A['enabled'] == 1) {
             $ena_icon = 'on.png';
@@ -340,7 +356,7 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 'onclick'=>'return confirm(\'Do you really want to delete this item?\');',
                 'title' => 'Delete this quote',
             )),
-            $pi_admin_url . '?mode=deletecat&id=' . $A['id']
+            DQ_ADMIN_URL . '/index.php?mode=deletecat&id=' . $A['id']
         );
         break;
     case 'name':

@@ -13,5 +13,5 @@
   <input name="status" type="checkbox" value="1" {chk} />
 
   <br />
-  <input type="submit" name="add" value="{submit}" />
+  <center><input type="submit" name="add" value="{$LANG_ADMIN['save']}" /></center>
 </form>

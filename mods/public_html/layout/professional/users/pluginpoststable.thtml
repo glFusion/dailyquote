@@ -1,5 +1,0 @@
-							{start_block_last10plugin}
-							<table border="0" cellpadding="3" cellspacing="0" width="100%">
-								{pluginpostrow}
-							</table>
-							{end_block}

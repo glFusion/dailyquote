@@ -1,4 +1,0 @@
-								<tr>
-									<td>{row_number} {plugin_begin_href}<b>{plugin_title}</b>{plugin_end_href}</td>
-									<td>{plugin_date}</td>
-								</tr>
