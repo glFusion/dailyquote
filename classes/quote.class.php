@@ -49,9 +49,9 @@ class DailyQuote
      *  @var integer */
     var $uid;
 
-    /** Status
+    /** Enabled
      *  @var integer */
-    var $status;
+    var $enabled;
    
     /**
      *  Constructor
@@ -99,7 +99,7 @@ class DailyQuote
         $this->sourcedate = $A['sourcedate'];
         $this->title = $A['title'];
         $this->dt = $A['dt'];
-        $this->status = $A['status'] == 1 ? 1 : 0;
+        $this->enabled = $A['enabled'] == 1 ? 1 : 0;
         $this->uid = (int)$A['uid'];
 
     }
@@ -125,8 +125,8 @@ class DailyQuote
         }
 
         $newval = $newval == 0 ? 0 : 1;
-        DB_change($_TABLES['dailyquote_quote'],
-                'status', $newval,
+        DB_change($_TABLES['dailyquote_quotes'],
+                'enabled', $newval,
                 'id', addslashes(trim($id)));
     }
 
@@ -291,9 +291,9 @@ class DailyQuote
             foreach($A['cat'] as $key => $name) {
                 $key = (int)$key;
                 $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
-                        (qid, cid, uid, status)
+                        (qid, cid)
                     VALUES (
-                        '{$A['id']}', $key, {$A['uid']}, 1
+                        '{$A['id']}', $key
                     )";
                 //echo $sql;
                 @DB_query($sql);
@@ -321,7 +321,7 @@ class DailyQuote
                 FROM 
                     {$_TABLES['dailyquote_quotes']} q 
                 WHERE 
-                    q.status = '1'";
+                    q.enabled = '1'";
         if ($id == '') {
             $sql .= " ORDER BY rand() LIMIT 1";
         } else {

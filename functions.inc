@@ -136,7 +136,7 @@ function plugin_showstats_dailyquote($showsitestats)
     $T->set_file(array('itemstats'=>'itemstatistics.thtml',
                                 'statrow'=>'singlestat.thtml'));
     /*if ($showsitestats == 1) {
-        $total_pages = DB_count($_TABLES['dailyquote_quotes'], 'Status', '1');
+        $total_pages = DB_count($_TABLES['dailyquote_quotes'], 'enabled', '1');
         $retval .= "<table border = '0' width='100%' cellspacing='0' cellpadding='0'>";
         $retval .= "<tr><td>" . $LANG_DQ['noquotes'] . "</td>";
         $retval .= "<td align='right'>" . $total_pages . "&nbsp;&nbsp </td></tr></table>";
@@ -149,10 +149,10 @@ function plugin_showstats_dailyquote($showsitestats)
                             {$_TABLES['dailyquote_quotes']} q, 
                             {$_TABLES['dailyquote_lookup']} l 
                         WHERE 
-                            q.id = l.QID 
+                            q.id = l.qid 
                         AND 
-                            l.Status = '1' 
-                        GROUP BY Quoted 
+                            l.enabled= '1' 
+                        GROUP BY quoted 
                         ORDER BY 2 DESC, 1 ASC 
                         LIMIT 10"
     );
@@ -223,8 +223,8 @@ function plugin_getadminoption_dailyquote()
     global $_CONF, $_TABLES, $LANG_DQ, $_CONF_DQ;
 
     if (SEC_hasRights('dailyquote.admin')) {
-        $count = DB_count($_TABLES['dailyquote_quotes'], 'status', 1);
-        //$result = DB_query("SELECT COUNT(*) FROM {$_TABLES['dailyquote_quotes']} WHERE Status=0");
+        $count = DB_count($_TABLES['dailyquote_quotes'], 'enabled', 1);
+        //$result = DB_query("SELECT COUNT(*) FROM {$_TABLES['dailyquote_quotes']} WHERE enabled=0");
         //list($submittedquotes) = DB_fetchArray($result);
         return array(
             $LANG_DQ['admin_menu'], 
@@ -275,7 +275,7 @@ function plugin_profilevariablesdisplay_dailyquote($uid, &$template)
 
         $query = DB_query ("SELECT id, source, dt 
                 FROM {$_TABLES['dailyquote_quotes']} 
-                WHERE uid='$uid' AND status='1' 
+                WHERE uid='$uid' AND enabled='1' 
                 ORDER BY dt DESC 
                 LIMIT {$postlimit}");
         //************************
@@ -320,7 +320,9 @@ function plugin_profilestatsvariablesdisplay_dailyquote ($uid, &$template)
 
     // Check user has rights to view this, if so, do it.
     if ($_CONF_DQ['anonview'] == '1' || !COM_isAnonUser()) {
-        $count = DB_count ($_TABLES['dailyquote_quotes'], array('UID', 'Status'), array($uid, '1'));
+        $count = DB_count($_TABLES['dailyquote_quotes'], 
+                    array('UID', 'enabled'), 
+                    array($uid, '1'));
         $template->set_var ('lang_number_plugin', $LANG_DQ['profnumqtxt']);
         $template->set_var ('number_plugin', $count);
         $template->parse ('plugin_stats_number_row', 'plgsrow', true);
@@ -384,7 +386,7 @@ function plugin_dopluginsearch_dailyquote(
         FROM 
             {$_TABLES['dailyquote_quotes']} q
         WHERE 
-            q.status = 1
+            q.enabled = 1
     ";
 
     if (!empty($datestart) && !empty($dateend)) {
@@ -444,7 +446,7 @@ function plugin_getwhatsnew_dailyquote()
             WHERE 
                 q.dt >= DATE_SUB(NOW(), INTERVAL {$_CONF_DQ['whatsnewperioddays']} DAY )
             AND 
-                q.status='1' AND l.qid=q.id 
+                q.enabled='1' AND l.qid=q.id 
             ORDER BY q.dt DESC 
             LIMIT 15 ";
     $result = DB_query( $sql );
@@ -659,7 +661,7 @@ function DQ_getQuote($id='')
             FROM 
                 {$_TABLES['dailyquote_quotes']} q 
             WHERE 
-                q.status = '1'";
+                q.enabled = '1'";
     if ($id == '') {
         $sql .= " ORDER BY rand() LIMIT 1";
     } else {
@@ -828,20 +830,22 @@ function phpblock_dailyquote_dqmenu()
             FROM 
                 {$_TABLES['dailyquote_quotes']} q 
             WHERE 
-                q.Status='1'";
+                q.enabled = '1'";
     //echo $sql;die;
     $active = DB_query($sql);
     $numq = DB_numRows($active);
     $content = $href . '&nbsp;(' . $numq . ')<br />';
+
     //link to the category index
-    $active = DB_query("SELECT * FROM {$_TABLES['dailyquote_lookup']} 
-            WHERE Status='1' 
-            GROUP BY CID");
+    $active = DB_query("SELECT * 
+            FROM {$_TABLES['dailyquote_cat']} 
+            WHERE enabled='1'");
     $catnum = DB_numRows($active);
     if ($catnum > '1') {
         $href = is_curpage('catindex.php',$LANG_DQ['catindexlink']);
         $content .= $href . '&nbsp;(' . $catnum . ')<br />';
     }
+
     //link to the search form
     $href = is_curpage('search.php',$LANG_DQ['searchlink']);
     $content .= $href . '<br />';
@@ -851,29 +855,25 @@ function phpblock_dailyquote_dqmenu()
         $content .= $href . '<br />';
     }
     //link to the batch add form
-    if (SEC_hasRights('dailyquote.add') || 
-        ($_CONF_DQ['loginbatch'] == '1' && $_USER['uid'] > 2)) {
+    if (SEC_hasRights('dailyquote.admin')) {
         $href = is_curpage('add2.php',$LANG_DQ['batchaddlink']);
         $content .= $href . '<br />';
     }
-    //link to the moderation page
     if (SEC_hasRights('dailyquote.edit')) {
-        $modnum = DB_count($_TABLES['dailyquote_quotes'], 'Status', '0');
+        //link to the moderation page
+        $modnum = DB_count($_TABLES['dailyquote_quotes'], 'enabled', '0');
         if ($modnum > '0') {
             $href = is_curpage('moderate.php',$LANG_DQ['moderationlink']);
             $content .= $href . '&nbsp;(' . $modnum . ')<br />';
         }
-    }
-    //link to the manage form
-    if (SEC_hasRights('dailyquote.edit')) {
+        //link to the manage form
         $href = is_curpage('manage.php',$LANG_DQ['managelink']);
         $content .= $href . '<br />';
-    }
-    //link to the category management page
-    if (SEC_hasRights('dailyquote.edit')) {
+        //link to the category management page
         $href = is_curpage('catman.php',$LANG_DQ['catmanlink']);
         $content .= $href . '<br />';
     }
+
     return $content;
 }
 
@@ -951,7 +951,7 @@ function link_row()
 
     //link to the moderation page
     if (SEC_hasRights('dailyquote.edit')) {
-        $modnum = DB_count($_TABLES['dailyquote_quotes'], 'Status', '0');
+        $modnum = DB_count($_TABLES['dailyquote_quotes'], 'enabled', '0');
         if ($modnum > '0') {
             $mod = "&nbsp;&nbsp;<a href=\"" . $_CONF['site_url'] . "/dailyquote/moderate.php\">";
             //$mod .= "<img src=\"" . $_CONF['site_url'] . "/dailyquote/images/mod.gif" . "\" alt=\"";
@@ -987,7 +987,7 @@ function link_row()
     }
     //link to the catlist page
     /*if (!eregi('catindex', $_SERVER['REQUEST_URI'])) {
-        $catnum = DB_count($_TABLES['dailyquote_cat'], 'Status', '1');
+        $catnum = DB_count($_TABLES['dailyquote_cat'], 'enabled', '1');
         if ($catnum > '1') {
             $catlst = "&nbsp;&nbsp;<a href=\"" . $_CONF['site_url'] . "/dailyquote/catindex.php\">";
             //$catlst .= "<img src=\"" . $_CONF['site_url'] . "/dailyquote/images/cats.gif" . "\" alt=\"";
@@ -1175,7 +1175,7 @@ function plugin_moderationapprove_dailyquote($id, $owner_id=0)
     global $_TABLES, $_USER, $_CONF, $_CONF_DQ;
 
     DB_query("UPDATE {$_TABLES['dailyquote_quotes']}
-            SET status = 1
+            SET enabled = 1
             WHERE id='$id'");
 
     /*$sql = "SELECT name
@@ -1184,7 +1184,7 @@ function plugin_moderationapprove_dailyquote($id, $owner_id=0)
     $result = DB_query($sql);
     while ($cats = DB_fetchArray($result, false)) {
         @DB_query("INSERT IGNORE INTO {$_TABLES['dailyquote_cat']}
-                (name, status)
+                (name, enabled)
             VALUES
                 ('{$cats['name']}', 1)");
 
@@ -1205,7 +1205,7 @@ function plugin_moderationapprove_dailyquote($id, $owner_id=0)
     // to the quote.
     foreach($catlist as $catid) {
         $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
-                (qid, cid, uid, status)
+                (qid, cid, uid, enabled)
             VALUES (
                 '$id', $catid, $owner_id, 1
             )";

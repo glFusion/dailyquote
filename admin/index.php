@@ -89,7 +89,7 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
             $icon_arr['edit'],
             "{$_CONF['site_admin_url']}/plugins/dailyquote/index.php?mode=edit&amp;id={$A['id']}"
         );
-        if ($A['status'] == 1) {
+        if ($A['enabled'] == 1) {
             $ena_icon = 'on.png';
             $enabled = 0;
         } else {

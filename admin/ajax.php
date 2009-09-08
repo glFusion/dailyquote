@@ -33,7 +33,7 @@ case 'toggleEnabled':
     switch ($_GET['type']) {
     case 'quote':
         USES_dailyquote_class_quote();
-        Quote::toggleEnabled($newval, $_REQUEST['id']);
+        DailyQuote::toggleEnabled($newval, $_REQUEST['id']);
         break;
 
     case 'category':

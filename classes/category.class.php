@@ -27,7 +27,7 @@ class Category
 
     /** Status.  1=enabled, 0=disabled
      *  @var boolean */
-    var $status;
+    var $enabled;
 
   
     /**
@@ -74,7 +74,7 @@ class Category
 
         $this->id = (int)$A['id'];
         $this->name = $A['name'];
-        $this->status = $A['status'] == 1 ? 1 : 0;
+        $this->enabled = $A['enabled'] == 1 ? 1 : 0;
 
     }
 
@@ -100,7 +100,7 @@ class Category
 
         $newval = $newval == 0 ? 0 : 1;
         DB_change($_TABLES['dailyquote_cat'],
-                'status', $newval,
+                'enabled', $newval,
                 'id', addslashes(trim($id)));
     }
 
@@ -188,7 +188,7 @@ class Category
         // Determine if this is an INSERT or UPDATE
         if ($this->id == 0) {
             $sql = "INSERT INTO {$_TABLES['dailyquote_cat']}
-                    (name, status)
+                    (name, enabled)
                 VALUES (
                     '" . addslashes($this->name) . "',
                     1)";
@@ -196,7 +196,7 @@ class Category
             $sql = "UPDATE {$_TABLES['dailyquote_cat']}
                 SET
                     name = '" . addslashes($this->name). "',
-                    status = " . (int)$this->status . "
+                    enabled = " . (int)$this->enabled . "
                 WHERE
                     id = " . $this->id;
         }
@@ -294,7 +294,7 @@ class Category
         $T->set_file('page', 'catform.thtml');
         $T->set_var('name', $this->name);
         $T->set_var('id', $this->id);
-        $T->set_var('chk', $this->status == 1 ? ' checked ' : '');
+        $T->set_var('chk', $this->enabled == 1 ? ' checked ' : '');
         $T->parse('output','page');
 
         $retval .= $T->finish($T->get_var('output'));
@@ -320,7 +320,7 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
             $icon_arr['edit'],
             "{$_CONF['site_admin_url']}/plugins/dailyquote/index.php?mode=edit&amp;id={$A['id']}"
         );
-        if ($A['status'] == 1) {
+        if ($A['enabled'] == 1) {
             $ena_icon = 'on.png';
             $enabled = 0;
         } else {

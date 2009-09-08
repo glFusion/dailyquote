@@ -37,10 +37,10 @@
 require_once('../lib-common.php');
 
 // Retrieve access settings
-$query = DB_query("SELECT anonview FROM {$_TABLES['dailyquote_settings']}");
-list($anonview) = DB_fetchArray($query);
+//$query = DB_query("SELECT anonview FROM {$_TABLES['dailyquote_settings']}");
+//list($anonview) = DB_fetchArray($query);
 // Check user has rights to access this page
-if (($anonview == '0') && ($_USER['uid'] < 2)) {
+if ($_CONF_DQ['anonview'] == '0' && COM_isAnonUser()) {
     // Someone is trying to illegally access this page
     COM_errorLog("Someone has tried to illegally access the dailyquote page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
     $display = COM_siteHeader();
@@ -117,9 +117,16 @@ function display_cats(){
             $T->set_file('page', 'firstcatcolset.thtml');
             $T->parse('output','page');
             $retval .= $T->finish($T->get_var('output'));
-            while ($row = DB_fetchArray($result)){
-                if(!$bagsql = DB_query("SELECT COUNT(*) FROM {$_TABLES['dailyquote_cat']} c, {$_TABLES['dailyquote_lookup']} l WHERE c.ID={$row['ID']} AND l.CID=c.ID")){
-                } else {
+            while ($row = DB_fetchArray($result)) {
+                $bagsql = DB_query("SELECT COUNT(*) 
+                            FROM
+                                {$_TABLES['dailyquote_cat']} c, 
+                                {$_TABLES['dailyquote_lookup']} l 
+                            WHERE 
+                                c.ID={$row['ID']} 
+                            AND 
+                                l.CID=c.ID");
+                if ($bagsql) {
                     list($catbag) = DB_fetchArray($bagsql);
                     $catbag = "(" . $catbag . ")";
                 }
@@ -185,7 +192,8 @@ if(!eregi('1.3.1',VERSION)){
     $display .= link_row();
 }
 
-$display .= random_quote();
+$A = DQ_getQuote();
+$display .= $A['quote'];
 
 //display category listing
 $display .= display_cats();

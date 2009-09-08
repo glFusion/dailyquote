@@ -65,7 +65,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
     //retrieve categories from db if any and display
     if (!$result = DB_query("SELECT id, name 
                             FROM {$_TABLES['dailyquote_cat']} 
-                            WHERE status='1' 
+                            WHERE enabled='1' 
                             ORDER BY name")) {
         $errstatus = 1;
     } else {
@@ -116,7 +116,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
             /*if ($chkst = DB_query(
                     "SELECT * FROM {$_TABLES['dailyquote_lookup']} 
                     WHERE cid='{$row['id']}' 
-                    AND status='0' 
+                    AND enabled='0' 
                     LIMIT 1")) {
                 if (DB_numRows($chkst) > 0) {
                     $T->set_var('discat', ' color: #808080;');
