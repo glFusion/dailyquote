@@ -1,6 +1,8 @@
 <?php
+//  $Id$
 /**
 *   Schema definition.
+*
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
@@ -58,5 +60,10 @@ $_SQL['dailyquote_lookup'] =
   PRIMARY KEY(qid,cid,uid)
 ) TYPE=MyISAM";
 
+
+// Default data
+$_SQL['dq_cat_data'] = 
+    "INSERT INTO {$_TABLES['dailyquote_cat']}
+    (name, enabled) VALUES ('{$LANG_DQ['misc']}', '1');";
 
 ?>

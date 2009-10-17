@@ -1,51 +1,28 @@
 <?php
+//  $Id$
+/**
+*   Common functions for the DailyQuote plugin
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @package    dailyquote
+*   @version    0.0.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*               GNU Public License v2 or later
+*   @filesource
+*/
 
-// +---------------------------------------------------------------------------+
-// | Daily Quote Plugin v1.0.5 for Geeklog - The Ultimate Weblog                 |
-// +---------------------------------------------------------------------------+
-// | search.php                                                                |
-// |                                                                           |
-// +---------------------------------------------------------------------------+
-// | Copyright (C) 2004 by the following authors:                              |
-// |                                                                           |
-// | Author: Alf Deeley aka machinari - ajdeeley@summitpages.ca                |
-// | Constructed with the Universal Plugin                                     |
-// | Copyright (C) 2002 by the following authors:                              |
-// | Tom Willett                 -    twillett@users.sourceforge.net           |
-// | Blaine Lang                 -    langmail@sympatico.ca                    |
-// | The Universal Plugin is based on prior work by:                           |
-// | Tony Bibbs                  -    tony@tonybibbs.com                       |
-// +---------------------------------------------------------------------------+
-// |                                                                           |
-// | This program is free software; you can redistribute it and/or             |
-// | modify it under the terms of the GNU General Public License               |
-// | as published by the Free Software Foundation; either version 2            |
-// | of the License, or (at your option) any later version.                    |
-// |                                                                           |
-// | This program is distributed in the hope that it will be useful,           |
-// | but WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             |
-// | GNU General Public License for more details.                              |
-// |                                                                           |
-// | You should have received a copy of the GNU General Public License         |
-// | along with this program; if not, write to the Free Software Foundation,   |
-// | Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.           |
-// |                                                                           |
-// +---------------------------------------------------------------------------+
-//
-
+/** Import core glFusion functions */
 require_once('../lib-common.php');
 
-// Retrieve access settings
-//$query = DB_query("SELECT anonview FROM {$_TABLES['dailyquote_settings']}");
-//list($anonview) = DB_fetchArray($query);
+USES_dailyquote_class_quote();
+
 // Check user has rights to access this page
 if (($anonview == '0') && ($_USER['uid'] < 2)) {
     // Someone is trying to illegally access this page
     COM_errorLog("Someone has tried to illegally access the dailyquote page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
     $display = COM_siteHeader();
-    $display .= COM_startBlock($LANG_DQ00['access_denied']);
-    $display .= $LANG_DQ00['access_denied_msg1'];
+    $display .= COM_startBlock($LANG_DQ['access_denied']);
+    $display .= $LANG_DQ['access_denied_msg1'];
     $display .= COM_endBlock();
     $display .= COM_siteFooter(true);
     echo $display;
@@ -132,11 +109,9 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
         $catwh = " AND l.cid='$catget' AND l.qid=id";
     }
     $sql .= " WHERE (
-            q.status='1' 
+            q.enabled='1' 
         AND 
             q.uid=u.uid 
-        AND 
-            l.status='1' 
         AND 
             l.qid=id 
         $catwh )";
@@ -304,13 +279,13 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
         $T->parse('output','page');
         $retval .= $T->finish($T->get_var('output'));
         $numrows = DB_numRows($numrows);
-        if ($numrows>0){
+        if ($numrows > 0 ) {
             $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
             $T->set_file('page', 'numresults.thtml');
             $T->set_var('numresults', $numrows);
             $T->set_var('numresultstxt', $LANG_DQ['numresultstxt']);
-            if(isset($catget)){
-                if(!$catgetsql = DB_query("SELECT name FROM {$_TABLES['dailyquote_cat']} WHERE id=$catget")){
+            if(isset($catget)) {
+                if(!$catgetsql = DB_query("SELECT name FROM {$_TABLES['dailyquote_cat']} WHERE id=$catget")) {
                 } else {
                     list($cathead) = DB_fetchArray($catgetsql);
                     $T->set_var('cathead', sprintf($LANG_DQ['cathead'],$cathead));
@@ -329,8 +304,7 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
                     $T->set_var('title', $title);
                 }
                 $T->set_var('quote', $row['quote']);
-                $quoted = ggllink($row['quoted']);
-                $T->set_var('quoted', $quoted);
+                $T->set_var('quoted', DailyQuote::GoogleLink($row['quoted']));
                 if (!empty($row['source'])){
                     $T->set_var('source', '&nbsp;--&nbsp;' . $row['source']);
                 }
@@ -340,7 +314,7 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
                 $T->set_var('subm_by', $LANG_DQ['subm_by']);
                 $contrqu = DB_query("SELECT uid, username FROM {$_TABLES['users']} WHERE uid={$row['uid']}");
                 list($uid,$username) = DB_fetchArray($contrqu);
-                $username = prflink($uid,$username);
+                $username = DQ_linkProfile($uid, $username);
                 $T->set_var('contr', $username);
                 $T->set_var('datecontr', $row['dt']);
                 $cat = DB_query("SELECT c.id, c.name 
@@ -418,13 +392,18 @@ function search_form(){
     $retval = $T->finish($T->get_var('output'));
 
     //retrieve contributors from db
-    $result = DB_query("SELECT UID FROM {$_TABLES['dailyquote_quotes']} WHERE Status='1' GROUP BY UID ASC");
+    $result = DB_query("SELECT uid
+            FROM {$_TABLES['dailyquote_quotes']} 
+            WHERE enabled='1' 
+            GROUP BY uid ASC");
     $numrows = DB_numRows($result);
     if ($numrows>0){
         while ($row = DB_fetchArray($result)){
             $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
             $T ->set_file('page', 'searchcontropt.thtml');
-            $subm = DB_query("SELECT username FROM {$_TABLES['users']} WHERE uid={$row['UID']}");
+            $subm = DB_query("SELECT username 
+                    FROM {$_TABLES['users']} 
+                    WHERE uid={$row['uid']}");
             list($username) = DB_fetchArray($subm);
             $T->set_var('contr', $username);
             $T ->parse('output','page');
@@ -439,16 +418,18 @@ function search_form(){
     $retval .= $T->finish($T->get_var('output'));
 
     //retrieve categories from db
-    $result = DB_query("Select DISTINCT Name FROM {$_TABLES['dailyquote_cat']} c, {$_TABLES['dailyquote_lookup']} l WHERE ID=l.CID AND l.Status='1' ORDER BY Name");
-    $numrows = DB_numRows($result);
-    if ($numrows>0){
-        while ($row = DB_fetchArray($result)){
-            $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-            $T ->set_file('page', 'searchcatopt.thtml');
-            $T->set_var('catoption', $row['Name']);
-            $T->parse('output','page');
-            $retval .= $T->finish($T->get_var('output'));
-        }
+    $result = DB_query("SELECT id, name 
+                FROM  {$_TABLES['dailyquote_cat']}
+                ORDER BY name");
+    while ($row = DB_fetchArray($result)){
+        $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+        $T ->set_file('page', 'searchcatopt.thtml');
+        $T->set_var(array(
+            'catoption' => $row['name'],
+            'catid'     => $row['id'],
+        ));
+        $T->parse('output','page');
+        $retval .= $T->finish($T->get_var('output'));
     }
 
     $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
@@ -463,28 +444,18 @@ function search_form(){
 * Main Function
 */
 
-if(eregi('1.3.1',VERSION)){
-    $dqblockmenu = array(dqmenu);
-    $display = COM_siteHeader($dqblockmenu);
-} else {
-    $display = COM_siteHeader();
-}
+$display = COM_siteHeader();
 $display .= COM_startBlock($LANG_DQ['indextitle']);
 
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
 $T->set_file('page', 'dqheader.thtml');
-$T->set_var('header', $LANG_DQ00['plugin']);
+//$T->set_var('header', $LANG_DQ00['plugin']);
 $T->set_var('site_url', $_CONF['site_url']);
 $T->set_var('plugin', 'dailyquote');
 $T->set_var('indextitle', $LANG_DQ['searchtitle']);
 $T->set_var('indexintro', $LANG_DQ['searchintro']);
 $T->parse('output','page');
 $display .= $T->finish($T->get_var('output'));
-
-//display a row of pertinent links
-if(!eregi('1.3.1',VERSION)){
-    $display .= link_row();
-}
 
 $display .= search_form();
 
@@ -546,6 +517,7 @@ if (!isset($_POST['submit']) &&
         !isset($qid) && 
         !isset($stat) && 
         !isset($cat) && 
+        !isset($catget) &&
         !isset($keywords)
 ) {
     USES_dailyquote_functions();
@@ -553,7 +525,7 @@ if (!isset($_POST['submit']) &&
 } elseif (isset($_POST['submit']) || 
         isset($qid) || 
         isset($stat) || 
-        isset($cat) || 
+        isset($catget) || 
         isset($keywords)
 ) {
     $display .= search_results($categ, $keywords, $keytype, $type, $datestart, $dateend, $contr, $qid, $show, $stat, $catget, $mode, $page);

@@ -98,10 +98,14 @@ $INSTALL_plugin['dailyquote'] = array(
 
     array('type' => 'block', 
             'name' => 'dailyquote_dgmenu', 
-            'title' => $LANG_DQ['plugin_name'],
+            'title' => $_CONF_DQ['pi_display_name'],
             'phpblockfn' => 'phpblock_dailyquote_dqmenu', 
             'block_type' => 'phpblock',
             'group_id' => 'admin_group_id'),
+
+    array('type' => 'sql',
+            'sql' => $_SQL['dq_cat_data']),
+
 
 );
 

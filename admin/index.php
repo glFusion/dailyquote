@@ -56,10 +56,10 @@ function DQ_adminList()
     $header_arr = array(      # display 'text' and use table field 'field'
         array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
         array('text' => 'Quote ID', 'field' => 'id', 'sort' => true),
-        array('text' => 'Date', 'field' => 'dt', 'sort' => true),
-        array('text' => 'Quoted', 'field' => 'quoted', 'sort' => true),
-        array('text' => 'Title', 'field' => 'title', 'sort' => true),
-        array('text' => 'Content', 'field' => 'quotes', 'sort' => true),
+        array('text' => $LANG_DQ['date'], 'field' => 'dt', 'sort' => true),
+        array('text' => $LANG_DQ['quoted'], 'field' => 'quoted', 'sort' => true),
+        array('text' => $LANG_DQ['title'], 'field' => 'title', 'sort' => true),
+        array('text' => $LANG_DQ['quote'], 'field' => 'quote', 'sort' => true),
         //array('text' => $LANG_ACCESS['access'], 'field' => 'access', 'sort' => false)
     );
 
@@ -139,7 +139,9 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
         $retval = stripslashes($A['title']);
         break;
     case 'quote':
-        $retval = substr(stripslashes($A['quote']), 0, 100);
+        $max_len = 40;
+        $ellipses = strlen($A['quote']) > $max_len ? ' ...' : '';
+        $retval = substr(stripslashes($A['quote']), 0, $max_len) . $ellipses;
         break;
     case 'dt';
         $retval = date('Y-m-d', $A['dt']);
@@ -175,8 +177,8 @@ if (!SEC_inGroup('Root')) {
     // Someone is trying to illegally access this page
     COM_errorLog("Someone has tried to illegally access the dailyquote Admin page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
     $display = COM_siteHeader();
-    $display .= COM_startBlock($LANG_PL00['access_denied']);
-    $display .= $LANG_DQ00['access_denied_msg'];
+    $display .= COM_startBlock($LANG_DQ['access_denied']);
+    $display .= $LANG_DQ['access_denied_msg'];
     $display .= COM_endBlock();
     $display .= COM_siteFooter(true);
     echo $display;
@@ -200,16 +202,13 @@ if (isset($_REQUEST['page'])) {
 $content = '';      // initialize variable for page content
 $A = array();       // initialize array for form vars
 
-$admin_url = $_CONF['site_admin_url']. '/plugins/'.
-        $_CONF_DQ['pi_name'] . '/index.php';
-
-
 switch ($mode) {
 case $LANG_ADMIN['save']:
 case $LANG12[8]:
     if ($q_id != '') {
-        USES_dailyquote_functions();
-        DQ_updateQuote($_POST);
+        USES_dailyquote_class_quote();
+        $Q = new DailyQuote($q_id);
+        $Q->Save($_POST);
     }
     break;
 
@@ -292,7 +291,7 @@ $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
 $T->set_file('page', 'dqheader.thtml');
 $T->set_var('site_url', $_CONF['site_url']);
 $T->set_var('site_admin_url', $_CONF['site_admin_url']);
-$T->set_var('gimmebreak', $LANG_DQ['gimmebreak']);
+//$T->set_var('gimmebreak', $LANG_DQ['gimmebreak']);
 $T->set_var('indextitle', $LANG_DQ['admintitle']);
 $T->set_var('indexintro', $LANG_DQ['adminintro']);
 $T->parse('output','page');

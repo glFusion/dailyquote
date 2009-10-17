@@ -1,2 +1,2 @@
 
-						<option value="{catoption}">{catoption}</option>
+						<option value="{catid}">{catoption}</option>

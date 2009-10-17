@@ -17,7 +17,7 @@
 */
 class DailyQuote
 {
-    /** Banner ID
+    /** Quote Database ID
      *  @var string */
     var $id;
 
@@ -52,33 +52,49 @@ class DailyQuote
     /** Enabled
      *  @var integer */
     var $enabled;
-   
+
+    /** Is this a new submission?
+     *  @var boolean */
+    var $isNew;
+
+
     /**
      *  Constructor
-     *  @param string $bid Banner ID to retrieve, blank for empty class
+     *  @param string $id Quote ID to retrieve, blank for empty object
      */
     function DailyQuote($id='')
     {
         $id = trim($id);
+        $this->isNew = true;
         if ($id != '') {
             $this->Read($id);
-        } else {
         }
 
     }
 
 
     /**
-     *  Read a banner record from the database
-     *  @param  string  $bid    Banner ID to read (required)
+     *  Read a quote record from the database.
+     *  If no quote ID is specified, a random quote is read.
+     *  @param  string  $qid    Optional quote ID to read
      */
-    function Read($bid)
+    function Read($qid = '')
     {
         global $_TABLES;
-        $A = DB_fetchArray(DB_query("
-            SELECT * FROM {$_TABLES['dailyquote_quotes']}
-            WHERE id='".addslashes($id)."'"));
+
+        $sql = "SELECT * 
+                FROM {$_TABLES['dailyquote_quotes']} ";
+
+        if ($qid == '') {
+            $sql .= ' ORDER BY RAND() LIMIT 1';
+        } else {
+            $qid = COM_sanitizeID($qid, false);
+            $sql .= " WHERE id='$qid'";
+        }
+
+        $A = DB_fetchArray(DB_query($sql));
         $this->setVars($A);
+        $this->isNew = false;
     }
 
 
@@ -167,12 +183,25 @@ class DailyQuote
      */
     function Access()
     {
-        global $_USER;
+        global $_USER, $_CONF_DQ;
 
         if (SEC_hasRights('dailyquote.edit'))
             return 3;
-        else
+
+        if ($this->isNew) {
+            if (SEC_hasRights('dailyquote.submit'))
+                return 3;
+
+            if (COM_isAnonUser()) {
+                if ($_CONF_DQ['anonadd'] == 1)
+                    return 3;
+            } else {
+                if ($_CONF_DQ['loginadd'] == 1)
+                    return 3;
+            }
+        } else
             return 2;
+
     }
 
 
@@ -197,7 +226,7 @@ class DailyQuote
      *  Save the current quote object using the supplied values.
      *  @param  array   $A  Array of values from $_POST or database
      */
-    function Save($A, $table='dailyquote_quote')
+    function Save($A, $table='dailyquote_quotes')
     {
         global $_CONF, $_TABLES, $_USER, $MESSAGE, $LANG_DQ, $_CONF_DQ;
 
@@ -205,32 +234,36 @@ class DailyQuote
             $this->setVars($A);
 
         if (empty($this->uid)) {
-            // this is new banner from admin, set default values
+            // this is new quote from admin, set default values
             $uid = $_USER['uid'];
         }
 
+        if ($table != 'dailyquote_quotes')
+            $table = 'dailyquote_submission';
+            
         $access = $this->hasAccess(3);
-        if ($access < 3) {
+        if (!$access) {
             COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->id}.");
             return COM_showMessageText($MESSAGE[31], $MESSAGE[30]);
         }
 
         // Determine if this is an INSERT or UPDATE
-        if (empty($this->id)) {
+        if ($this->isNew) {
             $this->id = COM_makeSID();
-            $sql = "INSERT INTO $table
-                    (id, dt, quote, quoted, title, source, sourcedate)
+            $sql = "INSERT INTO {$_TABLES[$table]}
+                    (id, dt, quote, quoted, title, source, sourcedate, uid)
                 VALUES (
-                    '{$A['id']}',
+                    '{$this->id}',
                     " . time() . ",
                     '" . addslashes(COM_checkwords($A['quote'])). "',
                     '" . addslashes(COM_checkwords($A['quoted'])). "',
                     '" . addslashes(COM_checkwords($A['title'])) . "',
                     '" . addslashes(COM_checkwords($A['source'])) . "',
-                    '" . addslashes(COM_checkwords($A['sourcedate'])) . "'
+                    '" . addslashes(COM_checkwords($A['sourcedate'])) . "',
+                    '" . (int)$A['uid'] . "'
             )";
         } else {
-            $sql = "UPDATE $table
+            $sql = "UPDATE {$_TABLES[$table]}
                 SET
                     quote = '" . addslashes(COM_checkwords($A['quote'])). "',
                     quoted = '" . addslashes(COM_checkwords($A['quoted'])). "',
@@ -238,51 +271,14 @@ class DailyQuote
                     source = '" . addslashes(COM_checkwords($A['source'])) . "',
                     sourcedate = '" . addslashes(COM_checkwords($A['sourcedate'])) . "'
                 WHERE
-                    id = '" .addslashes($A['id']) . "'";
+                    id = '" . addslashes($this->id) . "'";
         }
         //echo $sql;die;
         DB_query($sql);
 
-        // Add categories
-        /*$catlist = array();     // used to populate lookup table
-        if (empty($A['cat'][0]))
-            $A['cat'][0] = 'Miscellaneous';
-        foreach ($A['cat'] as $key=>$catname) {
-            if ($catname == '') continue;
-            if ($cat_table == 'dailyquote_cat_sub') {
-                $sql = "
-                    INSERT INTO
-                        $cat_table
-                        (qid, name)
-                    VALUES (
-                        '{$A['id']}',
-                        '" . glfPrepareForDB(COM_checkwords($catname)) . "'
-                    )";
-                DB_query($sql);
-            } else {
-                $sql = "
-                    INSERT IGNORE INTO
-                        $cat_table
-                        (name)
-                    VALUES (
-                        '" . glfPrepareForDB(COM_checkwords($catname)) . "'
-                    )";
-                DB_query($sql);
-                $catid = DB_insertID();
-                if ($catid == 0) {
-                    $catid = DB_getItem(
-                            $_TABLES['dailyquote_cat'],
-                            'id', 
-                            "name='$catname'");
-                }
-                $catlist[] = $catid;
-            }
-
-            if (DB_error())
-                return DB_error();
-        }*/
-
-        DB_delete($_TABLES['dailyquote_category'], 'qid', $A['id']);
+        // Delete all lookup records for this quote to make sure we
+        // get rid of unused categories.
+        DB_delete($_TABLES['dailyquote_lookup'], 'qid', $A['id']);
 
         // Now, add records to the lookup table to link the categories
         // to the quote.  Only if bypassing the submission queue; if
@@ -293,7 +289,7 @@ class DailyQuote
                 $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
                         (qid, cid)
                     VALUES (
-                        '{$A['id']}', $key
+                        '{$this->id}', $key
                     )";
                 //echo $sql;
                 @DB_query($sql);
@@ -306,26 +302,39 @@ class DailyQuote
 
 
     /**
-     *  Retrieves a single quote.  If $id is empty, a randome quote is selected.
+     *  Retrieves a single quote.  If $id is empty, a random quote is selected.
      *  If called within an instantiated object, then the object properties
      *  are populated.
-     *  @param  string  $id     Optional quote specifier
+     *  @param  string  $qid    Optional quote specifier
+     *  @param  string  $cid    Optional category specifier
      *  @return array   Values from quote table.
      */
-    function getQuote($id='')
+    function getQuote($qid='', $cid='')
     {
         global $_TABLES;
+
+        // Sanitize category ID
+        $cid = (int)$cid;
 
         //get random quote
         $sql = "SELECT  q.*
                 FROM 
-                    {$_TABLES['dailyquote_quotes']} q 
-                WHERE 
+                    {$_TABLES['dailyquote_quotes']} q ";
+        if ($cid > 0) {
+            $sql .= " LEFT JOIN {$_TABLES['dailyquote_lookup']} l
+                    ON l.qid = q.id
+                LEFT JOIN {$_TABLES['dailyquote_cat']} c
+                    ON l.cid = c.id ";
+        }
+        $sql .= "WHERE 
                     q.enabled = '1'";
-        if ($id == '') {
+        if ($qid == '') {
+            if ($cid > 0) {
+                $sql .= " AND c.id = '$cid' ";
+            }
             $sql .= " ORDER BY rand() LIMIT 1";
         } else {
-            $sql .= " AND q.id='" . addslashes($id). "'";
+            $sql .= " AND q.id='" . addslashes($qid). "'";
         }
         //echo $sql;
 
@@ -335,8 +344,8 @@ class DailyQuote
         }
 
         $row = DB_fetchArray($result, false);
-        if (!empty($row))
-            $row['quoted'] = DailyQuote::GoogleLink($row['quoted']);
+        //if (!empty($row))
+        //    $row['quoted'] = DailyQuote::GoogleLink($row['quoted']);
 
         if (is_object($this))
             $this->SetVars($row);
@@ -345,22 +354,28 @@ class DailyQuote
     }
 
 
+    /**
+    *   Enclose the Quoted field in link tags for Google search
+    *   @param  string  $Quoted     Person quoted
+    *   @return string  URL for google search, or 'unknown'
+    */
     function GoogleLink($Quoted)
     {
         global $_CONF, $_TABLES, $LANG_DQ, $_CONF_DQ;
 
         //do if based on setting
-        if ($_CONF_DQ['google_link'] == 1 && !empty($_CONF_DQ['google_url'])) {
-            if ($Quoted != '') {
-                $gname = urlencode(trim($Quoted));
-                $retval = '<a href="' . $_CONF_DQ['google_url'] . $gname . '">' . $Quoted . '</a>';
-            } else {
-                $retval = $LANG_DQ['unknown'];
-            }
-        } else {
-            $retval = $Quoted;
+        if ($_CONF_DQ['google_link'] == 0 || empty($_CONF_DQ['google_url'])) {
+            return $Quoted;
         }
 
+        if ($Quoted == '') {
+            return $LANG_DQ['unknown'];
+        }
+
+        $gname = urlencode(trim($Quoted));
+        $retval = '<a href="' . 
+            sprintf($_CONF_DQ['google_url'], $_CONF['iso_lang'], $gname) . 
+                    '">' . $Quoted . '</a>';
         return $retval;
     }
 

@@ -37,8 +37,9 @@ $_DQ_DEFAULT = array(
     'cb_enable' => '0',         // centerblock enabled?
     'cb_pos' => '2',            // centerblock position (2=top)
     'cb_home' => '1',           // centerblock home page only?
-    'gglink' => '1',            // add Google link to person quoted?
+    'google_link' => '1',       // add Google link to person quoted?
     'whatsnew' => '0',          // show new quotes in whatsnew block?
+    'whatsnewdays' => '14',     // number of days to be considered new
     'default_permissions' => array (3, 2, 2, 2),
     'email_admin' => '2',       // email admin? 0=never, 1=if queue, 2=always
 );
