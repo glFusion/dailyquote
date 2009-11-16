@@ -1,18 +1,17 @@
-
+{# begin {templatelocation} #}
     <tr>
       <td style="text-align: center; font-weight: bold;">
         <form  action="{site_url}/dailyquote/index.php" method="GET">
           <label for="sort">{$LANG_DQ['sortby']}:&nbsp;&nbsp;</label>
           <select name="sort">
-            <option value="dt">{$LANG_DQ['date']}</option>
-            <option value="quote">{$LANG_DQ['quotation']}</option>
-            <option value="quoted">{$LANG_DQ['quoteby']}</option>
+            {sortby_opts}
           </select>
           <select name="asc">
-            <option value="ASC">{$LANG_DQ['ascopt1']}</option>
-            <option value="DESC" SELECTED>{$LANG_DQ['ascopt2']}</option>
+            <option value="ASC" {asc_sel}>{$LANG_DQ['ascopt1']}</option>
+            <option value="DESC" {desc_sel}>{$LANG_DQ['ascopt2']}</option>
           </select>
           <input name="submit" type="submit" value="{$LANG_DQ['sort']}" />
         </form>
       </td>
     </tr>
+{# end {templatelocation} #}

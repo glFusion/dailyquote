@@ -21,18 +21,22 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
 
     $retval = '';
 
-    $T = new Template("{$_CONF['path']}plugins/{$_CONF_DQ['pi_name']}/templates");
+    $T = new Template(DQ_PI_PATH . '/templates');
     $T->set_file('page', 'editformheader.thtml');
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
 
     //displays the add quote form for single quotations
     $T->set_file('page', 'editform.thtml');
+    $T->set_var('gltoken_name', CSRF_TOKEN);
+    $T->set_var('gltoken', SEC_createToken());
 
+    $action = '';
     if ($admin) {
         if ($mode == 'editsubmission') {
-            $action_url = $_CONF['site_url'] . '/moderation.php';
+            $action_url = $_CONF['site_admin_url'] . '/moderation.php';
             $mode = 'moderation';
+            $action='approve';
         } else {
             $action_url = $_CONF['site_admin_url']. '/plugins/'. 
                     $_CONF_DQ['pi_name']. '/index.php';
@@ -42,6 +46,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
     }
     $T->set_var('action_url', $action_url);
     $T->set_var('mode', $mode);
+    $T->set_var('form_action', $action);
 
     // Load existing values, if any
     if (is_array($A) && !empty($A)) {
@@ -72,27 +77,6 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
         $numrows = DB_numRows($result);
     }
 
-    /*if ($numrows == 0) {
-        //first cat must be created--doesn't matter who does it
-        $T->set_var('firstcat', $LANG_DQ['firstcat']);
-        $T->set_var('catinput', '<input name="cat[]" type="text" size="18" value="" />');
-    } else {
-        //check perm to create category
-        //if (!$query = DB_query("SELECT loginaddcat 
-        //                        FROM {$_TABLES['dailyquote_settings']}")) {
-        //if (!$_CONF_DQ['loginaddcat']) {
-        //    $errstatus = 1;
-        //} else {
-            //list($loginaddcat) = DB_fetchArray($query);
-            if ($_CONF_DQ['loginaddcat'] == 0 && 
-                    !SEC_hasRights('dailyquote.edit')) {
-                $T->set_var('choosecat', $LANG_DQ['choosecat']);
-            } else {
-                $T->set_var('choosecat', $LANG_DQ['choosecat1']);
-                $T->set_var('catinput', '<input name="cat[]" type="text" size="18" value="" />');
-            }
-        //}
-    }*/
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
 
@@ -113,15 +97,6 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
         while ($row = DB_fetchArray($result)) {
             $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
             $T->set_file('page', 'catoption.thtml');
-            /*if ($chkst = DB_query(
-                    "SELECT * FROM {$_TABLES['dailyquote_lookup']} 
-                    WHERE cid='{$row['id']}' 
-                    AND enabled='0' 
-                    LIMIT 1")) {
-                if (DB_numRows($chkst) > 0) {
-                    $T->set_var('discat', ' color: #808080;');
-                }
-            }*/
             if ($A['id'] != '' && DB_getItem($_TABLES['dailyquote_lookup'], 'qid', 
                     "cid={$row['id']} AND qid = '{$A['id']}'") == $A['id']) {
                 $T->set_var('checked', ' checked ');

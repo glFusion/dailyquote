@@ -1,5 +1,6 @@
-
+{# begin {templatelocation} #}
                 </tr>
             </table>
         </td>
     </tr>
+{# end {templatelocation} #}

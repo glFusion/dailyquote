@@ -349,15 +349,18 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
                 "\"category\", \"{$_CONF['site_url']}\");'>\n" .
                 "</span>\n";
-        $retval .= COM_createLink(COM_createImage(
+        if ($A['id'] != 1) {
+            // Cannot delete category 1 - default category.
+            $retval .= COM_createLink(COM_createImage(
                 $_CONF['site_url'].'/dailyquote/images/deleteitem.png',
                 'Delete this quote',
-            array('class'=>'gl_mootip',
+                array('class'=>'gl_mootip',
                 'onclick'=>'return confirm(\'Do you really want to delete this item?\');',
                 'title' => 'Delete this quote',
-            )),
-            DQ_ADMIN_URL . '/index.php?mode=deletecat&id=' . $A['id']
-        );
+                )),
+                DQ_ADMIN_URL . '/index.php?mode=deletecat&id=' . $A['id']
+            );
+        }
         break;
     case 'name':
         $retval = stripslashes($A['name']);

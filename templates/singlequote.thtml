@@ -1,3 +1,4 @@
+{# begin {templatelocation} #}
 <tr>
   <td>
     {!if title}
@@ -13,10 +14,11 @@
                         <td style="text-align: right; font-size: 8pt;">
                           {$LANG_DQ['subm_by']}:&nbsp;{contr}&nbsp;/&nbsp;
                           {datecontr}&nbsp;&nbsp;
-                          <!--{cat}:&nbsp;{dispcat}-->
+                          {cat}:&nbsp;{dispcat}
                         </td>
                       </tr>
                     </table>
                     <hr width="45%">
                   </td>
                 </tr>
+{# end {templatelocation} #}

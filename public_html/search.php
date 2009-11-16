@@ -1,7 +1,8 @@
 <?php
 //  $Id$
 /**
-*   Common functions for the DailyQuote plugin
+*   Search function for the DailyQuote plugin
+*
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
@@ -39,6 +40,9 @@ function display_pagenav($categ, $keywords, $keytype, $type, $datestart, $dateen
     //list($numquotes) = DB_fetchArray($query1);
     //$query2 = DB_query("SELECT searchdisplim AS displim FROM {$_TABLES['dailyquote_settings']}");
     //list($displim) = DB_fetchArray($query2);
+    $displim = $_CONF_DQ['indexdisplim'];
+    if ($displim < 1) $displim = 15;
+
     if ($numrows > $_CONF_DQ['displim']) {
         $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
         $T->set_file('page', 'pagenav.thtml');
@@ -66,12 +70,12 @@ function display_pagenav($categ, $keywords, $keytype, $type, $datestart, $dateen
         if (!empty($type)){
             $typevar = "type=".$type.'&amp;';
         }
-        if (!empty($datestart)){
+        /*if (!empty($datestart)){
             $datestartvar = "datestart=".$datestart.'&amp;';
         }
         if (!empty($dateend)){
             $dateendvar = "dateend=".$dateend.'&amp;';
-        }
+        }*/
         if (!empty($contr)){
             $contrvar = "contr=".$contr.'&amp;';
         }
@@ -220,12 +224,12 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
         }
     }
 
-    if (!empty($datestart)){
+    /*if (!empty($datestart)){
         $sql .= " AND q.dt >= '$start'";
     }
     if (!empty($dateend)){
         $sql .= " AND q.dt < '$end'";
-    }
+    }*/
 
     if (!empty($contr)){
         $contr = slashctrl($contr);
@@ -271,9 +275,8 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
     if (!$result){
         $retval .= $LANG_DQ['disperror'];
         COM_errorLog("An error occured while retrieving list of quotes",1);
-    }
-    //display quotes if any to display
-    else {
+    } else {
+        //display quotes if any to display
         $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
         $T->set_file('page', 'dispquotesheader.thtml');
         $T->parse('output','page');
@@ -316,8 +319,8 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
                 list($uid,$username) = DB_fetchArray($contrqu);
                 $username = DQ_linkProfile($uid, $username);
                 $T->set_var('contr', $username);
-                $T->set_var('datecontr', $row['dt']);
-                $cat = DB_query("SELECT c.id, c.name 
+                $T->set_var('datecontr', date('Y-m-d', $row['dt']));
+                $catsql = "SELECT c.id, c.name 
                         FROM 
                             {$_TABLES['dailyquote_cat']} c, 
                             {$_TABLES['dailyquote_lookup']} l 
@@ -326,22 +329,23 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
                         AND 
                             c.id=l.cid 
                         AND 
-                            l.status='1'");
+                            c.enabled='1'";
+                //echo $catsql;die;
+                $cat = DB_query($catsql);
                 $i = 0;
                 $catlist = "";
                 while ($catrow = DB_fetchArray($cat)){
                     if ($i > 0){
                         $catlist .= ", ";
                     }
-                    $catlink = catlink($catrow['ID'],$catrow['name']);
-                    $catlist = $catlist . $catlink;
+                    $catlist .= DQ_catlink($catrow['id'],$catrow['name']);
                     $i++;
                 }
                 $T->set_var('cat', $LANG_DQ['cat']);
                 $T->set_var('dispcat', $catlist);
                 if(SEC_hasRights('dailyquote.edit')){
-                    $editlink = '<a href="' . $_CONF['site_url'] . '/dailyquote/manage.php?qid=';
-                    $editlink .= $row['ID'] . '">';
+                    $editlink = '<a href="' . $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name'] . '/index.php?mode=edit&id=';
+                    $editlink .= $row['id'] . '">';
                     $editlink .= '<img src="' . $_CONF['site_url'] . '/dailyquote/images/edit.gif' . '" alt="';
                     $editlink .= $LANG_DQ['editlink'];
                     $editlink .= '" border="0" />';
@@ -434,7 +438,7 @@ function search_form(){
 
     $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
     $T ->set_file('page', 'searchcatopt2.thtml');
-    $T ->set_var('submit', $LANG_DQ['go']);
+    $T ->set_var('submit', $LANG_DQ['submit']);
     $T ->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
     return $retval;
@@ -449,7 +453,6 @@ $display .= COM_startBlock($LANG_DQ['indextitle']);
 
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
 $T->set_file('page', 'dqheader.thtml');
-//$T->set_var('header', $LANG_DQ00['plugin']);
 $T->set_var('site_url', $_CONF['site_url']);
 $T->set_var('plugin', 'dailyquote');
 $T->set_var('indextitle', $LANG_DQ['searchtitle']);

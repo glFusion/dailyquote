@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.0.1
+*   @version    0.1.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -46,7 +46,7 @@ define('DQ_URL',
 */
 $langpath = DQ_PI_PATH . '/language';
 $langfile = "{$_CONF['language']}.php";
-if (!file_exists($langfile)) {
+if (!file_exists("$langpath/$langfile")) {
     $langfile = 'english.php';
 }
 require_once "$langpath/$langfile";
@@ -127,6 +127,8 @@ function plugin_getheaderjs_dailyquote() {
 function plugin_showstats_dailyquote($showsitestats)
 {
     global $_CONF, $_USER, $_TABLES, $LANG_DQ, $_CONF_DQ;
+//TODO: Doesn't work yet
+return '';
 
     USES_lib_admin();
 
@@ -315,7 +317,7 @@ function plugin_dopluginsearch_dailyquote(
     }
 
     $search = new SearchCriteria($_CONF_DQ['pi_name'], $_CONF_DQ['pi_display_name']);
-    $columns = array('q.title', 'q.source', 'q.quoted');
+    $columns = array('q.title', 'q.source', 'q.quoted', 'q.quote');
     list($sql, $ftsql) = $search->buildSearchSQL($keyType, $query, $columns, $sql);
     //echo $sql;
     $search->setSQL($sql);
@@ -374,13 +376,18 @@ function plugin_getwhatsnew_dailyquote()
             LIMIT 15 ";
     //echo $sql;die;
     $result = DB_query($sql);
-    $items = array();
-    while ($row = DB_fetchArray($result, false)) {
-        $items[] = '<a href="' . 
-                DQ_URL . '/index.php?qid=' . $row['id'] . '">' .
-                stripslashes(substr($row['quoted'],0,40)) . "</a>\n";
+    $nrows = DB_numRows($result);
+    if ($nrows > 0) {
+        $items = array();
+        while ($row = DB_fetchArray($result, false)) {
+            $items[] = '<a href="' . 
+                    DQ_URL . '/index.php?qid=' . $row['id'] . '">' .
+                    stripslashes(substr($row['quoted'],0,40)) . "</a>\n";
+        }
+        return $items . '<br ' . XHTML . '>' . LB;
+    } else {
+        return $LANG_DQ['newempty'] . '<br ' . XHTML . '>' . LB;
     }
-    return $items;
 }
 
 
@@ -409,6 +416,7 @@ function plugin_autouninstall_dailyquote()
         'tables'    => array($_CONF_DQ['pi_name']. '_quotes',
                             $_CONF_DQ['pi_name']. '_submission',
                             $_CONF_DQ['pi_name']. '_cat',
+                            $_CONF_DQ['pi_name']. '_lookup',
                         ),
         'groups'    => array($_CONF_DQ['pi_name'] . ' Admin'),
         'features'  => array($_CONF_DQ['pi_name'] . '.add', 
@@ -416,7 +424,7 @@ function plugin_autouninstall_dailyquote()
                             $_CONF_DQ['pi_name'] . '.view',
                         ),
         'php_blocks' => array('phpblock_' . $_CONF_DQ['pi_name'] . '_dqmenu',
-                            'phpblock_' . $_CONF_DQ['pi_name'] . '_random_quote',
+                            'phpblock_' . $_CONF_DQ['pi_name'] . '_random',
                         ),
         'vars'      => array($_CONF_DQ['pi_name'] . '_gid')
     );
@@ -436,7 +444,13 @@ function slashctrl($str)
 }
 
 
-//converts usernames to clickable links leading to user profiles
+/**
+*   Converts usernames to clickable links leading to user profiles.
+*
+*   @param  integer $uid        User ID
+*   @param  string  $username   User Name
+*   @return string              HTML for link to user profile
+*/
 function DQ_linkProfile($uid, $username)
 {
     global $_CONF, $LANG_DQ;
@@ -451,9 +465,14 @@ function DQ_linkProfile($uid, $username)
 }
 
 
-//converts categories to clickable links leading to the search page
-//which will list all quotes in that category
-function catlink($catid,$catname)
+/**
+*   Converts categories to clickable links leading to the search page.
+*
+*   @param  integer $catid      Category ID
+*   @param  string  $catname    Category Name
+*   @return string              HTML for link
+*/
+function DQ_catlink($catid, $catname)
 {
     global $_CONF, $_TABLES, $_CONF_DQ;
 
@@ -520,7 +539,7 @@ function phpblock_dailyquote_dqmenu()
         $content .= $href . "<br />\n";
 
         // Link to the category management page
-        $href = COM_createLink($LANG_DQ['managelink'],
+        $href = COM_createLink($LANG_DQ['manage_cats'],
             DQ_ADMIN_URL . '/index.php?mode=categories');
         $content .= $href . "<br />\n";
     }
@@ -528,13 +547,6 @@ function phpblock_dailyquote_dqmenu()
     return $content;
 }
 
-
-//displays a row of links
-function link_row()
-{
-    USES_dailyquote_functions();
-    return DQ_link_row();
-}
 
 /**
 *   Displays a random quote from your database in a block.
@@ -832,5 +844,51 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
     return $retval;
 
 }
+
+
+/**
+*   Enable or disable this plugin's blocks when the plugin is changed.
+*
+*   @param  boolean $enabled    Plugin's "enabled" state
+*/
+function plugin_enablestatechange_dailyquote($enabled)
+{
+    global $_TABLES;
+
+    $enabled = $enabled == true ? 1 : 0;
+    $blocks = array('dailyquote_random', 'dailyquote_dgmenu');
+
+    foreach ($blocks as $block) {
+        DB_query("UPDATE {$_TABLES['blocks']}
+                SET is_enabled=$enabled
+                WHERE name='$block'");
+    }
+}
+
+
+/**
+*   Get the URL to the configuration help file
+*
+*   @param  string  $doclang    Document language
+*   @return string              URL to document
+*/
+function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
+{
+    global $_CONF, $_CONF_DQ;
+
+    $doc_path = $_CONF['path_html'] . '/' . $_CONF_DQ['pi_name'] . '/docs/';
+    if (file_exists("{$doc_path}config_{$doclang}.thtml")) {
+        $file  = "config_{$doclang}.thtml";
+    } else {
+        $file = 'config_english.html';
+    }
+
+    if (!empty($option)) {
+        $file .= '#desc_' . $option;
+    }
+
+    return array(DQ_URL . '/docs/' . $file, 0);
+}
+
 
 ?>

@@ -1,4 +1,0 @@
-                                            <tr>
-                                                <td>{dq_row_number} {dq_story_begin_href}<b>{dq_story_title}</b>{dq_story_end_href}</td>
-                                                <td>{dq_story_date}</td>
-                                            </tr>

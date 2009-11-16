@@ -1,11 +1,12 @@
 <?php
 //  $Id$
 /**
-*   Common functions for the DailyQuote plugin
+*   Administrative entry point for the DailyQuote plugin.
+*
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.0.1
+*   @version    0.1.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -13,8 +14,6 @@
 
 /** Import core glFusion functions */
 require_once('../../../lib-common.php');
-/** Import database functions - DEPRECATED */
-require_once('dqdatabase.php');
 
 USES_lib_admin();
 USES_dailyquote_class_quote();
@@ -71,8 +70,10 @@ function DQ_adminList()
 
     $text_arr = array(
         'has_extras' => true,
-        'form_url' => "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php"
+        'form_url' => "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php?type=quote"
     );
+
+    $options = array('chkdelete' => 'true', 'chkfield' => 'id');
 
     $query_arr = array('table' => 'dailyquote',
         'sql' => "SELECT * FROM {$_TABLES['dailyquote_quotes']} ",
@@ -82,7 +83,8 @@ function DQ_adminList()
     );
 
     $retval .= ADMIN_list('dailyquote', 'DQ_admin_getListField', $header_arr,
-                    $text_arr, $query_arr, $defsort_arr, '', '', '', $form_arr);
+                    $text_arr, $query_arr, $defsort_arr, '', '', 
+                    $options, $form_arr);
     $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
     return $retval;
@@ -114,7 +116,7 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
                 "\"quote\", \"{$_CONF['site_url']}\");'>\n" .
                 "</span>\n";
-        $retval .= COM_createLink(COM_createImage(
+        /*$retval .= COM_createLink(COM_createImage(
                 $_CONF['site_url'].'/dailyquote/images/deleteitem.png',
                 'Delete this quote',
             array('class'=>'gl_mootip',
@@ -122,7 +124,7 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 'title' => 'Delete this quote',
             )),
             DQ_ADMIN_URL . '/index.php?mode=deletequote&id=' . $A['id']
-        );
+        );*/
 /*        $retval .= '<form action={action_url} method="post">
             <input type=hidden name="id" value="' . $A['id'] . '">
             <input type=hidden name="action" value="deletequote">
@@ -186,7 +188,16 @@ if (!SEC_inGroup('Root')) {
 }
 
 if (isset($_REQUEST['mode'])) {
-    $mode = COM_applyFilter($_REQUEST['mode']);
+    $mode = $_REQUEST['mode'];
+} elseif (isset($_POST['delitem']) && !empty($_POST['delitem'])) {
+    switch($_GET['type']) {
+    case 'quote':
+        $mode = 'delMultiQuote';
+        break;
+    default:
+        $mode = 'adminquotes';
+        break;
+    }
 } else {
     $mode = 'adminquotes';
 }
@@ -210,6 +221,13 @@ case $LANG12[8]:
         $Q = new DailyQuote($q_id);
         $Q->Save($_POST);
     }
+    break;
+
+case 'delMultiQuote':
+    foreach ($_POST['delitem'] as $item) {
+        DailyQuote::Delete($item);
+    }
+    $page = 'adminquotes';
     break;
 
 case 'deletequote':

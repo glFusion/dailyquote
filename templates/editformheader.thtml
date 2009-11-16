@@ -1,3 +1,4 @@
-
-	<tr>
-		<td>
+{# begin {templatelocation} #}
+    <tr>
+        <td>
+{# end {templatelocation} #}

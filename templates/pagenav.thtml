@@ -1,6 +1,7 @@
-
-	<tr>
-		<td style="text-align: center; font-weight: bold;">
-			<!-- <p><strong>{previouspage_link}</strong>&nbsp; -->{google_paging}<!-- &nbsp;<strong>{nextpage_link}</strong></p> -->
-		</td>
-	</tr>
+{# begin {templatelocation} #}
+    <tr>
+        <td style="text-align: center; font-weight: bold;">
+            {google_paging}
+        </td>
+    </tr>
+{# end {templatelocation} #}

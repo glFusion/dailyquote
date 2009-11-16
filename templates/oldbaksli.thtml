@@ -1,3 +1,0 @@
-					<li><input type="radio" name="bak" value="{bakfile}" />
-						<a href="{site_url}/dailyquote/data/{bakfile}">{bakfile}</a>
-						&nbsp;&nbsp;({filesize}&nbsp;bytes)</li>

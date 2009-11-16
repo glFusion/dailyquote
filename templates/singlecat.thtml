@@ -1,2 +1,3 @@
-
+{# begin {templatelocation} #}
                 <td width="33%"><li>{dispcat}</li></td>
+{# end {templatelocation} #}

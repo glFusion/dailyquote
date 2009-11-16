@@ -1,4 +1,4 @@
-
+{# begin {templatelocation} #}
 				<tr>
 					<td>
 						<p style="text-align: left; font-weight: bold; color: red;">{numresultstxt}:&nbsp;&nbsp;{numresults}</p>
@@ -6,3 +6,4 @@
 						<!-- <hr width="45%"> -->
 					</td>
 				</tr>
+{# end {templatelocation} #}

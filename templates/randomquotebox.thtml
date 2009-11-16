@@ -1,4 +1,4 @@
-
+{# begin {templatelocation} #}
 <tr>
 <td>
 <blockquote>
@@ -16,3 +16,4 @@
 {cat}{dispcat}</p>-->
 </td>
 </tr>
+{# end {templatelocation} #}

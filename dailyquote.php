@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.0.1
+*   @version    0.1.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -27,7 +27,7 @@ $_TABLES['dailyquote_lookup']      = $DQ_prefix . 'lookup';
 $_TABLES['dailyquote_settings']    = $DQ_prefix . 'settings';
 
 // Static configuration items
-$_CONF_DQ['pi_version'] = '0.0.1';
+$_CONF_DQ['pi_version'] = '0.1.0';
 $_CONF_DQ['pi_name'] = 'dailyquote';
 $_CONF_DQ['gl_version'] = '1.1.4';
 $_CONF_DQ['pi_url'] = 'http://www.leegarner.com';
@@ -40,7 +40,6 @@ $_CONF_DQ['whatsnewnamelength'] = 20;
 
 //directory to use for batch import and backup storage
 //do not change!  at least until I've made this var available to all scripts using the dir.
-$_CONF_DQ['datadir'] = $_CONF['path_html'] . 'dailyquote/data/';
 
 $_CONF_DQ['google_url'] = 'http://www.google.com/search?hl=%s&q=%s';
 

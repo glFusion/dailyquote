@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<!-- $Id$ -->
+<!-- $Id: dailyquote.html 10 2009-03-09 16:26:53Z root $ -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" />
-  <link rel="stylesheet" type="text/css" href="layout/style.css" />
+  <link href="../../docs/docstyle.css" type="text/css" rel="stylesheet" />
   <meta name="robots" content="noindex,nofollow" />
   <title>Daily Quote Plugin - glFusion CMS</title>
 </head>
@@ -47,20 +47,28 @@ for display in blocks. The administrator can control publication by using the su
       <td class="col1 leftalign">Set this to "True" to use the glFusion submission queue to moderate submissions.  If this is set to "False" then user submissions will be immediately published.</td>
     </tr>
     <tr class="row4">
-      <td class="col0 leftalign"><a name="desc_whatsnew_int"></a>Number of days for a quote to be considered "new"</td>
-      <td class="col1 leftalign">This is the number of days during which a quote will appear in the "What's New" block, if enabled.</td>
-    </tr>
-    <tr class="row4">
       <td class="col0 leftalign"><a name="desc_whatsnew"></a>Show Quotes in the "What's New" block</td>
       <td class="col1 leftalign">If this is set to "Yes", then quotes which are newer than the number of days specified above will appear in the "What's New" block.</td>
     </tr>
+
+    <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_whatsnewdays"></a>Number of days for a quote to be considered "new"</td>
+      <td class="col1 leftalign">This is the number of days during which a quote will appear in the "What's New" block, if enabled.</td>
+    </tr>
+
     <tr class="row4">
       <td class="col0 leftalign"><a name="desc_anonadd"></a>Allow anonymous users to submit quotes?</td>
       <td class="col1 leftalign">If this is "Yes", then anonymous users will be able to submit quotations.  If this is "No", then only logged-in users may submit.  If you set this value to "Yes" then you should use the submission queue!</td>
     </tr>
+
     <tr class="row4">
-      <td class="col0 leftalign"><a name="desc_google"></a>Base link for Google searches</td>
-      <td class="col1 leftalign">The text in this field will be used to construct a Google search link by appending the quoted personality's name.  The default value is <br /><code>http://www.google.com/search?hl=en&num=20&q=</code>, which will search Google and return 20 results.  Other search engines may be used, but be sure that the search phrase is the last item in the string.<p />
+      <td class="col0 leftalign"><a name="desc_google_link"></a>Add Google links to quotes?</td>
+      <td class="col1 leftalign">Set this to "Yes" to have links to Google created for quotations.  This allows quick searching for more inforamtion related to the quote.<p />
+Setting this to "No" prevents Google links from being added.</td>
+    </tr>
+    <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_google_url"></a>Base link for Google searches</td>
+      <td class="col1 leftalign">The text in this field will be used to construct a Google search link by replacing the first "%s" with the language, and the second "%s" with the search string.  The default value is <br /><code>http://www.google.com/search?hl=%s&num=20&q=%s</code>, which will search Google and return 20 results.<p />
     Leave this string empty to disable link creation.</td>
     </tr>
 

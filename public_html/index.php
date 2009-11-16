@@ -277,7 +277,7 @@ function DQ_listCategories()
 *   Displays a menu of sort by options for the display page
 *   @return string  HTML for sort selection form
 */
-function DQ_menuSort()
+function DQ_menuSort($sort='', $dir='')
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
     
@@ -285,6 +285,21 @@ function DQ_menuSort()
     $T ->set_file('page', 'sortnav.thtml');
     $T ->set_var('site_url', $_CONF['site_url']);
     $T ->set_var('submit', $LANG_DQ['sort']);
+
+    $sortby_opts = array('dt' => $LANG_DQ['date'],
+                    'quote' => $LANG_DQ['quotation'],
+                    'quoted' => $LANG_DQ['quoteby'],
+                );
+    $sortby = '';
+    foreach ($sortby_opts as $key=>$value) {
+        $sel = $sort == $key ? ' selected="selected"' : '';
+        $sortby .= '<option value="' . $key . $sel . '">' . $value . "</option>\n";
+    }
+    $T->set_var('sortby_opts', $sortby);
+    if ($dir == 'ASC')
+        $T->set_var('asc_sel', 'selected="selected"');
+    else
+        $T->set_var('desc_sel', 'selected="selected"');
 
     $T->parse('output','page');
     $retval = $T->finish($T->get_var('output'));
@@ -309,7 +324,6 @@ if ($page < 1) $page = 1;
 $display = COM_siteHeader();
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
 $T->set_file('page', 'dqheader.thtml');
-//$T->set_var('header', $LANG_DQ00['plugin']);
 $T->set_var('site_url', $_CONF['site_url']);
 $T->set_var('plugin', 'dailyquote');
 
@@ -331,7 +345,7 @@ case 'categories':
     $display .= DQ_listCategories();
     break;
 default:
-    $display .= DQ_menuSort();
+    $display .= DQ_menuSort($sort, $asc);
     $display .= DQ_listQuotes($sort, $asc, $page);
     break;
 }

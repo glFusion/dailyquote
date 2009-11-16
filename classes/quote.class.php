@@ -283,7 +283,9 @@ class DailyQuote
         // Now, add records to the lookup table to link the categories
         // to the quote.  Only if bypassing the submission queue; if
         // the queue is used $catlist will be empty.
-        if (is_array($A['cat'])) {
+        if (!is_array($A['cat']) || empty($A['cat'])) {
+            $A['cat'] = array(1 => 'Miscellaneous');
+        }
             foreach($A['cat'] as $key => $name) {
                 $key = (int)$key;
                 $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
@@ -294,7 +296,6 @@ class DailyQuote
                 //echo $sql;
                 @DB_query($sql);
             }
-        }
 
         return '';
 
@@ -326,10 +327,12 @@ class DailyQuote
                 LEFT JOIN {$_TABLES['dailyquote_cat']} c
                     ON l.cid = c.id ";
         }
-        $sql .= "WHERE 
-                    q.enabled = '1'";
+
+        $sql .= " WHERE 1=1 ";
+        //$sql .= "WHERE 
+        //            q.enabled = '1'";
         if ($qid == '') {
-            if ($cid > 0) {
+            if ($cid != '') {
                 $sql .= " AND c.id = '$cid' ";
             }
             $sql .= " ORDER BY rand() LIMIT 1";

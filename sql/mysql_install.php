@@ -26,7 +26,7 @@ $_SQL['dailyquote_quotes'] =
   dt INT(11) DEFAULT 0,
   uid INT NOT NULL default '1',
   enabled TINYINT(1) NOT NULL DEFAULT '1',
-  UNIQUE idx_quote (quote(32))
+  UNIQUE idx_quote (`quote`(32))
 ) TYPE=MyISAM";
 
 // Submission Table
@@ -40,24 +40,24 @@ $_SQL['dailyquote_submission'] =
   sourcedate VARCHAR(16),
   dt INT(11) DEFAULT 0,
   uid INT NOT NULL default '1',
-  UNIQUE idx_quote (quote(32))
+  UNIQUE idx_quote (`quote`(32))
 ) TYPE=MyISAM";
 
 // Categories Table
 $_SQL['dailyquote_cat'] = 
   "CREATE TABLE {$_TABLES['dailyquote_cat']} (
-  id VARCHAR(40) NOT NULL PRIMARY KEY,
+  id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(64) NOT NULL default 'Miscellany',
   enabled TINYINT(1) NOT NULL default '1',
-  UNIQUE idx_name (name(10))
+  UNIQUE idx_name (`name`(10))
 ) TYPE=MyISAM";
 
 // Lookup Table
 $_SQL['dailyquote_lookup'] = 
   "CREATE TABLE {$_TABLES['dailyquote_lookup']} (
   qid VARCHAR(40) NOT NULL,
-  cid VARCHAR(40) UNSIGNED NOT NULL,
-  PRIMARY KEY(qid,cid,uid)
+  cid INT(11) NOT NULL,
+  PRIMARY KEY(qid,cid)
 ) TYPE=MyISAM";
 
 

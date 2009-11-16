@@ -38,6 +38,7 @@ $_DQ_DEFAULT = array(
     'cb_pos' => '2',            // centerblock position (2=top)
     'cb_home' => '1',           // centerblock home page only?
     'google_link' => '1',       // add Google link to person quoted?
+    'google_url' => 'http://www.google.com/search?hl=%s&q=%s',
     'whatsnew' => '0',          // show new quotes in whatsnew block?
     'whatsnewdays' => '14',     // number of days to be considered new
     'default_permissions' => array (3, 2, 2, 2),
@@ -95,12 +96,16 @@ function plugin_initconfig_dailyquote($group_id = 0)
                 'select', 0, 0, 5, 100, true, $_CONF_DQ['pi_name']);
         $c->add('cb_home', $_DQ_DEFAULT['cb_home'], 'select',
                 0, 0, 0, 110, true, $_CONF_DQ['pi_name']);
-        $c->add('gglink', $_DQ_DEFAULT['gglink'], 'select',
+        $c->add('google_link', $_DQ_DEFAULT['google_link'], 'select',
                 0, 0, 0, 120, true, $_CONF_DQ['pi_name']);
-        $c->add('whatsnew', $_DQ_DEFAULT['whatsnew'], 'select',
+        $c->add('google_url', $_DQ_DEFAULT['google_url'], 'text',
                 0, 0, 0, 130, true, $_CONF_DQ['pi_name']);
-        $c->add('email_admin', $_DQ_DEFAULT['email_admin'], 'select',
+        $c->add('whatsnew', $_DQ_DEFAULT['whatsnew'], 'select',
                 0, 0, 0, 140, true, $_CONF_DQ['pi_name']);
+        $c->add('whatsnewdays', $_DQ_DEFAULT['whatsnewdays'], 'text',
+                0, 0, 0, 150, true, $_CONF_DQ['pi_name']);
+        $c->add('email_admin', $_DQ_DEFAULT['email_admin'], 'select',
+                0, 0, 0, 160, true, $_CONF_DQ['pi_name']);
 
 
         $c->add('fs_permissions', NULL, 'fieldset', 0, 4, NULL, 0, true, $_CONF_DQ['pi_name']);
