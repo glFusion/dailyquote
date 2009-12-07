@@ -31,44 +31,14 @@ if ($anonview < 2 && $_USER['uid'] < 2) {
     exit;
 }
 
-/**
-*   Displays the google-like page nav.
-*/
-function X_display_pagenav($sort, $asc, $page)
-{
-    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
-
-    //print page nav here
-    $numquotes = DB_count($_TABLES['dailyquote_quotes'], 'enabled', "1");
-    $displim = $_CONF_DQ['indexdisplim'];
-    if ($numquotes > $displim) {
-        $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-        $T->set_file('page', 'pagenav.thtml');
-        $prevpage = $page - 1;
-        $nextpage = $page + 1;
-        $pagestart = ($page - 1) * $displim;
-        if ((isset($sort)) && (isset($asc))){
-            $sortvar = "sort=".$sort."&amp;asc=".$asc;
-        }
-        elseif (isset($sort)){
-            $sortvar = "sort=".$sort;
-        }
-        elseif (isset($asc)){
-            $ascvar = "asc".$asc;
-        }
-        $baseurl = $_CONF['site_url'] . '/dailyquote/index.php?' . $sortvar . $ascvar;
-        $numpages = ceil ($numquotes / $displim);
-        $T->set_var ('google_paging',
-                COM_printPageNavigation ($baseurl, $page, $numpages));
-        $T->parse('output','page');
-        $retval .= $T->finish($T->get_var('output'));
-    }
-    return $retval;
-}
-
 
 /**
 *   Displays the quotes listing.
+*
+*   @param  string  $sort   Field to sort by
+*   @param  string  $asc    Either 'ASC' or 'DESC'
+*   @param  integer $page   Page number to display
+*   @return string          HTML for quote listing
 */
 function DQ_listQuotes($sort, $asc, $page)
 {
@@ -80,15 +50,16 @@ function DQ_listQuotes($sort, $asc, $page)
     if ($page < 1) $page = 1;
 
     $sql = "SELECT DISTINCT 
-                q.id, quote, quoted, title, source, sourcedate, dt, q.uid
+                q.id, quote, quoted, title, source, sourcedate, dt, q.uid,
+                c.id AS catid, c.name AS catname
             FROM 
-                {$_TABLES['dailyquote_quotes']} q ";
-    if ($catid > 0) {
-        $sql .= " LEFT JOIN {$_TABLES['dailyquote_lookup']} l 
-                ON q.id = l.qid ";
-    }
+                {$_TABLES['dailyquote_quotes']} q 
+            LEFT JOIN {$_TABLES['dailyquote_lookup']} l 
+                ON q.id = l.qid 
+            LEFT JOIN {$_TABLES['dailyquote_cat']} c
+                ON l.cid = c.id ";
     $sql .= " WHERE 
-                q.enabled='1' ";
+                q.enabled = '1' AND (c.enabled = '1' OR c.enabled IS NULL) ";
     if ($catid > 0) {
         $sql .= " AND l.cid = $catid ";
     }
@@ -150,15 +121,17 @@ function DQ_listQuotes($sort, $asc, $page)
     while ($row = DB_fetchArray($result)) {
         $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
         $T->set_file('page', 'singlequote.thtml');
-        //if (!empty($row['title'])){
-            //$title = '<p style="text-align: left; font-weight: bold; text-decoration: underline;">';
-            //$title .= $row['title'];
-            //$title .= '</p>';
-            //$T->set_var('title', $title);
-            $T->set_var('title', $row['title']);
-        //}
+
+        $T->set_var('title', $row['title']);
         $T->set_var('quote', htmlspecialchars($row['quote']));
         $T->set_var('quoted', DailyQuote::GoogleLink($row['quoted']));
+
+        if (!empty($row['catid']) && !empty($row['catname'])) {
+            $T->set_var(array(
+                'catid'     => $row['catid'],
+                'catname'   => $row['catname'],
+            ) );
+        }
         if (!empty($row['source'])){
             $T->set_var('source', '&nbsp;--&nbsp;' . htmlspecialchars($row['source']));
         }
@@ -184,9 +157,10 @@ function DQ_listQuotes($sort, $asc, $page)
                 COM_createLink(
                     COM_createImage(
                         DQ_URL . "/images/deleteitem.$_IMAGE_TYPE", 
-                        'Delete this quote',
+                        $LANG_DQ['del_quote'],
                         array(
-                            'onclick'=>'return confirm(\'Do you really want to delete this item?\');',
+                            'onclick'=>'return confirm(\'' .
+                                $LANG_DQ['del_titem_conf'] . ');',
                             'class'=> 'gl_mootip',
                         )
                     ),
@@ -197,7 +171,6 @@ function DQ_listQuotes($sort, $asc, $page)
         $T->parse('output','page');
         $retval .= $T->finish($T->get_var('output'));
     }
-    //$retval .= display_pagenav($sort, $asc, $page);
     $retval .= $google_pagenav;
 
     $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
@@ -288,7 +261,7 @@ function DQ_menuSort($sort='', $dir='')
 
     $sortby_opts = array('dt' => $LANG_DQ['date'],
                     'quote' => $LANG_DQ['quotation'],
-                    'quoted' => $LANG_DQ['quoteby'],
+                    'quoted' => $LANG_DQ['quoted'],
                 );
     $sortby = '';
     foreach ($sortby_opts as $key=>$value) {

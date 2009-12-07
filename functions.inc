@@ -357,7 +357,7 @@ function plugin_getwhatsnew_dailyquote()
     $days = (int)$_CONF_DQ['whatsnewdays'];
 
     $sql = "SELECT DISTINCT 
-                q.id, q.quoted 
+                q.id, q.quote
             FROM 
                 {$_TABLES['dailyquote_quotes']} q 
             LEFT JOIN
@@ -378,13 +378,27 @@ function plugin_getwhatsnew_dailyquote()
     $result = DB_query($sql);
     $nrows = DB_numRows($result);
     if ($nrows > 0) {
-        $items = array();
+        $T = new Template(DQ_PI_PATH . '/templates');
+        $T->set_file('block', 'blk_whatsnew.thtml');
         while ($row = DB_fetchArray($result, false)) {
-            $items[] = '<a href="' . 
-                    DQ_URL . '/index.php?qid=' . $row['id'] . '">' .
-                    stripslashes(substr($row['quoted'],0,40)) . "</a>\n";
+            $quote = htmlspecialchars($row['quote']);
+            $itemlen = strlen($quote);
+            if ($itemlen > 16) {
+                $quote_text = substr($quote, 0, 16) . '...';
+            } else {
+                $quote_text = $row['quote'];
+            }
+            //$items[] = '<a href="' . DQ_URL . '/index.php?qid=' . $row['id']
+            //            . '" title="' . $quote . '">'
+            //            . $quote_text . '</a>' . "\n";
+            $T->set_var('quote_link', DQ_URL . '/index.php?qid=' . $row['id']);
+            $T->set_var('quote_title', $quote);
+            $T->set_var('quote_text', $quote_text);
+            $T->set_var('XHTML', XHTML);
+            $T->parse('output', 'block');
+            $items .= $T->finish($T->get_var('output'));
         }
-        return $items . '<br ' . XHTML . '>' . LB;
+        return $items;
     } else {
         return $LANG_DQ['newempty'] . '<br ' . XHTML . '>' . LB;
     }

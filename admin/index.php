@@ -53,13 +53,20 @@ function DQ_adminList()
     $retval = '';
 
     $header_arr = array(      # display 'text' and use table field 'field'
-        array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
-        array('text' => 'Quote ID', 'field' => 'id', 'sort' => true),
-        array('text' => $LANG_DQ['date'], 'field' => 'dt', 'sort' => true),
-        array('text' => $LANG_DQ['quoted'], 'field' => 'quoted', 'sort' => true),
-        array('text' => $LANG_DQ['title'], 'field' => 'title', 'sort' => true),
-        array('text' => $LANG_DQ['quote'], 'field' => 'quote', 'sort' => true),
-        //array('text' => $LANG_ACCESS['access'], 'field' => 'access', 'sort' => false)
+        array('field' => 'edit', 
+            'text' => $LANG_ADMIN['edit'], 'sort' => false),
+        array('field' => 'enabled', 
+            'text' => $LANG_DQ['enabled'], 'sort' => false),
+        array('field' => 'id', 
+            'text' => 'Quote ID', 'sort' => true),
+        array('field' => 'dt', 
+            'text' => $LANG_DQ['date'], 'sort' => true),
+        array('field' => 'quoted', 
+            'text' => $LANG_DQ['quoted'], 'sort' => true),
+        array('field' => 'title', 
+            'text' => $LANG_DQ['title'], 'sort' => true),
+        array('field' => 'quote', 
+            'text' => $LANG_DQ['quote'], 'sort' => true),
     );
 
     $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
@@ -103,7 +110,10 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
             $icon_arr['edit'],
             "{$_CONF['site_admin_url']}/plugins/dailyquote/index.php?mode=edit&amp;id={$A['id']}"
         );
-        if ($A['enabled'] == 1) {
+        break;
+
+    case 'enabled':
+        if ($fieldvalue == 1) {
             $ena_icon = 'on.png';
             $enabled = 0;
         } else {
@@ -116,26 +126,6 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
                 "\"quote\", \"{$_CONF['site_url']}\");'>\n" .
                 "</span>\n";
-        /*$retval .= COM_createLink(COM_createImage(
-                $_CONF['site_url'].'/dailyquote/images/deleteitem.png',
-                'Delete this quote',
-            array('class'=>'gl_mootip',
-                'onclick'=>'return confirm(\'Do you really want to delete this item?\');',
-                'title' => 'Delete this quote',
-            )),
-            DQ_ADMIN_URL . '/index.php?mode=deletequote&id=' . $A['id']
-        );*/
-/*        $retval .= '<form action={action_url} method="post">
-            <input type=hidden name="id" value="' . $A['id'] . '">
-            <input type=hidden name="action" value="deletequote">
-            <input type="image" 
-              src="'{site_url}/photocomp/images/deleteitem.png" 
-          height="16" width="16" border="0" 
-          alt="{$LANG_PHOTO['delete']}" 
-          title="{$LANG_PHOTO['delete_item']}"
-          onclick="return confirm('Do you really want to delete this item?');" 
-          class="gl_mootip">
-      </form>*/
         break;
     case 'title':
         $retval = stripslashes($A['title']);
@@ -315,26 +305,7 @@ $T->set_var('indexintro', $LANG_DQ['adminintro']);
 $T->parse('output','page');
 
 $display = COM_siteHeader();
-//$display .= $T->finish($T->get_var('output'));
-
-/*if (isset($_POST['submit'])){
-    if ($_POST['submit'] == $LANG_DQ['update']){
-        $display .= update_config();
-    } elseif ($_POST['submit'] == $LANG_DQ['default']){
-        $display .= default_cfg();
-    }
-}*/
-//$display .= link_row();
-
-//$display .= config_form();
 $display .= $content;
-
-/*$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-$T->set_file('page', 'dqfooter.thtml');
-$T->parse('output','page');
-$display .= $T->finish($T->get_var('output'));*/
-
-//$display .= COM_endBlock();
 $display .= COM_siteFooter();
 
 echo $display;
