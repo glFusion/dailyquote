@@ -15,7 +15,7 @@
 
 $LANG_DQ= array(
 'access_denied'     => 'Access Denied',
-'access_denied_msg' => 'Only Root Users have Access to this Page.  Your user name and IP have been recorded.',
+'access_denied_msg' => 'You do not have Access to this page.  Your user name and IP have been recorded.',
 'access_denied_msg1' => 'Only Authorized Users have Access to this Page.  Your user name and IP have been recorded.',
 'enabled'           => 'Enabled',
 'absentfile'        => 'Error: You must specify a file to upload.',
@@ -110,6 +110,10 @@ $LANG_DQ= array(
 'submit'            => 'Submit',
 'del_quote'         => 'Delete Quote',
 'del_item_conf'     => 'Do you really want to delete this item?',
+'quotes_in_db'      => 'Quotes in the database',
+'any'               => 'Any',
+'contributor'       => 'Contributor',
+'category'          => 'Category',
 
 );
 

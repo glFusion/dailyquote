@@ -49,7 +49,8 @@ function DQ_listQuotes($sort, $asc, $page)
     if ($asc != 'ASC') $asc = 'DESC';
     if ($page < 1) $page = 1;
 
-    $sql = "SELECT DISTINCT 
+    // TODO: this query only gives us the quotes with one category name.
+    $sql = "SELECT 
                 q.id, quote, quoted, title, source, sourcedate, dt, q.uid,
                 c.id AS catid, c.name AS catname
             FROM 
@@ -57,9 +58,11 @@ function DQ_listQuotes($sort, $asc, $page)
             LEFT JOIN {$_TABLES['dailyquote_lookup']} l 
                 ON q.id = l.qid 
             LEFT JOIN {$_TABLES['dailyquote_cat']} c
-                ON l.cid = c.id ";
-    $sql .= " WHERE 
-                q.enabled = '1' AND (c.enabled = '1' OR c.enabled IS NULL) ";
+                ON l.cid = c.id 
+            WHERE 
+                q.enabled = '1' 
+            AND 
+                (c.enabled = '1' OR c.enabled IS NULL) ";
     if ($catid > 0) {
         $sql .= " AND l.cid = $catid ";
     }
@@ -78,7 +81,7 @@ function DQ_listQuotes($sort, $asc, $page)
         $sorted = 'dt';
         break;
     }
-    $sql .= " ORDER BY $sorted ";
+    $sql .= " GROUP BY q.id ORDER BY $sorted ";
 
     $sql .= $asc == 'ASC' ? ' ASC' : ' DESC';
 
@@ -89,7 +92,6 @@ function DQ_listQuotes($sort, $asc, $page)
     $sql .= " LIMIT $startlimit, $displim";
 
     //echo $sql;die;
-
     $result = DB_query($sql);
     if (!$result) {
         $retval = $LANG_DQ['disperror'];

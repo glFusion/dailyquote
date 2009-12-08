@@ -110,12 +110,12 @@ class DailyQuote
 
         $this->id = COM_sanitizeID($A['id'], false);
         $this->quote = $A['quote'];
-        $this->quoted = $A['content'];
+        $this->quoted = $A['quoted'];
         $this->source = $A['source'];
         $this->sourcedate = $A['sourcedate'];
         $this->title = $A['title'];
         $this->dt = $A['dt'];
-        $this->enabled = $A['enabled'] == 1 ? 1 : 0;
+        $this->enabled = (isset($A['enabled']) && $A['enabled'] == 0) ? 0 : 1;
         $this->uid = (int)$A['uid'];
 
     }
@@ -193,14 +193,17 @@ class DailyQuote
                 return 3;
 
             if (COM_isAnonUser()) {
-                if ($_CONF_DQ['anonadd'] == 1)
-                    return 3;
+                return $_CONF_DQ['anonadd'] == 1 ? 3 : 0;
             } else {
-                if ($_CONF_DQ['loginadd'] == 1)
-                    return 3;
+                return $_CONF_DQ['loginadd'] == 1 ? 3 : 0;
+            } 
+        } else {
+            if (COM_isAnonUser()) {
+                return $_CONF_DQ['anonview'] == 1 ? 2 : 0;
             }
-        } else
-            return 2;
+        }
+
+        return 0;
 
     }
 
@@ -240,7 +243,7 @@ class DailyQuote
 
         if ($table != 'dailyquote_quotes')
             $table = 'dailyquote_submission';
-            
+
         $access = $this->hasAccess(3);
         if (!$access) {
             COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->id}.");

@@ -91,8 +91,11 @@ function display_pagenav($categ, $keywords, $keytype, $type, $datestart, $dateen
 }
 
 //displays the search results
-function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend, $contr, $qid, $show, $stat, $catget, $mode, $page){
-    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
+function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend, $contr, $qid, $show, $stat, $catget, $mode, $page)
+{
+    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN, $_IMAGE_TYPE;
+
+    USES_dailyquote_functions();
 
     $sql = "SELECT DISTINCT 
             id, quote, quoted, title, source, sourcedate, dt, q.uid, username
@@ -238,22 +241,27 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
         $sql .= " AND username='$contr'";
     }
 
-    // this GET stuff comes from the GL search results urls and displays here accordingly
-    if ((isset($qid)) && (isset($show))){
-        if ($show == "quote"){//shows a single quote on the search page
+    //  this GET stuff comes from the GL search results urls and displays 
+    //  here accordingly
+    if (isset($qid) && isset($show)) {
+        if ($show == "quote"){
+            //shows a single quote on the search page
             $sql .= " AND id='$qid'";
-        } elseif ($show == "quoted"){//shows all quotes by whomever was quoted
+        } elseif ($show == "quoted") {
+            //shows all quotes by whomever was quoted
             $result = DB_query("SELECT quoted From {$_TABLES['dailyquote_quotes']} WHERE id=$qid");
             list($quoted) = DB_fetchArray($result);
             $quoted = slashctrl($quoted);
             $sql .= " AND quoted='$quoted'";
-        } elseif ($show == "name"){//shows all quotes submitted by whoever submitted $qid
+        } elseif ($show == "name") {
+            //shows all quotes submitted by whoever submitted $qid
             $result = DB_query("SELECT uid FROM {$_TABLES['dailyquote_quotes']} WHERE id='$qid'");
             list($uid) = DB_fetchArray($result);
             $sql .= " AND q.uid='$uid'";
         }
     }
-    elseif (isset($stat)){// this comes from the GL stats page
+    elseif (isset($stat)) {
+        // this comes from the GL stats page
         $stat = slashctrl($stat);
         $sql .= " AND quoted='$stat'";
     }
@@ -320,36 +328,17 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
                 $username = DQ_linkProfile($uid, $username);
                 $T->set_var('contr', $username);
                 $T->set_var('datecontr', date('Y-m-d', $row['dt']));
-                $catsql = "SELECT c.id, c.name 
-                        FROM 
-                            {$_TABLES['dailyquote_cat']} c, 
-                            {$_TABLES['dailyquote_lookup']} l 
-                        WHERE 
-                            l.qid={$row['id']} 
-                        AND 
-                            c.id=l.cid 
-                        AND 
-                            c.enabled='1'";
-                //echo $catsql;die;
-                $cat = DB_query($catsql);
-                $i = 0;
-                $catlist = "";
-                while ($catrow = DB_fetchArray($cat)){
-                    if ($i > 0){
-                        $catlist .= ", ";
-                    }
-                    $catlist .= DQ_catlink($catrow['id'],$catrow['name']);
-                    $i++;
-                }
+
+                $catlist = DQ_catlistDisplay($row['id']);
                 $T->set_var('cat', $LANG_DQ['cat']);
-                $T->set_var('dispcat', $catlist);
+                $T->set_var('catname', $catlist);
                 if(SEC_hasRights('dailyquote.edit')){
-                    $editlink = '<a href="' . $_CONF['site_url'] . '/' . $_CONF_DQ['pi_name'] . '/index.php?mode=edit&id=';
-                    $editlink .= $row['id'] . '">';
-                    $editlink .= '<img src="' . $_CONF['site_url'] . '/dailyquote/images/edit.gif' . '" alt="';
-                    $editlink .= $LANG_DQ['editlink'];
-                    $editlink .= '" border="0" />';
-                    $editlink .= '</a>';
+                    $icon_url = "{$_CONF['layout_url']}/images/edit.$_IMAGE_TYPE";
+                    $editlink = '<a href="' . DQ_ADMIN_URL . 
+                            '/index.php?mode=edit&id=' .
+                            $row['id'] . '">' .
+                            COM_createImage($icon_url, $LANG_ADMIN['edit']) .
+                            '</a>';
                     $T->set_var('editlink', $editlink);
                 }
                 $T->parse('output','page');
@@ -371,78 +360,79 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
 }
 
 //displays the search form
-function search_form(){
+function search_form()
+{
     global $_TABLES, $_CONF, $LANG_DQ;
 
     $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
     $T ->set_file('page', 'searchform.thtml');
-    $T ->set_var('site_url', $_CONF['site_url']);
-    $T ->set_var('searchlabel', $LANG_DQ['searchlabel']);
-    $T ->set_var('keyphrase', $LANG_DQ['keyphrase']);
-    $T ->set_var('keyall', $LANG_DQ['keyall']);
-    $T ->set_var('keyany', $LANG_DQ['keyany']);
-    $T ->set_var('datestart', $LANG_DQ['date']);
-    $T ->set_var('enddate', $LANG_DQ['enddate']);
-    $T ->set_var('dateformat', $LANG_DQ['dateformat']);
-    $T ->set_var('type', $LANG_DQ['type']);
-    $T ->set_var('sortopt1', $LANG_DQ['sortopt1']);
-    $T ->set_var('sortopt2', $LANG_DQ['sortopt2']);
-    $T ->set_var('sortopt4', $LANG_DQ['sortopt4']);
-    $T ->set_var('sortopt5', $LANG_DQ['sortopt5']);
-    $T ->set_var('sortopt6', $LANG_DQ['sortopt6']);
-    $T ->set_var('sortopt7', $LANG_DQ['sortopt7']);
-    $T ->set_var('limit', $LANG_DQ['limit']);
-    $T ->parse('output','page');
-    $retval = $T->finish($T->get_var('output'));
 
-    //retrieve contributors from db
+    $T ->set_var(array(
+        'site_url'      => $_CONF['site_url'],
+        'searchlabel'   => $LANG_DQ['searchlabel'],
+        'keyphrase'     => $LANG_DQ['keyphrase'],
+        'keyall'        => $LANG_DQ['keyall'],
+        'keyany'        => $LANG_DQ['keyany'],
+        'datestart'     => $LANG_DQ['date'],
+        'enddate'       => $LANG_DQ['enddate'],
+        'dateformat'    => $LANG_DQ['dateformat'],
+        'type'          => $LANG_DQ['type'],
+        'sortopt1'      => $LANG_DQ['sortopt1'],
+        'sortopt2'      => $LANG_DQ['sortopt2'],
+        'sortopt4'      => $LANG_DQ['sortopt4'],
+        'sortopt5'      => $LANG_DQ['sortopt5'],
+        'sortopt6'      => $LANG_DQ['sortopt6'],
+        'sortopt7'      => $LANG_DQ['sortopt7'],
+        'limit', $LANG_DQ['limit'],
+    ) );
+//    $T ->parse('output','page');
+//    $retval = $T->finish($T->get_var('output'));
+
+    //  Create the Contributor selection
     $result = DB_query("SELECT uid
             FROM {$_TABLES['dailyquote_quotes']} 
             WHERE enabled='1' 
             GROUP BY uid ASC");
-    $numrows = DB_numRows($result);
-    if ($numrows>0){
-        while ($row = DB_fetchArray($result)){
-            $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-            $T ->set_file('page', 'searchcontropt.thtml');
-            $subm = DB_query("SELECT username 
-                    FROM {$_TABLES['users']} 
-                    WHERE uid={$row['uid']}");
-            list($username) = DB_fetchArray($subm);
-            $T->set_var('contr', $username);
-            $T ->parse('output','page');
-            $retval .= $T->finish($T->get_var('output'));
-        }
+    
+    $T->set_block('page', 'ContribSelect', 'Contrib');
+    while ($row = DB_fetchArray($result)) {
+        $username = COM_getDisplayName($row['uid']);
+        $T->set_var('contr', $username);
+        $T ->parse('Contrib', 'ContribSelect', true);
     }
 
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T ->set_file('page', 'searchcontropt2.thtml');
-    $T ->set_var('sortopt3', $LANG_DQ['sortopt3']);
-    $T ->parse('output','page');
-    $retval .= $T->finish($T->get_var('output'));
+    //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+    //$T ->set_file('page', 'searchcontropt2.thtml');
+    //$T ->set_var('category', $LANG_DQ['category']);
+    //$T ->parse('output','page');
+    //$retval .= $T->finish($T->get_var('output'));
 
-    //retrieve categories from db
+    //  Create the Category selection
     $result = DB_query("SELECT id, name 
                 FROM  {$_TABLES['dailyquote_cat']}
                 ORDER BY name");
-    while ($row = DB_fetchArray($result)){
-        $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-        $T ->set_file('page', 'searchcatopt.thtml');
+    $T->set_block('page', 'CatSelect', 'Cat');
+    while ($row = DB_fetchArray($result)) {
+        //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+        //$T ->set_file('page', 'searchcatopt.thtml');
         $T->set_var(array(
             'catoption' => $row['name'],
             'catid'     => $row['id'],
         ));
-        $T->parse('output','page');
-        $retval .= $T->finish($T->get_var('output'));
+        $T->parse('Cat', 'CatSelect', true);
+        //$retval .= $T->finish($T->get_var('output'));
     }
 
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T ->set_file('page', 'searchcatopt2.thtml');
-    $T ->set_var('submit', $LANG_DQ['submit']);
+    //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+//    $T ->set_file('page', 'searchcatopt2.thtml');
+//    $T ->set_var('submit', $LANG_DQ['submit']);a
+
     $T ->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
+
     return $retval;
 }
+
  
 /* 
 * Main Function

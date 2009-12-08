@@ -53,36 +53,23 @@ require_once "$langpath/$langfile";
 
 
 function USES_dailyquote_submitform()
-{
-    include_once DQ_PI_PATH . '/submitform.php';
-}
+{   require_once DQ_PI_PATH . '/submitform.php';    }
 
 function USES_dailyquote_functions()
-{
-    include_once DQ_PI_PATH . '/dailyquote_functions.inc.php';
-}
+{   require_once DQ_PI_PATH . '/dailyquote_functions.inc.php';  }
 
 function USES_dailyquote_class_quote()
-{
-    include_once DQ_PI_PATH . '/classes/quote.class.php';
-}
+{   require_once DQ_PI_PATH . '/classes/quote.class.php';   }
 
 function USES_dailyquote_class_category()
-{
-    include_once DQ_PI_PATH . '/classes/category.class.php';
-}
+{   require_once DQ_PI_PATH . '/classes/category.class.php';    }
 
 function USES_dailyquote_batch()
-{
-    include_once DQ_PI_PATH . '/batch.php';
-}
+{   require_once DQ_PI_PATH . '/batch.php'; }
 
 
 /**
 *   Returns the items for this plugin that should appear on the main menu.
-*
-*   NOTE: this MUST return the url/value pairs in the following format
-*   $<arrayname>[<label>] = <url>
 *
 *   @return    array   Associative array of menu items to be added to menu
 */
@@ -92,7 +79,7 @@ function plugin_getmenuitems_dailyquote()
 
     $menuitems = array();
 
-    // Check user has rights to view this cb, if so, do it.
+    // Check user has rights to view this plugin, if so, do it.
     if ($_CONF_DQ['anonview'] == '1' || !COM_isAnonUser()) {
         $menuitems[$_CONF_DQ['pi_display_name']] = 
             DQ_URL . '/index.php';
@@ -103,10 +90,12 @@ function plugin_getmenuitems_dailyquote()
 
 
 /**
- *  Get additional Javascript into the site header
+ *  Get additional Javascript into the site header.
+ *
  *  @return array List of paths to Javascript files
  */
-function plugin_getheaderjs_dailyquote() {
+function plugin_getheaderjs_dailyquote()
+{
     global $_CONF, $_CONF_DQ; 
 
     $scripts = array();
@@ -117,9 +106,10 @@ function plugin_getheaderjs_dailyquote() {
 
 
 /**
-*   Shows the statistics for the plugin on stats.php.  If
-*   $showsitestats is 1 then we are to only print the overall stats in the 'site
-*   statistics' box otherwise we show the detailed stats for the plugin
+*   Shows the statistics for the plugin on stats.php.
+*   If $showsitestats is 1 then we are to only print the overall stats in 
+*   the 'site statistics' box otherwise we show the detailed stats for the 
+*   plugin.
 *
 *   @param  integer  $showsitestate   Flag to let us know which stats to get
 *   @return string  formatted HTML to insert in stats page
@@ -127,14 +117,12 @@ function plugin_getheaderjs_dailyquote() {
 function plugin_showstats_dailyquote($showsitestats)
 {
     global $_CONF, $_USER, $_TABLES, $LANG_DQ, $_CONF_DQ;
-//TODO: Doesn't work yet
-return '';
 
     USES_lib_admin();
 
     $retval = '';
 
-    // Check user has rights to view this cb, if so, do it.
+    // Check user has rights to view this, if so, do it.
     if ($_CONF_DQ['default_permissions'][3] < 2 && $_USER['uid'] < 2) {
         return '';
     }
@@ -151,14 +139,17 @@ return '';
     }*/
 
     $result = DB_query("SELECT 
-                            quoted, COUNT(*) 
+                            q.quoted, COUNT(*) 
                         FROM 
-                            {$_TABLES['dailyquote_quotes']} q, 
-                            {$_TABLES['dailyquote_lookup']} l 
+                            {$_TABLES['dailyquote_quotes']} q 
+                        LEFT JOIN
+                            {$_TABLES['dailyquote_lookup']} l
+                            ON q.id = l.qid
+                        LEFT JOIN
+                            {$_TABLES['dailyquote_cat']} c
+                            ON l.cid = c.id
                         WHERE 
-                            q.id = l.qid 
-                        AND 
-                            l.enabled= '1' 
+                            q.enabled= '1' AND c.enabled = '1' 
                         GROUP BY quoted 
                         ORDER BY 2 DESC, 1 ASC 
                         LIMIT 10"
@@ -168,9 +159,8 @@ return '';
     if ($nrows > 0) {
         $T->set_var('item_label', $LANG_DQ['StatsMsg3']);
         $T->set_var('stat_name', $LANG_DQ['StatsMsg4']);
-        for ($i = 0; $i < $nrows; $i++) {
-            $A = DB_fetchArray($result);
-            //$quoted = urlencode($A['quoted']);//dunno if this is necessary just yet.
+        
+        while ($A = DB_fetchArray($result)) {
             $T->set_var('item_url', 
                         "{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/search.php?stat=" . $A['quoted']);
             $T->set_var('item_text', $A['quoted']);
@@ -190,14 +180,13 @@ return '';
 
 function plugin_statssummary_dailyquote()
 {
-    global $$LANG_DQ, $_TABLES;
+    global $LANG_DQ, $_TABLES;
 
     // This shows in the summary box
-    $total_items=DB_count($_TABLES['dailyquote_quotes']);
-    //$summary_label = $LANG_PHOTO['items_we_have'];
-    $summary_label = "Quotes in database";
-    $retval[] = $summary_label;
-    $retval[] = $total_items;
+    $total_items = DB_count($_TABLES['dailyquote_quotes']);
+    $summary_label = $LANG_DQ['quotes_in_db'];
+
+    $retval = array($summary_label, $total_items);
     return $retval;
 }
 
@@ -329,6 +318,7 @@ function plugin_dopluginsearch_dailyquote(
 
 /**
 *   Whats New Block API Support.
+*
 *   @return mixed   Array of header data for block, or fals if block disabled.
 */
 function plugin_whatsnewsupported_dailyquote()
@@ -348,6 +338,7 @@ function plugin_whatsnewsupported_dailyquote()
 
 /**
 *   API function provides the content of our "What's New" feed.
+*
 *   @return array   Array of links
 */
 function plugin_getwhatsnew_dailyquote()
@@ -406,8 +397,9 @@ function plugin_getwhatsnew_dailyquote()
 
 
 /**
-* Return the current version of code. 
-* Used in the Plugin Editor to show the registered version and code version
+*   Return the current version of code.
+*
+*   @return string      Current plugin version
 */
 function plugin_chkVersion_dailyquote()
 {
@@ -699,7 +691,7 @@ function plugin_moderationdelete_dailyquote($id)
 */
 function plugin_submit_dailyquote() 
 {
-    global  $HTTP_POST_VARS, $LANG12, $_CONF, $_CONF_DQ; 
+    global  $HTTP_POST_VARS, $LANG12, $_CONF, $_CONF_DQ, $_USER, $LANG_DQ;
 
     // If mode = preview or editsubmission, load the ad info.
     if ($HTTP_POST_VARS['mode'] == $LANG12[32] ||
@@ -709,8 +701,21 @@ function plugin_submit_dailyquote()
         $A = array();
     }
 
-    USES_dailyquote_submitform();
-    return DQ_editForm('submit', $A);
+    if (SEC_hasRights('dailyquote.submit') ||
+        (COM_isAnonUser && $_CONF_DQ['anonadd'] == 1) ||
+        ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1)) {
+        USES_dailyquote_submitform();
+        return DQ_editForm('submit', $A);
+    } else {
+        COM_errorLog("Someone has tried to illegally access the dailyquote submission page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
+        $display = COM_siteHeader();
+        $display .= COM_startBlock($LANG_DQ['access_denied']);
+        $display .= $LANG_DQ['access_denied_msg'];
+        $display .= COM_endBlock();
+        $display .= COM_siteFooter(true);
+        echo $display;
+        exit;
+    }
 
 }
 
@@ -732,7 +737,7 @@ function plugin_savesubmission_dailyquote($A)
     // form with the error message at the top.
     $errmsg = '';
 
-    //print_r($A);die;
+    //var_dump($A);die;
     if (empty($_USER['uid'])) {
         return false;       // Catastrophic error, just return
     } else {

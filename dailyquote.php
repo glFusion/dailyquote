@@ -22,7 +22,6 @@ $DQ_prefix = $_DB_table_prefix . 'dailyquote_';
 $_TABLES['dailyquote_quotes']      = $DQ_prefix . 'quotes';
 $_TABLES['dailyquote_submission']  = $DQ_prefix . 'submission';
 $_TABLES['dailyquote_cat']         = $DQ_prefix . 'category';
-$_TABLES['dailyquote_cat_sub']     = $DQ_prefix . 'category_sub';
 $_TABLES['dailyquote_lookup']      = $DQ_prefix . 'lookup';
 $_TABLES['dailyquote_settings']    = $DQ_prefix . 'settings';
 
