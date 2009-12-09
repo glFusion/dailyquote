@@ -1,1 +1,0 @@
-ALTER TABLE `gl_dailyquote_settings` ADD `whatsnew` TINYINT( 1 ) DEFAULT '1' NOT NULL ;

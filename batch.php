@@ -179,7 +179,7 @@ function DQ_process_batch(){
                 // Successful import.  Now add a lookup entry IF a valid
                 // category was selected.
                 if ($catid > 0) {
-                    DB_query("INSERT INTO {$_TABLES['dailyquote_lookup']} 
+                    DB_query("INSERT INTO {$_TABLES['dailyquote_quoteXcat']} 
                         SET 
                             qid = '$qid', 
                             cid = '$catid'");

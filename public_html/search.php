@@ -101,7 +101,7 @@ function search_results($categ, $keywords, $keytype, $type, $datestart, $dateend
             id, quote, quoted, title, source, sourcedate, dt, q.uid, username
         FROM 
             {$_TABLES['dailyquote_quotes']} q, 
-            {$_TABLES['dailyquote_lookup']} l, 
+            {$_TABLES['dailyquote_quoteXcat']} l, 
             {$_TABLES['users']} u";
     $catwh = '';
     if (!empty($categ)){

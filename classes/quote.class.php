@@ -179,7 +179,7 @@ class DailyQuote
         DB_delete($_TABLES[$table],
             'id', $id);
 
-        DB_delete($_TABLES['dailyquote_lookup'],
+        DB_delete($_TABLES['dailyquote_quoteXcat'],
             'qid', $id);
     }
 
@@ -288,7 +288,7 @@ class DailyQuote
 
         // Delete all lookup records for this quote to make sure we
         // get rid of unused categories.
-        DB_delete($_TABLES['dailyquote_lookup'], 'qid', $A['id']);
+        DB_delete($_TABLES['dailyquote_quoteXcat'], 'qid', $A['id']);
 
         // Now, add records to the lookup table to link the categories
         // to the quote.  Only if bypassing the submission queue; if
@@ -298,7 +298,7 @@ class DailyQuote
         }
         foreach($A['cat'] as $key => $name) {
             $key = (int)$key;
-            $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
+            $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_quoteXcat']}
                     (qid, cid)
                 VALUES (
                     '{$this->id}', $key
@@ -332,7 +332,7 @@ class DailyQuote
                 FROM 
                     {$_TABLES['dailyquote_quotes']} q ";
         if ($cid > 0) {
-            $sql .= " LEFT JOIN {$_TABLES['dailyquote_lookup']} l
+            $sql .= " LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} l
                     ON l.qid = q.id
                 LEFT JOIN {$_TABLES['dailyquote_cat']} c
                     ON l.cid = c.id ";

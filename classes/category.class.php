@@ -131,7 +131,7 @@ class Category
             'id', $id);
 
         // Also delete from lookup table
-        DB_delete($_TABLES['dailyquote_lookup'],
+        DB_delete($_TABLES['dailyquote_quoteXcat'],
             'cid', $id);
     }
 

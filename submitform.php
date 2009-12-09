@@ -94,7 +94,7 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
         while ($row = DB_fetchArray($result)) {
             $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
             $T->set_file('page', 'catoption.thtml');
-            if ($A['id'] != '' && DB_getItem($_TABLES['dailyquote_lookup'], 'qid', 
+            if ($A['id'] != '' && DB_getItem($_TABLES['dailyquote_quoteXcat'], 'qid', 
                     "cid={$row['id']} AND qid = '{$A['id']}'") == $A['id']) {
                 $T->set_var('checked', ' checked ');
             } else {

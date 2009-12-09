@@ -55,7 +55,7 @@ function DQ_listQuotes($sort, $asc, $page)
                 c.id AS catid, c.name AS catname
             FROM 
                 {$_TABLES['dailyquote_quotes']} q 
-            LEFT JOIN {$_TABLES['dailyquote_lookup']} l 
+            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} l 
                 ON q.id = l.qid 
             LEFT JOIN {$_TABLES['dailyquote_cat']} c
                 ON l.cid = c.id 

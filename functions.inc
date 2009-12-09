@@ -143,7 +143,7 @@ function plugin_showstats_dailyquote($showsitestats)
                         FROM 
                             {$_TABLES['dailyquote_quotes']} q 
                         LEFT JOIN
-                            {$_TABLES['dailyquote_lookup']} l
+                            {$_TABLES['dailyquote_quoteXcat']} l
                             ON q.id = l.qid
                         LEFT JOIN
                             {$_TABLES['dailyquote_cat']} c
@@ -352,7 +352,7 @@ function plugin_getwhatsnew_dailyquote()
             FROM 
                 {$_TABLES['dailyquote_quotes']} q 
             LEFT JOIN
-                {$_TABLES['dailyquote_lookup']} l
+                {$_TABLES['dailyquote_quoteXcat']} l
                 ON q.id = l.qid
             LEFT JOIN
                 {$_TABLES['dailyquote_cat']} c
@@ -422,7 +422,7 @@ function plugin_autouninstall_dailyquote()
         'tables'    => array($_CONF_DQ['pi_name']. '_quotes',
                             $_CONF_DQ['pi_name']. '_submission',
                             $_CONF_DQ['pi_name']. '_cat',
-                            $_CONF_DQ['pi_name']. '_lookup',
+                            $_CONF_DQ['pi_name']. '_quoteXcat',
                         ),
         'groups'    => array($_CONF_DQ['pi_name'] . ' Admin'),
         'features'  => array($_CONF_DQ['pi_name'] . '.add', 
@@ -677,7 +677,7 @@ function plugin_moderationdelete_dailyquote($id)
     global $_TABLES;
 
     // Delete the category lookup entries for the rejected quotation.
-    DB_delete ($_TABLES['dailyquote_lookup'], 'qid', addslashes($id));
+    DB_delete ($_TABLES['dailyquote_quoteXcat'], 'qid', addslashes($id));
 
     return '';
 }

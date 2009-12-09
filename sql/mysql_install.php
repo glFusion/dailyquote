@@ -53,8 +53,8 @@ $_SQL['dailyquote_cat'] =
 ) TYPE=MyISAM";
 
 // Lookup Table
-$_SQL['dailyquote_lookup'] = 
-  "CREATE TABLE {$_TABLES['dailyquote_lookup']} (
+$_SQL['dailyquote_quoteXcat'] = 
+  "CREATE TABLE {$_TABLES['dailyquote_quoteXcat']} (
   qid VARCHAR(40) NOT NULL,
   cid INT(11) NOT NULL,
   PRIMARY KEY(qid,cid)

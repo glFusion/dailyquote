@@ -50,8 +50,8 @@ $INSTALL_plugin['dailyquote'] = array(
             'sql' => $_SQL['dailyquote_cat']),
 
     array('type' => 'table', 
-            'table' => $_TABLES['dailyquote_lookup'], 
-            'sql' => $_SQL['dailyquote_lookup']),
+            'table' => $_TABLES['dailyquote_quoteXcat'], 
+            'sql' => $_SQL['dailyquote_quoteXcat']),
 
     array('type' => 'group', 
             'group' => 'dailyquote Admin', 
