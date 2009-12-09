@@ -192,7 +192,7 @@ if (isset($_REQUEST['mode'])) {
     $mode = 'adminquotes';
 }
 
-$q_id = isset($_REQUEST['id']) ? COM_sanitizeID($_REQUEST['id']) : '';
+$q_id = isset($_REQUEST['id']) ? COM_sanitizeID($_REQUEST['id'], false) : '';
 
 if (isset($_POST['delete_btn']) && !empty($_POST['delete_btn'])) {
     if ($mode == 'edit') {
@@ -202,8 +202,10 @@ if (isset($_POST['delete_btn']) && !empty($_POST['delete_btn'])) {
     }
     DailyQuote::Delete($q_id, $table);
     $mode = '';
-}
-
+} elseif (isset($_POST['submit_btn']) && !empty($_POST['submit_btn']) &&
+        $mode == 'edit') {
+    $mode = 'savequote';
+}   
 
 if (isset($_REQUEST['page'])) {
     $page = COM_applyFilter($_REQUEST['page']);
@@ -217,11 +219,10 @@ $A = array();       // initialize array for form vars
 switch ($mode) {
 case $LANG_ADMIN['save']:
 case $LANG12[8]:
-    if ($q_id != '') {
-        USES_dailyquote_class_quote();
-        $Q = new DailyQuote($q_id);
-        $Q->Save($_POST);
-    }
+case 'savequote':
+    USES_dailyquote_class_quote();
+    $Q = new DailyQuote($q_id);
+    $Q->Save($_POST);
     break;
 
 case 'moderation':
@@ -273,6 +274,8 @@ case 'processbatch':
     $page = 'adminlist';
     break;
 
+case 'edit':
+    // 
 }
 
 

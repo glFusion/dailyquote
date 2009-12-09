@@ -307,9 +307,28 @@ if (isset($_GET['msg'])){
     $T->set_var('msg', $LANG_DQ[$msg]);
 }
 
+// Check access.  Sort of borrowing the glFusion permissions, but not really.
+// If anonymous, can they view or add?  If logged in, can they add?
+// Viewing is assumend for logged in users.
+$access = 2;
+if (COM_isAnonUser()) {
+    if ($_CONF_DQ['anonview'] == 0) {
+        echo COM_refresh($_CONF['site_url']);
+        exit;
+    } elseif ($_CONF_DQ['anonadd'] == 1) {
+        $access = 3;
+    }
+} elseif ($_CONF_DQ['loginadd'] == 1) {
+    $access = 3;
+}
+
 $T->set_var('indextitle', $LANG_DQ['indextitle']);
-$T->set_var('indexintro', sprintf($LANG_DQ['indexintro'], 
-    $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']));
+$indexintro = $LANG_DQ['indexintro'];
+if ($access == 3) {
+    $indexintro .= ' ' . sprintf($LANG_DQ['indexintro_contrib'], 
+            $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']);
+}
+$T->set_var('indexintro', $indexintro);
 $T->parse('output','page');
 $display .= $T->finish($T->get_var('output'));
 

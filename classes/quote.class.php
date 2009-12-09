@@ -188,29 +188,30 @@ class DailyQuote
      *  Returns the current user's access level to this banner
      *  @return integer     User's access level (1 - 3)
      */
-    function Access()
+    function Access($isNew = false)
     {
         global $_USER, $_CONF_DQ;
 
         if (SEC_hasRights('dailyquote.edit'))
             return 3;
 
-        if ($this->isNew) {
-            if (SEC_hasRights('dailyquote.submit'))
-                return 3;
-
-            if (COM_isAnonUser()) {
-                return $_CONF_DQ['anonadd'] == 1 ? 3 : 0;
+        if ($isNew) {
+            if (SEC_hasRights('dailyquote.submit')) {
+                $access = 3;
+            } elseif (COM_isAnonUser()) {
+                $access = $_CONF_DQ['anonadd'] == 1 ? 3 : 0;
             } else {
-                return $_CONF_DQ['loginadd'] == 1 ? 3 : 0;
+                $access = $_CONF_DQ['loginadd'] == 1 ? 3 : 0;
             } 
         } else {
             if (COM_isAnonUser()) {
-                return $_CONF_DQ['anonview'] == 1 ? 2 : 0;
+                $access = $_CONF_DQ['anonview'] == 1 ? 2 : 0;
+            } else {
+                $access = 2;       // Logged-in can always view
             }
         }
 
-        return 0;
+        return $access;
 
     }
 
@@ -222,9 +223,9 @@ class DailyQuote
      *  @param  integer $level  Minimum access level required
      *  @return boolean     True if user has access >= level, false otherwise
      */
-    function hasAccess($level=3)
+    function hasAccess($level=3, $isNew=false)
     {
-        if (DailyQuote::Access() < $level) {
+        if (DailyQuote::Access($isNew) < $level) {
             return false;
         } else {
             return true;
@@ -251,7 +252,7 @@ class DailyQuote
         if ($table != 'dailyquote_quotes')
             $table = 'dailyquote_submission';
 
-        $access = $this->hasAccess(3);
+        $access = $this->hasAccess(3, $this->isNew);
         if (!$access) {
             COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->id}.");
             return COM_showMessageText($MESSAGE[31], $MESSAGE[30]);

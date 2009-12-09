@@ -705,7 +705,7 @@ function plugin_submit_dailyquote()
         (COM_isAnonUser && $_CONF_DQ['anonadd'] == 1) ||
         ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1)) {
         USES_dailyquote_submitform();
-        return DQ_editForm('submit', $A);
+        return DQ_editForm($LANG12['8'], $A);
     } else {
         COM_errorLog("Someone has tried to illegally access the dailyquote submission page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
         $display = COM_siteHeader();
@@ -754,8 +754,8 @@ function plugin_savesubmission_dailyquote($A)
     // If this user is an authorized submitter, or we're not using the
     // submission queue, then put it directly into the quotes table.
     if (SEC_hasRights($_CONF_DQ['pi_name']. '.submit') || 
-            $_CONF_DQ['queue'] == false) {
-        $table = 'dailyquote_quote';
+            $_CONF_DQ['queue'] == 0) {
+        $table = 'dailyquote_quotes';
         $msg = '02';    // "has been saved" message
     } else {
         $table = 'dailyquote_submission';
@@ -791,7 +791,7 @@ function plugin_savesubmission_dailyquote($A)
         $display .= "<span class=alert><ul>$errmsg</ul></span\n";
         $A['ad_id'] = '';   // reset so it'll still look like a new entry
         USES_dailyquote_submitform();
-        $display .= DQ_editForm('submit', $A);
+        $display .= DQ_editForm($LANG12['8'], $A);
         $display .= COM_siteFooter();
         return $display;
     }

@@ -15,7 +15,7 @@
 /**
 *   Displays the add form for single quotes.
 */
-function DQ_editForm($mode='submit', $A='', $admin=false)
+function DQ_editForm($mode='Submit', $A='', $admin=false)
 {
     global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
 

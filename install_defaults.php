@@ -86,10 +86,10 @@ function plugin_initconfig_dailyquote($group_id = 0)
                 0, 0, 0, 50, true, $_CONF_DQ['pi_name']);
         $c->add('loginadd', $_DQ_DEFAULT['loginadd'], 'select',
                 0, 0, 0, 60, true, $_CONF_DQ['pi_name']);
-        $c->add('loginaddcat', $_DQ_DEFAULT['loginaddcat'], 'select',
-                0, 0, 0, 70, true, $_CONF_DQ['pi_name']);
-        $c->add('loginbatch', $_DQ_DEFAULT['loginbatch'], 'select',
-                0, 0, 0, 80, true, $_CONF_DQ['pi_name']);
+        //$c->add('loginaddcat', $_DQ_DEFAULT['loginaddcat'], 'select',
+        //        0, 0, 0, 70, true, $_CONF_DQ['pi_name']);
+        //$c->add('loginbatch', $_DQ_DEFAULT['loginbatch'], 'select',
+        //        0, 0, 0, 80, true, $_CONF_DQ['pi_name']);
         $c->add('cb_enable', $_DQ_DEFAULT['cb_enable'], 'select',
                 0, 0, 0, 90, true, $_CONF_DQ['pi_name']);
         $c->add('cb_pos', $_DQ_DEFAULT['cb_pos'],
