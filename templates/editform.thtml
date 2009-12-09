@@ -36,4 +36,3 @@
   <label for="cat" style="display: inline; font-weight: bold;">{$LANG_DQ['choosecat']}:&nbsp;&nbsp;</label>
   {catinput}<br /><br />
 {# end {templatelocation} #}
-

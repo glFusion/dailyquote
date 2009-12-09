@@ -194,6 +194,17 @@ if (isset($_REQUEST['mode'])) {
 
 $q_id = isset($_REQUEST['id']) ? COM_sanitizeID($_REQUEST['id']) : '';
 
+if (isset($_POST['delete_btn']) && !empty($_POST['delete_btn'])) {
+    if ($mode == 'edit') {
+        $table = 'dailyquote_quotes';
+    } else {
+        $table = 'dailyquote_submission';
+    }
+    DailyQuote::Delete($q_id, $table);
+    $mode = '';
+}
+
+
 if (isset($_REQUEST['page'])) {
     $page = COM_applyFilter($_REQUEST['page']);
 } else {
@@ -213,6 +224,25 @@ case $LANG12[8]:
     }
     break;
 
+case 'moderation':
+    if (isset($_POST['action']) && $_POST['action'] == 'approve') {
+        USES_dailyquote_class_quote();
+        $Q = new Dailyquote();
+        $status = $Q->Save($_POST);
+        if ($status == '' ) {
+            DB_delete($_TABLES['dailyquote_submission'], 'qid', $Q->GetID());
+            plugin_moderationapprove_dailyquote($Q->GetID());
+            $page = 'moderation';
+        } else {
+            $page = 'editsubmission';
+            $A = $_POST;
+            $content .= $status;
+        }
+    } else {
+        $page = 'moderation';
+    }
+    break;
+
 case 'delMultiQuote':
     foreach ($_POST['delitem'] as $item) {
         DailyQuote::Delete($item);
@@ -221,7 +251,7 @@ case 'delMultiQuote':
     break;
 
 case 'deletequote':
-    DailyQuote::Delete($_REQUEST['id']);
+    DailyQuote::Delete($q_id);
     break;
 
 case 'savecategory':
@@ -261,7 +291,7 @@ case 'edit':
     break;
 
 case 'editsubmission':
-    if ($q_id != '') {
+    if ($q_id != '' && empty($A)) {
         $result = DB_query("SELECT * from {$_TABLES['dailyquote_submission']}
                 WHERE ID='$q_id'");
         if ($result && DB_numRows($result) == 1) {

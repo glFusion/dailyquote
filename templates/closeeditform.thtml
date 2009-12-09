@@ -3,6 +3,11 @@
                 </tr>
             </table>
                     <p>{catreadme}</p>
-                    <p align="center"><input type="submit" name="mode" value="{$LANG12['8']}" /></p>
+                    <p align="center">
+            <input type="submit" name="submit_btn" value="{$LANG12['8']}" />
+{!if show_delbtn}
+            <input type="submit" name="delete_btn" value="{$LANG12['52']}" />
+{!endif}
+                    </p>
             </form>
 {# end {templatelocation} #}

@@ -64,10 +64,10 @@ class DailyQuote
      */
     function DailyQuote($id='')
     {
-        $id = trim($id);
+        $this->id = COM_sanitizeID($id, false);
         $this->isNew = true;
-        if ($id != '') {
-            $this->Read($id);
+        if ($this->id != '') {
+            $this->Read($this->id);
         }
 
     }
@@ -121,6 +121,10 @@ class DailyQuote
     }
 
 
+    function GetID()
+    {   return $thid->id;   }
+
+
     /**
      *  Update the 'enabled' value for a banner ad.
      *  @param  integer $newval     New value to set (1 or 0)
@@ -153,7 +157,7 @@ class DailyQuote
      *  deletes the current object
      *  @param  string  $bid    Optional banner ID to delete
      */
-    function Delete($id='')
+    function Delete($id='', $table='dailyquote_quotes')
     {
         global $_TABLES;
 
@@ -165,11 +169,14 @@ class DailyQuote
             }
         }
 
+        if ($table != 'dailyquote_quotes')
+            $table = 'dailyquote_submission';
+
         if (!DailyQuote::hasAccess(3))
             return;
 
         $id = COM_sanitizeID($id, false);
-        DB_delete($_TABLES['dailyquote_quotes'],
+        DB_delete($_TABLES[$table],
             'id', $id);
 
         DB_delete($_TABLES['dailyquote_lookup'],
@@ -289,16 +296,16 @@ class DailyQuote
         if (!is_array($A['cat']) || empty($A['cat'])) {
             $A['cat'] = array(1 => 'Miscellaneous');
         }
-            foreach($A['cat'] as $key => $name) {
-                $key = (int)$key;
-                $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
-                        (qid, cid)
-                    VALUES (
-                        '{$this->id}', $key
-                    )";
-                //echo $sql;
-                @DB_query($sql);
-            }
+        foreach($A['cat'] as $key => $name) {
+            $key = (int)$key;
+            $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_lookup']}
+                    (qid, cid)
+                VALUES (
+                    '{$this->id}', $key
+                )";
+            //echo $sql;
+            @DB_query($sql);
+        }
 
         return '';
 

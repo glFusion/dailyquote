@@ -34,13 +34,10 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
     $action = '';
     if ($admin) {
         if ($mode == 'editsubmission') {
-            $action_url = $_CONF['site_admin_url'] . '/moderation.php';
             $mode = 'moderation';
             $action='approve';
-        } else {
-            $action_url = $_CONF['site_admin_url']. '/plugins/'. 
-                    $_CONF_DQ['pi_name']. '/index.php';
         }
+        $action_url = DQ_ADMIN_URL . '/index.php';
     } else {
         $action_url = $_CONF['site_url']. '/submit.php';
     }
@@ -121,6 +118,9 @@ function DQ_editForm($mode='submit', $A='', $admin=false)
     
     $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
     $T->set_file('page', 'closeeditform.thtml');
+    if ($admin) {
+        $T->set_var('show_delbtn', 'true');
+    }
     $T->set_var('catreadme', $LANG_DQ['catreadme']);
     $T->set_var('submit', $LANG_DQ['submitquote']);
     $T->parse('output','page');
