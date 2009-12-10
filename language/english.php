@@ -115,6 +115,7 @@ $LANG_DQ= array(
 'any'               => 'Any',
 'contributor'       => 'Contributor',
 'category'          => 'Category',
+'email_subject'     => 'New Daily Quote Notification',
 
 );
 

@@ -836,13 +836,19 @@ function plugin_savesubmission_dailyquote($A)
 
     // If this user is an authorized submitter, or we're not using the
     // submission queue, then put it directly into the quotes table.
-    if (SEC_hasRights($_CONF_DQ['pi_name']. '.submit') || 
-            $_CONF_DQ['queue'] == 0) {
+    if (SEC_hasRights($_CONF_DQ['pi_name']. '.submit')) {
         $table = 'dailyquote_quotes';
         $msg = '02';    // "has been saved" message
+        $email_admin = 0;
+    } elseif ($_CONF_DQ['queue'] == 0) {
+        // Same tables as above, but set $email_admin
+        $table = 'dailyquote_quotes';
+        $msg = '02';    // "has been saved" message
+        $email_admin = $_CONF_DQ['email_admin'] == 2 ? 1 : 0;
     } else {
         $table = 'dailyquote_submission';
         $msg = '01';    // "added to queue" message
+        $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
     }
 
     if ($errmsg == '') {        // Only save if no errors so far
@@ -867,6 +873,20 @@ function plugin_savesubmission_dailyquote($A)
     // the 'success' message.  Otherwise, redisplay the submission form
     // with the error message
     if ($errmsg == '') {
+        // Send notification, if configured
+        if ($email_admin == 1) {
+            $T = new Template(DQ_PI_PATH . '/templates');
+            $T->set_file('msg', 'email_admin.thtml');
+            $T->set_var(array(
+                'title'     => $A['title'],
+                'quote'     => $A['quote'],
+                'quoted'    => $A['quoted'],
+                'subm_by'   => COM_getDisplayName($A['uid']),
+            ) );
+            $T->parse('output','msg');
+            COM_mail($_CONF['site_mail'], $LANG_DQ['email_subject'],
+                $T->finish($T->get_var('output')));
+        }
         return COM_refresh($_CONF['site_url']
                     . "/index.php?msg=$msg&amp;plugin=". $_CONF_DQ['pi_name']);
     } else {

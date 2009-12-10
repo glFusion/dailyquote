@@ -89,7 +89,7 @@ function plugin_initconfig_dailyquote($group_id = 0)
         $c->add('whatsnewdays', $_DQ_DEFAULT['whatsnewdays'], 'text',
                 0, 0, 0, 150, true, $_CONF_DQ['pi_name']);
         $c->add('email_admin', $_DQ_DEFAULT['email_admin'], 'select',
-                0, 0, 0, 160, true, $_CONF_DQ['pi_name']);
+                0, 0, 9, 160, true, $_CONF_DQ['pi_name']);
 
         $c->add('fs_cblock', NULL, 'fieldset', 0, 2, NULL, 0, true, $_CONF_DQ['pi_name']);
         $c->add('cb_enable', $_DQ_DEFAULT['cb_enable'], 'select',
