@@ -32,11 +32,9 @@ $_DQ_DEFAULT = array(
     'anonadd' => '0',           // anon user can add? 1=yes, 0=no
     'anonview' => '1',          // anon user can view?
     'loginadd' => '1',          // logged-in user can add quote?
-    'loginaddcat' => '1',       // logged-in user can add category?
-    'loginbatch' => '0',        // logged-in user can batch add quotes?
     'cb_enable' => '0',         // centerblock enabled?
     'cb_pos' => '2',            // centerblock position (2=top)
-    'cb_home' => '1',           // centerblock home page only?
+    'cb_home' => '1',           // centerblock replace homepage?
     'google_link' => '1',       // add Google link to person quoted?
     'google_url' => 'http://www.google.com/search?hl=%s&q=%s',
     'whatsnew' => '0',          // show new quotes in whatsnew block?
@@ -86,16 +84,6 @@ function plugin_initconfig_dailyquote($group_id = 0)
                 0, 0, 0, 50, true, $_CONF_DQ['pi_name']);
         $c->add('loginadd', $_DQ_DEFAULT['loginadd'], 'select',
                 0, 0, 0, 60, true, $_CONF_DQ['pi_name']);
-        //$c->add('loginaddcat', $_DQ_DEFAULT['loginaddcat'], 'select',
-        //        0, 0, 0, 70, true, $_CONF_DQ['pi_name']);
-        //$c->add('loginbatch', $_DQ_DEFAULT['loginbatch'], 'select',
-        //        0, 0, 0, 80, true, $_CONF_DQ['pi_name']);
-        $c->add('cb_enable', $_DQ_DEFAULT['cb_enable'], 'select',
-                0, 0, 0, 90, true, $_CONF_DQ['pi_name']);
-        $c->add('cb_pos', $_DQ_DEFAULT['cb_pos'],
-                'select', 0, 0, 5, 100, true, $_CONF_DQ['pi_name']);
-        $c->add('cb_home', $_DQ_DEFAULT['cb_home'], 'select',
-                0, 0, 0, 110, true, $_CONF_DQ['pi_name']);
         $c->add('google_link', $_DQ_DEFAULT['google_link'], 'select',
                 0, 0, 0, 120, true, $_CONF_DQ['pi_name']);
         $c->add('google_url', $_DQ_DEFAULT['google_url'], 'text',
@@ -107,6 +95,13 @@ function plugin_initconfig_dailyquote($group_id = 0)
         $c->add('email_admin', $_DQ_DEFAULT['email_admin'], 'select',
                 0, 0, 0, 160, true, $_CONF_DQ['pi_name']);
 
+        $c->add('fs_cblock', NULL, 'fieldset', 0, 2, NULL, 0, true, $_CONF_DQ['pi_name']);
+        $c->add('cb_enable', $_DQ_DEFAULT['cb_enable'], 'select',
+                0, 2, 0, 90, true, $_CONF_DQ['pi_name']);
+        $c->add('cb_pos', $_DQ_DEFAULT['cb_pos'],
+                'select', 0, 2, 5, 100, true, $_CONF_DQ['pi_name']);
+        $c->add('cb_home', $_DQ_DEFAULT['cb_home'], 'select',
+                0, 2, 0, 110, true, $_CONF_DQ['pi_name']);
 
         $c->add('fs_permissions', NULL, 'fieldset', 0, 4, NULL, 0, true, $_CONF_DQ['pi_name']);
         $c->add('defgrpad', $group_id,

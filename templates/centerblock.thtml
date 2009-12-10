@@ -1,8 +1,15 @@
 {# begin {templatelocation} #}
 <blockquote>
   {dispquote}
-  <p align="right"><em>{dispquoted}{source}</em>{sourcedate}</p>
-  <!--<p style="text-align: right; font-size: 8pt;">{subm_by}{dispcontr}{datecontr}
-  {cat}{dispcat}</p>-->
+  <p align="right">
+    <em>{dispquoted}
+      {!if source}
+        &nbsp;--&nbsp;{source}
+      {!endif}
+    </em>
+    {!if sourcedate}
+      &nbsp;--&nbsp;{sourcedate}
+    {!endif}
+  </p>
 </blockquote>
 {# end {templatelocation} #}

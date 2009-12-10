@@ -51,14 +51,13 @@ function DQ_listQuotes($sort, $asc, $page)
 
     // TODO: this query only gives us the quotes with one category name.
     $sql = "SELECT 
-                q.id, quote, quoted, title, source, sourcedate, dt, q.uid,
-                c.id AS catid, c.name AS catname
+                q.id, quote, quoted, title, source, sourcedate, dt, q.uid
             FROM 
                 {$_TABLES['dailyquote_quotes']} q 
-            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} l 
-                ON q.id = l.qid 
-            LEFT JOIN {$_TABLES['dailyquote_cat']} c
-                ON l.cid = c.id 
+            INNER JOIN {$_TABLES['dailyquote_quoteXcat']} l
+                ON q.id = l.qid
+            INNER JOIN {$_TABLES['dailyquote_cat']} c
+                ON l.cid = c.id
             WHERE 
                 q.enabled = '1' 
             AND 
@@ -124,16 +123,31 @@ function DQ_listQuotes($sort, $asc, $page)
         $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
         $T->set_file('page', 'singlequote.thtml');
 
+        $catres = DB_query("SELECT 
+                c.id AS catid, c.name AS catname
+            FROM {$_TABLES['dailyquote_quoteXcat']} l 
+            LEFT JOIN {$_TABLES['dailyquote_cat']} c
+                ON l.cid = c.id 
+            WHERE
+                l.qid = '{$row['id']}'");
+        $catnames = array();
+        while ($cats = DB_fetcharray($catres, false)) {
+            $catnames[] = COM_createLink($cats['catname'],
+                    DQ_URL . '?cat=' . $cats['catid']);
+        }
+        $catlist = join(',' , $catnames);
+ 
         $T->set_var('title', $row['title']);
         $T->set_var('quote', htmlspecialchars($row['quote']));
         $T->set_var('quoted', DailyQuote::GoogleLink($row['quoted']));
 
-        if (!empty($row['catid']) && !empty($row['catname'])) {
+        /*if (!empty($row['catid']) && !empty($row['catname'])) {
             $T->set_var(array(
                 'catid'     => $row['catid'],
                 'catname'   => $row['catname'],
             ) );
-        }
+        }*/
+        $T->set_var('catname', $catlist);
         if (!empty($row['source'])){
             $T->set_var('source', '&nbsp;--&nbsp;' . htmlspecialchars($row['source']));
         }

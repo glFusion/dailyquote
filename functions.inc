@@ -488,7 +488,8 @@ function DQ_catlink($catid, $catname)
 
 
 /**
-*   Create the centerblock, if needed
+*   Create the centerblock, if needed.
+*
 *   @param  integer $where  Which area is being displayed now
 *   @param  integer $page   Page number
 *   @param  string  $topic  Topic ID, or empty string
@@ -496,8 +497,91 @@ function DQ_catlink($catid, $catname)
 */
 function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
 {
-    USES_dailyquote_functions();
-    return DQ_centerblock($where, $page, $topic);
+    global $_CONF, $_USER, $_TABLES, $PHP_SELF, $LANG_DQ, $_CONF_DQ;
+    
+    $retval = '';
+    $img_dir = $_CONF['layout_url'] . '/' . $_CONF_DQ['pi_name'] . '/image_set';
+
+    // If centerblock not enabled, or just for homepage and
+    // we're not on the homepage, just return
+    if ($_CONF_DQ['cb_enable'] == 0 ||
+            ($CONF_DQ['cb_homepage'] == 1 && ($page > 1 || $topic != '')) ) {
+        return '';
+    }
+
+    USES_dailyquote_class_quote();
+
+    // Check access to view quotes
+    if (!DailyQuote::hasAccess(2)) {
+        return '';
+    }
+
+    // Get the centerblock position.  May be overridden later.
+    $cntrblkpos = $_CONF_DQ['cb_pos'];
+
+    // If we're not supposed to replace the homepage, then return.
+    // Otherwise, do so.  When $where is zero we're at the homepage.
+    if ($where == 0 && $topic == '') {
+        if (!$_CONF_DQ['cb_replhome']) {
+            return '';
+        } else {
+            $cntrblkpos = 0;
+        }
+    }
+
+
+    // Check if there are no featured articles in this topic 
+    // and if so then place it at the top of the page
+    if ($topic != "") {
+        $wherenames = array('tid', 'featured', 'draft_flag');
+        $wherevalues = array($topic, 0, 0);
+    } else {
+        $wherenames = array('featured', 'draft_flag');
+        $wherevalues = array(1, 0);
+    }
+
+    $story_count = DB_count($_TABLES['stories'], $wherenames, $wherevalues);
+    if ($story_count == 0 && $_CONF_DQ['cb_pos'] == 2) {
+        // If the centerblock comes after the featured story, and there
+        // are no stories, put the centerblock at the top.
+        $cntrblkpos = 1;
+    }
+
+    // Finally, see if we're in the right area to display our block.
+    if ($cntrblkpos != $where) {
+        return '';
+    }
+
+    $Q = DailyQuote::getQuote();
+    if (empty($Q['quote'])) {
+        return '';
+    }
+
+    if ($where == 0) {
+        // If replacing the homepage, we're responsible for the header
+        $retval = COM_siteHeader();
+    }
+
+    $T = new Template(DQ_PI_PATH . '/templates');
+    $T->set_file('page', 'centerblock.thtml');
+
+    $T->set_var(array(
+        'dispquote'     => $Q['quote'],
+        'dispquoted'    => $Q['quoted'],
+        'source'        => $Q['source'],
+        'title'         => $Q['title'],a
+    ) );
+
+    $T->parse('output','page');
+
+    $retval .= $T->finish($T->get_var('output'));
+
+    if ($where == 0) {
+        $retval .= COM_siteFooter();
+    }
+
+    return $retval;
+
 }
 
 
