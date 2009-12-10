@@ -162,7 +162,7 @@ function DQ_listQuotes($sort, $asc, $page)
                         $LANG_DQ['del_quote'],
                         array(
                             'onclick'=>'return confirm(\'' .
-                                $LANG_DQ['del_titem_conf'] . ');',
+                                $LANG_DQ['del_item_conf'] . '\');',
                             'class'=> 'gl_mootip',
                         )
                     ),
