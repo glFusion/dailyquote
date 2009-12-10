@@ -529,7 +529,6 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
         }
     }
 
-
     // Check if there are no featured articles in this topic 
     // and if so then place it at the top of the page
     if ($topic != "") {

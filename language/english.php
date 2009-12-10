@@ -170,13 +170,12 @@ $LANG_confignames['dailyquote'] = array(
     'cb_enable' => 'Enable Centerblock?',
     'cb_pos' => 'Centerblock Position',
     'cb_home' => 'Centerblock on home page only?',
+    'cb_home' => 'Centerblock replaces home page?',
     'google_link' => 'Add Google links to quotes?',
     'google_url' => 'Google URL',
     'whatsnew' => 'Show Quotes in "What\'s New" block?',
     'whatsnewdays' => 'Number of days for a quote to be considered "new"',
     'email_admin' => 'Notification Email to Admin?',
-    'defgrpad' => 'Default group set on new quotes',
-    'default_permissions' => 'Banner Default Permissions'
 );
 
 

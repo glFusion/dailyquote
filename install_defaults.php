@@ -26,21 +26,21 @@ if (!defined('GVERSION')) {
  */
 global $_DQ_DEFAULT, $_CONF_DQ;
 $_DQ_DEFAULT = array(
-    'indexdisplim' => '10',     // limit quotes shown on index page
-    'searchdisplim' => '50',    // limit search results
-    'queue' => '1',             // use submission queue? 1=yes, 0=no
-    'anonadd' => '0',           // anon user can add? 1=yes, 0=no
-    'anonview' => '1',          // anon user can view?
-    'loginadd' => '1',          // logged-in user can add quote?
-    'cb_enable' => '0',         // centerblock enabled?
-    'cb_pos' => '2',            // centerblock position (2=top)
-    'cb_home' => '1',           // centerblock replace homepage?
-    'google_link' => '1',       // add Google link to person quoted?
+    'indexdisplim' => 10,     // limit quotes shown on index page
+    'searchdisplim' => 50,    // limit search results
+    'queue' => 1,             // use submission queue? 1=yes, 0=no
+    'anonadd' => 0,           // anon user can add? 1=yes, 0=no
+    'anonview' => 1,          // anon user can view?
+    'loginadd' => 1,          // logged-in user can add quote?
+    'cb_enable' => 0,         // centerblock enabled?
+    'cb_pos' => 2,            // centerblock position (2=top)
+    'cb_home' => '1',           // centerblock homepage only?
+    'cb_replhome' => 0,         // centerblock replaces homepage?
+    'google_link' => 1,       // add Google link to person quoted?
     'google_url' => 'http://www.google.com/search?hl=%s&q=%s',
-    'whatsnew' => '0',          // show new quotes in whatsnew block?
-    'whatsnewdays' => '14',     // number of days to be considered new
-    'default_permissions' => array (3, 2, 2, 2),
-    'email_admin' => '2',       // email admin? 0=never, 1=if queue, 2=always
+    'whatsnew' => 0,          // show new quotes in whatsnew block?
+    'whatsnewdays' => 14,     // number of days to be considered new
+    'email_admin' => 1,       // email admin? 0=never, 1=if queue, 2=always
 );
 
 
@@ -61,10 +61,6 @@ function plugin_initconfig_dailyquote($group_id = 0)
     if (is_array($_CONF_DQ) && (count($_CONF_DQ) > 1)) {
         $_DQ_DEFAULT = array_merge($_DQ_DEFAULT, $_CONF_DQ);
     }
-
-    // Use configured default if a valid group ID wasn't presented
-    if ($group_id == 0)
-        $group_id = $_DQ_DEFAULT['defgrpad'];
 
     $c = config::get_instance();
 
@@ -97,18 +93,13 @@ function plugin_initconfig_dailyquote($group_id = 0)
 
         $c->add('fs_cblock', NULL, 'fieldset', 0, 2, NULL, 0, true, $_CONF_DQ['pi_name']);
         $c->add('cb_enable', $_DQ_DEFAULT['cb_enable'], 'select',
-                0, 2, 0, 90, true, $_CONF_DQ['pi_name']);
+                0, 2, 0, 10, true, $_CONF_DQ['pi_name']);
         $c->add('cb_pos', $_DQ_DEFAULT['cb_pos'],
-                'select', 0, 2, 5, 100, true, $_CONF_DQ['pi_name']);
+                'select', 0, 2, 5, 20, true, $_CONF_DQ['pi_name']);
         $c->add('cb_home', $_DQ_DEFAULT['cb_home'], 'select',
-                0, 2, 0, 110, true, $_CONF_DQ['pi_name']);
-
-        $c->add('fs_permissions', NULL, 'fieldset', 0, 4, NULL, 0, true, $_CONF_DQ['pi_name']);
-        $c->add('defgrpad', $group_id,
-                'select', 0, 4, 0, 90, true, $_CONF_DQ['pi_name']);
-        $c->add('default_permissions', $_DQ_DEFAULT['default_permissions'],
-                '@select', 0, 4, 12, 100, true, $_CONF_DQ['pi_name']);
-
+                0, 2, 0, 30, true, $_CONF_DQ['pi_name']);
+        $c->add('cb_replhome', $_DQ_DEFAULT['cb_replhome'], 'select',
+                0, 2, 0, 40, true, $_CONF_DQ['pi_name']);
     }
 
     return true;
