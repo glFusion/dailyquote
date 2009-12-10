@@ -122,6 +122,10 @@ $LANG_DQ= array(
 // GL Interface Messages
 $PLG_dailyquote_MESSAGE01 = 'Your quotation has been queued for administrator approval.';
 $PLG_dailyquote_MESSAGE02 = 'Your quotation has been saved.';
+$PLG_dailyquote_MESSAGE03 = 'Error retrieving current version number';
+$PLG_dailyquote_MESSAGE04 = 'Error performing the plugin upgrade';
+$PLG_dailyquote_MESSAGE05 = 'Error upgrading the plugin version number';
+$PLG_dailyquote_MESSAGE06 = 'Plugin is already up to date';
 
 
 // Localization of the Admin Configuration UI

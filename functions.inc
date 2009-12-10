@@ -910,4 +910,15 @@ function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
 }
 
 
+/**
+*   Upgrade the plugin.
+*
+*   @return boolean True on success, code for error message otherwise
+*/
+function plugin_upgrade_dailyquote() 
+{
+    return '06';        // Return "not needed" message
+}
+
+
 ?>
