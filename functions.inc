@@ -405,7 +405,7 @@ function plugin_chkVersion_dailyquote()
 {
     global $_CONF_DQ;
 
-    return $_CONF_DQ['version'];
+    return $_CONF_DQ['pi_version'];
 }
 
 
@@ -1018,9 +1018,47 @@ function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
 *
 *   @return boolean True on success, code for error message otherwise
 */
-function plugin_upgrade_dailyquote() 
+function plugin_upgrade_dailyquote()
 {
-    return '06';        // Return "not needed" message
+    global $_CONF_DQ, $_TABLES;
+    
+    // Get the current version, compare to the version in the plugin code
+    $current_ver = DB_getItem($_TABLES['plugins'], 'pi_version',
+        "pi_name = '{$_CONF_DQ['pi_name']}'");
+    if (empty($current_ver)) {
+        COM_errorLog("Error getting the {$_CONF_DQ['pi_name']} plugin version",1);
+        return '03';
+    }
+
+    if ($current_ver >= $_CONF_DQ['pi_version']) {
+        return '06';
+    }
+
+    // Perform the upgrade
+    require_once 'upgrade.inc.php';
+    $error = DQ_do_upgrade($current_ver);
+    if ($error) {
+        COM_errorLog("Error updating the {$_CONF_DQ['pi_name']} plugin",1);
+        return '04';
+    }
+
+    // now update the current version number.
+    $sql = "UPDATE
+        {$_TABLES['plugins']}
+    SET
+        pi_version = '{$_CONF_DQ['pi_version']}',
+        pi_gl_version = '{$_CONF_DQ['gl_version']}',
+        pi_homepage = '{$_CONF_DQ['pi_url']}'
+    WHERE
+        pi_name = '{$_CONF_DQ['pi_name']}';";
+    DB_query($sql);
+    if (DB_error()) {
+        COM_errorLog("Error updating the {$_CONF_DQ['pi_name']} plugin version",1);
+        return '05';
+    }
+
+    COM_errorLog("Succesfully updated the {$_CONF_DQ['pi_name']} plugin!",1);
+    return true;
 }
 
 

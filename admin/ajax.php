@@ -16,11 +16,7 @@ require_once '../../../lib-common.php';
 
 // This is for administrators only
 if (!SEC_hasRights('banner.edit')) {
-    $display .= COM_siteHeader('menu', $MESSAGE[30])
-             . COM_showMessageText($MESSAGE[34], $MESSAGE[30])
-             . COM_siteFooter();
-    COM_accessLog("User {$_USER['username']} tried to illegally access the banner administration screen.");
-    echo $display;
+    COM_accessLog("User {$_USER['username']} tried to illegally access the dailyquote AJAX functions.");
     exit;
 }
 
