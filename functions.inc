@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.1.0
+*   @version    0.1.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -279,6 +279,8 @@ function plugin_dopluginsearch_dailyquote(
     }
 
     $htmlquery = urlencode($query);
+
+    $query = trim(addslashes(htmlspecialchars($query)));
 
     // Build search SQL
     $sql = "SELECT 
