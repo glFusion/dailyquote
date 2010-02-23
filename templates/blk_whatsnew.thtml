@@ -1,0 +1,3 @@
+{# begin {templatelocation} #}
+<a href="{quote_link}" title="{quote_title}">{quote_text}</a><br {XHTML}>
+{# end {templatelocation} #}

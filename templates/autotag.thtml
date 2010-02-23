@@ -1,0 +1,3 @@
+{# begin {templatelocation} #}
+{quote} ({quoted})
+{# end {templatelocation} #}

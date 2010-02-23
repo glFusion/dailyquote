@@ -937,26 +937,37 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
     case 'parse':
         $HTML = '';
         $option = COM_applyFilter($autotag['parm1']);
+        $T = new Template(DQ_PI_PATH . '/templates');
+        $T->set_file('block', 'autotag.thtml');
 
         switch ($option) {
         case 'random':
             $quote = DailyQuote::getQuote();
-            return htmlspecialchars($quote['Quotes']);
             break;
 
-        case 'quoted':
         case 'quote':
             $qid = COM_sanitizeID($autotag['parm2']);
             if ($qid != '') {
                 $quote = DailyQuote::getQuote($qid);
-                return htmlspecialchars($quote['quote']);
-            } else {
-                return '';
             }
+            break;
 
-        } // switch($option)
-
-        $retval = str_replace($autotag['tagstr'],$HTML,$content);
+        } // switch ($op)
+        
+        if (is_array($quote) && !empty($quote)) {
+            $T->set_var(array(
+                'quote'     => htmlspecialchars($quote['quote']),
+                'quoted'    => htmlspecialchars($quote['quoted']),
+                'source'    => htmlspecialchars($quote['source']),
+                'sourcedate' => htmlspecialchars($quote['sourcedate']),
+                'qid'       => $quote['id'],
+            ) );
+            $T->parse('output','block');
+            $HTML = $T->finish($T->get_var('output'));
+            $retval = str_replace($autotag['tagstr'], $HTML, $content);
+        } else {
+            $retval = $content;
+        }
         break;
 
     default:
