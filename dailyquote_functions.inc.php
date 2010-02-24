@@ -4,9 +4,9 @@
 *   Plugin-specific functions for the DailyQuote plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2010 Lee Garner
 *   @package    dailyquote
-*   @version    0.0.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -15,6 +15,10 @@
 if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
 }
+
+// Clean $_POST and $_GET, in case magic_quotes_gpc is set
+$_POST = DQ_stripslashes($_POST);
+$_GET = DQ_stripslashes($_GET);
 
 
 /**
@@ -109,6 +113,27 @@ function DQ_catlistDisplay($qid)
 
     return $catlist;
 
+}
+
+
+/**
+*   Strips slashes if magic_quotes_gpc is on.
+*
+*   @since  version 0.1.2
+*   @param  mixed   $var    Value or array of values to strip.
+*   @return mixed           Stripped value or array of values.
+*/
+function DQ_stripslashes($var)
+{
+	if (get_magic_quotes_gpc()) {
+		if (is_array($var)) {
+			return array_map('DQ_stripslashes', $var);
+		} else {
+			return stripslashes($var);
+		}
+	} else {
+		return $var;
+	}
 }
 
 
