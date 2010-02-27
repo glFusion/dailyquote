@@ -16,10 +16,6 @@ if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
 }
 
-// Clean $_POST and $_GET, in case magic_quotes_gpc is set
-$_POST = DQ_stripslashes($_POST);
-$_GET = DQ_stripslashes($_GET);
-
 
 /**
 *   Displays a quote box at the top of the regular listings.
@@ -125,15 +121,15 @@ function DQ_catlistDisplay($qid)
 */
 function DQ_stripslashes($var)
 {
-	if (get_magic_quotes_gpc()) {
-		if (is_array($var)) {
-			return array_map('DQ_stripslashes', $var);
-		} else {
-			return stripslashes($var);
-		}
-	} else {
-		return $var;
-	}
+    if (get_magic_quotes_gpc()) {
+        if (is_array($var)) {
+            return array_map('DQ_stripslashes', $var);
+        } else {
+            return stripslashes($var);
+        }
+    } else {
+        return $var;
+    }
 }
 
 

@@ -19,7 +19,16 @@ USES_lib_admin();
 USES_dailyquote_class_quote();
 USES_dailyquote_functions();
 
+// Clean $_POST and $_GET, in case magic_quotes_gpc is set
+$_POST = DQ_stripslashes($_POST);
+$_GET = DQ_stripslashes($_GET);
 
+
+/**
+*   Create the administrators' menu.
+*
+*   @return string  HTML for the admin menu
+*/
 function DQ_adminMenu()
 {
     global $_CONF, $LANG_ADMIN, $LANG_DQ;
@@ -43,7 +52,8 @@ function DQ_adminMenu()
 
 
 /**
-*   Create an admin list of quotes
+*   Create an admin list of quotes.
+*
 *   @return string  HTML for list
 */
 function DQ_adminList()
@@ -99,6 +109,15 @@ function DQ_adminList()
 }
 
 
+/**
+*   Display a single formatted field in the admin quote list.
+*
+*   @param  string  $fieldname  Name of the field
+*   @param  mixed   $fieldvalue Value of the field
+*   @param  array   $A          Name->Value array of all fields
+*   @param  array   $icon_arr   System icon array
+*   @return string              HTML for the field display
+*/
 function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ;
