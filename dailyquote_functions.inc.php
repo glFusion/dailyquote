@@ -94,7 +94,7 @@ function DQ_catlistDisplay($qid)
                     {$_TABLES['dailyquote_cat']} c, 
                     {$_TABLES['dailyquote_quoteXcat']} l 
                 WHERE 
-                    l.qid = '" . addslashes($qid) . "' 
+                    l.qid = '" . DB_escapeString($qid) . "' 
                 AND 
                     c.id = l.cid 
                 AND 

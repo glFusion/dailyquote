@@ -57,7 +57,7 @@ class Category
         global $_TABLES;
         $A = DB_fetchArray(DB_query("
             SELECT * FROM {$_TABLES['dailyquote_cat']}
-            WHERE id='".addslashes($id)."'"));
+            WHERE id='".DB_escapeString($id)."'"));
         $this->setVars($A);
     }
 
@@ -101,7 +101,7 @@ class Category
         $newval = $newval == 0 ? 0 : 1;
         DB_change($_TABLES['dailyquote_cat'],
                 'enabled', $newval,
-                'id', addslashes(trim($id)));
+                'id', DB_escapeString(trim($id)));
     }
 
 
@@ -190,12 +190,12 @@ class Category
             $sql = "INSERT INTO {$_TABLES['dailyquote_cat']}
                     (name, enabled)
                 VALUES (
-                    '" . addslashes($this->name) . "',
+                    '" . DB_escapeString($this->name) . "',
                     1)";
         } else {
             $sql = "UPDATE {$_TABLES['dailyquote_cat']}
                 SET
-                    name = '" . addslashes($this->name). "',
+                    name = '" . DB_escapeString($this->name). "',
                     enabled = " . (int)$this->enabled . "
                 WHERE
                     id = " . $this->id;

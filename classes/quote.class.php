@@ -147,7 +147,7 @@ class DailyQuote
         $newval = $newval == 0 ? 0 : 1;
         DB_change($_TABLES['dailyquote_quotes'],
                 'enabled', $newval,
-                'id', addslashes(trim($id)));
+                'id', DB_escapeString(trim($id)));
     }
 
 
@@ -266,23 +266,23 @@ class DailyQuote
                 VALUES (
                     '{$this->id}',
                     " . time() . ",
-                    '" . addslashes(COM_checkwords($A['quote'])). "',
-                    '" . addslashes(COM_checkwords($A['quoted'])). "',
-                    '" . addslashes(COM_checkwords($A['title'])) . "',
-                    '" . addslashes(COM_checkwords($A['source'])) . "',
-                    '" . addslashes(COM_checkwords($A['sourcedate'])) . "',
+                    '" . DB_escapeString(COM_checkwords($A['quote'])). "',
+                    '" . DB_escapeString(COM_checkwords($A['quoted'])). "',
+                    '" . DB_escapeString(COM_checkwords($A['title'])) . "',
+                    '" . DB_escapeString(COM_checkwords($A['source'])) . "',
+                    '" . DB_escapeString(COM_checkwords($A['sourcedate'])) . "',
                     '" . (int)$A['uid'] . "'
             )";
         } else {
             $sql = "UPDATE {$_TABLES[$table]}
                 SET
-                    quote = '" . addslashes(COM_checkwords($A['quote'])). "',
-                    quoted = '" . addslashes(COM_checkwords($A['quoted'])). "',
-                    title = '" . addslashes(COM_checkwords($A['title'])) . "',
-                    source = '" . addslashes(COM_checkwords($A['source'])) . "',
-                    sourcedate = '" . addslashes(COM_checkwords($A['sourcedate'])) . "'
+                    quote = '" . DB_escapeString(COM_checkwords($A['quote'])). "',
+                    quoted = '" . DB_escapeString(COM_checkwords($A['quoted'])). "',
+                    title = '" . DB_escapeString(COM_checkwords($A['title'])) . "',
+                    source = '" . DB_escapeString(COM_checkwords($A['source'])) . "',
+                    sourcedate = '" . DB_escapeString(COM_checkwords($A['sourcedate'])) . "'
                 WHERE
-                    id = '" . addslashes($this->id) . "'";
+                    id = '" . DB_escapeString($this->id) . "'";
         }
         //echo $sql;die;
         DB_query($sql);
@@ -348,7 +348,7 @@ class DailyQuote
             }
             $sql .= " ORDER BY rand() LIMIT 1";
         } else {
-            $sql .= " AND q.id='" . addslashes($qid). "'";
+            $sql .= " AND q.id='" . DB_escapeString($qid). "'";
         }
         //echo $sql;
 

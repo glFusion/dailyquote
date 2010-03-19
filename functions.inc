@@ -201,11 +201,15 @@ function plugin_cclabel_dailyquote()
 {
     global $_CONF, $_CONF_DQ;
 
-    return array(
-        $_CONF_DQ['pi_display_name'],
-        DQ_ADMIN_URL . '/index.php',
-        DQ_URL . '/images/dailyquote.png'
-    );
+    if (SEC_hasRights('dailyquote.admin')) {
+        return array(
+            $_CONF_DQ['pi_display_name'],
+            DQ_ADMIN_URL . '/index.php',
+            DQ_URL . '/images/dailyquote.png'
+        );
+    } else {
+        return '';
+    }
 }
 
 
@@ -280,7 +284,7 @@ function plugin_dopluginsearch_dailyquote(
 
     $htmlquery = urlencode($query);
 
-    $query = trim(addslashes(htmlspecialchars($query)));
+    $query = trim(DB_escapeString(htmlspecialchars($query)));
 
     // Build search SQL
     $sql = "SELECT 
@@ -442,11 +446,11 @@ function plugin_autouninstall_dailyquote()
 }
 
 
-//chks for magic_quotes and acts accordingly. use only for gpc otherwise use addslashes
+//chks for magic_quotes and acts accordingly. use only for gpc otherwise use DB_escapeString
 function slashctrl($str)
 {
     if (!get_magic_quotes_gpc()) {  //right from the manual :P
-        $str = addslashes($str);
+        $str = DB_escapeString($str);
     }
     return $str;
 }
@@ -762,7 +766,7 @@ function plugin_moderationdelete_dailyquote($id)
     global $_TABLES;
 
     // Delete the category lookup entries for the rejected quotation.
-    DB_delete ($_TABLES['dailyquote_quoteXcat'], 'qid', addslashes($id));
+    DB_delete ($_TABLES['dailyquote_quoteXcat'], 'qid', DB_escapeString($id));
 
     return '';
 }
@@ -1072,6 +1076,21 @@ function plugin_upgrade_dailyquote()
 
     COM_errorLog("Succesfully updated the {$_CONF_DQ['pi_name']} plugin!",1);
     return true;
+}
+
+
+if (!function_exists('DB_escapeString')) {
+    /**
+    *   Add a database string escape function, if not otherwise defined.
+    *   Used for compatibility with glFusion prior to 1.1.9
+    *
+    *   @param  string  $str    String to escape
+    *   @return string          Escaped version of $str
+    */
+    function DB_escapeString($str)
+    {
+        return @addslashes($str);
+    }
 }
 
 

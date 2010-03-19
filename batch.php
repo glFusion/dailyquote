@@ -124,13 +124,13 @@ function DQ_process_batch(){
             }
             $failures++;
         } else {
-            $quote = addslashes(strip_tags((COM_checkWords(trim($quote))), 
+            $quote = DB_escapeString(strip_tags((COM_checkWords(trim($quote))), 
                     '<strong><em><br><br />'));
 
             if (!$quoted || $quoted == '') {
                 $quoted = $LANG_DQ['unknown'];
             } else {
-                $quoted = addslashes(strip_tags((COM_checkWords((trim($quoted))))));
+                $quoted = DB_escapeString(strip_tags((COM_checkWords((trim($quoted))))));
             }
 
             if (!$title || $title == '') {
@@ -138,7 +138,7 @@ function DQ_process_batch(){
                     $title = slashctrl($_POST['title']);
                 }
             } else {
-                $title = addslashes(strip_tags(COM_checkWords(trim($title))));
+                $title = DB_escapeString(strip_tags(COM_checkWords(trim($title))));
             }
 
             if (!$src || $src == '') {
@@ -146,7 +146,7 @@ function DQ_process_batch(){
                     $source = slashctrl($_POST['source']);
                 }
             } else {
-                $src = addslashes(strip_tags(COM_checkWords(trim($src))));
+                $src = DB_escapeString(strip_tags(COM_checkWords(trim($src))));
             }
 
             if (!$srcdate || $srcdate == '') {
@@ -154,7 +154,7 @@ function DQ_process_batch(){
                     $srcdate = slashctrl($_POST['sourcedate']);
                 }
             } else {
-                $srcdate = addslashes(strip_tags(COM_checkWords(trim($srcdate))));
+                $srcdate = DB_escapeString(strip_tags(COM_checkWords(trim($srcdate))));
             }
 
             // get user info for db
