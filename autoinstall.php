@@ -57,6 +57,7 @@ $INSTALL_plugin['dailyquote'] = array(
             'group' => 'dailyquote Admin', 
             'desc' => 'Users in this group can administer the Daily Quote plugin',
             'variable' => 'admin_group_id', 
+            'admin' => true,
             'addroot' => true),
 
     array('type' => 'feature', 
