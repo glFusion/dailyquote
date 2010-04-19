@@ -1,53 +1,75 @@
-<br />
+{# begin {templatelocation} #}
 <h2>{$LANG_DQ['batchaddtitle']}</h2>
 <form action="{action_url}" method="POST" enctype="multipart/form-data">
-  <input type="hidden" name="mode" value="{mode}">
+<table>
+  <tr>
+    <td>{$LANG_DQ['batchadd']}:</td>
+    <td><input type="file" name="batch_import_file" size="45" {xhtml}></td>
+  </tr>
 
-  <label for="batchadd" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['batchadd']}:&nbsp;&nbsp;</label>
-<input type="file" name="batch_import_file" size="45" />
+  <tr>
+    <td></td>
+    <td>{$LANG_DQ['batchcatinstr']}</td>
+  </tr>
 
-  <p>{$LANG_DQ['batchcatinstr']}</p>
-  <!--<label for="batchcat" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['cat']}:&nbsp;&nbsp;</label>
-  <input name="batchcat" type="text" size="18" value="" />-->
-  {catlist}
+  <tr>
+    <td>{$LANG_DQ['cat']}:</td>
+    <td>{catlist}</td>
+  </tr>
 
-  <p>{$LANG_DQ['batchsrcinstr']}</p>
-  <label for="title" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addtitle']}:&nbsp;&nbsp;</label>
-  <input name="title" type="text" size="32" value="" />
-  <br /><br />
+  <tr>
+    <td></td>
+    <td>{$LANG_DQ['batchsrcinstr']}</td>
+  </tr>
 
-  <label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addsource']}:&nbsp;&nbsp;</label>
-  <input name="source" type="text" size="32" value="" />
-  <br /><br />
+  <tr>
+    <td>{$LANG_DQ['addtitle']}:</td>
+    <td><input name="title" type="text" size="32" value="" {xhtml}></td>
+  </p>
 
-  <label for="sourcedate" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addsourcedate']}:&nbsp;&nbsp;</label>
-  <input name="sourcedate" type="text" size="32" value="" />
-  <span style="color: red; text-align: center;">{$LANG_DQ['srcdateformat']}</span>
-  <br /><br />
+  <tr>
+    <td>{$LANG_DQ['source']}:</td>
+    <td><input name="source" type="text" size="32" value="" {xhtml}></td>
+  </tr>
 
-  <p align="center">
-  <input type="submit" name="submit" value="{$LANG_DQ['batchsubmit']}" /></p>
+  <tr>
+    <td>{$LANG_DQ['sourcedate']}:</td>
+    <td>
+      <input name="sourcedate" type="text" size="32" value="" {xhtml}>
+      <span style="color: red; text-align: center;">
+        {$LANG_DQ['srcdateformat']}
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td></td>
+    <td>
+      <input type="submit" name="submit" value="{$LANG_DQ['batchsubmit']}" />
+    </td>
+  </tr>
+</table>
 </form>
 
 <h2>{$LANG_DQ['egtitle']}</h2>
-<table width="100%">
-  <tr>
-    <td>
-      <pre style="width: 600px; border: solid 1px; background-color: #FFFFFF; color: #000000; padding: 5px; overflow: auto;">
+<center>
+  <p>
+    <pre style="width: 600px; border: solid 1px; background-color: #FFFFFF; color: #000000; padding: 5px; overflow: auto;">
 A bad cause will ever be supported by bad means and bad men.\tThomas Paine\tMiscellany\t\tThe American Crisis\t1776
 A common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools.\tDouglas Adams\t\t\t\t
 It will go worse for the man who stands near the fence knowing where the fence is than for the man who stands on the fence not knowing where the fence is.\t\tMiscellany\t\t\t
 A democracy is a state which recognises the subjecting of the minority to the majority.\tVladimir Ilyich Lenin\tDemocracy\t\t\t
 A fear of weapons is a sign of retarded sexual and emotional maturity.\tSigmund Freud\tFreud
-      </pre>
-      <ul>
-        <li>{$LANG_DQ['tabs']}</li>
-        <li>{$LANG_DQ['line2']}</li>
-        <li>{$LANG_DQ['line3']}</li>
-        <li>{$LANG_DQ['line1']}</li>
-        <li>{$LANG_DQ['line5']}</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
+    </pre>
+  </p>
+</center>
+<p>
+  <ul>
+    <li>{$LANG_DQ['tabs']}</li>
+    <li>{$LANG_DQ['line2']}</li>
+    <li>{$LANG_DQ['line3']}</li>
+    <li>{$LANG_DQ['line1']}</li>
+    <li>{$LANG_DQ['line5']}</li>
+  </ul>
+</p>
+{# end {templatelocation} #}

@@ -5,11 +5,9 @@
 <form action="{action_url}" method="POST">
   {hidden_vars}
   <input type="hidden" name="type" value="{pi_name}">
-  <input type="hidden" name="mode" value="{mode}">
   <input type="hidden" name="uid" value="{uid}">
   <input type="hidden" name="id" value="{id}">
   <input type="hidden" name="{gltoken_name}" value="{gltoken}"{xhtml}>
-  <input type="hidden" name="action" value="{form_action}">
 
   <label for="title" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addtitle']}:&nbsp;&nbsp;</label>
   <input name="title" type="text" size="32" value="{title}" />
@@ -24,12 +22,12 @@
   <input name="quoted" type="text" size="32" value="{quoted}" />
   <br />
 
-  <label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addsource']}:&nbsp;&nbsp;</label>
+  <label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['source']}:&nbsp;&nbsp;</label>
   <input name="source" type="text" size="32" value="{source}" />
   <span style="color: red; text-align: center;">{$LANG_DQ['hlp_source']}</span>
   <br />
 
-  <label for="sourcedate" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addsourcedate']}:&nbsp;&nbsp;</label>
+  <label for="sourcedate" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['sourcedate']}:&nbsp;&nbsp;</label>
   <input name="sourcedate" type="text" size="32" value="{sourcedate}" />
   <span style="color: red; text-align: center;">{$LANG_DQ['hlp_srcdate']}</span><br /><br />
 

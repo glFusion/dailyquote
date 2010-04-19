@@ -52,12 +52,14 @@ class Category
      *  Read a banner record from the database
      *  @param  string  $bid    Banner ID to read (required)
      */
-    function Read($bid)
+    function Read($id)
     {
         global $_TABLES;
+
         $A = DB_fetchArray(DB_query("
             SELECT * FROM {$_TABLES['dailyquote_cat']}
             WHERE id='".DB_escapeString($id)."'"));
+
         $this->setVars($A);
     }
 
@@ -221,7 +223,7 @@ class Category
         $menu_arr = array (
             array('url' => $_CONF['site_admin_url'],
                     'text' => $LANG_ADMIN['admin_home']),
-            array('url' => DQ_ADMIN_URL . '/index.php?mode=editcategory',
+            array('url' => DQ_ADMIN_URL . '/index.php?edit=category',
                     'text' => 'New Category'),
             array('url' => DQ_ADMIN_URL,
                   'text' => $LANG_DQ['user_menu2']),
@@ -245,16 +247,19 @@ class Category
             array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
             array('text' => 'Category ID', 'field' => 'id', 'sort' => true),
             array('text' => 'Category Name', 'field' => 'name', 'sort' => true),
+            array('text' => $LANG_ADMIN['delete'], 'field' => 'delete',
+                'sort' => false),
         );
 
         $defsort_arr = array('field' => 'name', 'direction' => 'desc');
 
-        $menu_arr = Category::AdminMenu();
+        //$menu_arr = Category::AdminMenu();
         $retval .= COM_startBlock('WhereAmI', '', 
             COM_getBlockTemplate('_admin_block', 'header'));
 
-        $retval .= ADMIN_createMenu($menu_arr, $LANG_DQ['admin_hdr'], 
-            plugin_geticon_dailyquote());
+        //$retval .= ADMIN_createMenu($menu_arr, $LANG_DQ['admin_hdr'], 
+            //plugin_geticon_dailyquote());
+        $retval .= DQ_adminMenu('categories');
 
         $text_arr = array(
             'has_extras' => true,
@@ -297,20 +302,47 @@ class Category
             plugin_geticon_dailyquote());
         $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
-        $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+        $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('page', 'catform.thtml');
         $T->set_var(array(
             'name'      => $this->name,
             'id'        => $this->id,
             'chk'       => ($this->enabled == 1 || $this->id == '') ? 
                             ' checked ' : '',
+            'cancel_url' => DQ_ADMIN_URL . '/index.php?page=categories',
         ));
+        if (!$this->isUsed()) {
+            $T->set_var('show_delbtn', 'true');
+        }
+
         $T->parse('output','page');
 
         $retval .= $T->finish($T->get_var('output'));
         return $retval;
     }
 
+
+    function isUsed($id = 0)
+    {
+        global $_TABLES;
+
+        if ($id == 0) {
+            if (is_object($this)) {
+                $id = $this->id;
+            }
+        }
+        $id = (int)$id;
+        if ($id == 0)
+            return false;
+        elseif ($id == 1)
+            return true;        // can't delete default category
+
+        if (DB_count($_TABLES['dailyquote_quoteXcat'], 'cid', $id) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
         
 }   // class Category
 
@@ -334,7 +366,7 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
     case 'edit':
         $retval .= COM_createLink(
             $icon_arr['edit'],
-            DQ_ADMIN_URL . "/index.php?mode=editcategory&amp;id={$A['id']}"
+            DQ_ADMIN_URL . "/index.php?edit=category&amp;id={$A['id']}"
         );
         if ($A['enabled'] == 1) {
             $ena_icon = 'on.png';
@@ -349,16 +381,19 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                 "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
                 "\"category\", \"{$_CONF['site_url']}\");'>\n" .
                 "</span>\n";
-        if ($A['id'] != 1) {
-            // Cannot delete category 1 - default category.
+        break;
+
+    case 'delete':
+        if (!Category::isUsed($A['id'])) {
             $retval .= COM_createLink(COM_createImage(
-                $_CONF['site_url'].'/dailyquote/images/deleteitem.png',
+                $_CONF['layout_url'] . '/images/admin/delete.png',
                 'Delete this quote',
                 array('class'=>'gl_mootip',
-                'onclick'=>'return confirm(\'Do you really want to delete this item?\');',
+                'onclick'=>'return confirm(\'' . 
+                            $LANG_DQ['confirm_delitem'] .'\');',
                 'title' => 'Delete this quote',
                 )),
-                DQ_ADMIN_URL . '/index.php?mode=deletecat&id=' . $A['id']
+                DQ_ADMIN_URL . '/index.php?delete=category&id=' . $A['id']
             );
         }
         break;

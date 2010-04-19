@@ -4,10 +4,16 @@
             </table>
                     <p>{catreadme}</p>
                     <p align="center">
-            <input type="submit" name="submit_btn" value="{$LANG12['8']}" />
-{!if show_delbtn}
-            <input type="submit" name="delete_btn" value="{$LANG12['52']}" />
-{!endif}
+  <input type="submit" value="{lang_save}" name="save"{xhtml}>
+  <input type="reset" value="{$LANG_BANNER['reset']}" name="reset"{xhtml}>
+  <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+        onclick="javascript: document.location.href='{cancel_url}'"
+        {xhtml}>
+  {!if show_delbtn}
+    <input type="submit" name="delete" value="{$LANG_ADMIN['delete']}" 
+        onclick="return confirm('{$LANG_ADVT['confirm_delitem']}');" {xhtml}>
+  {!endif}
+  {submission_option}
                     </p>
             </form>
 {# end {templatelocation} #}

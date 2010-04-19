@@ -9,9 +9,9 @@
 					<textarea name="quote" cols="65" rows="6" wrap="virtual"></textarea><br /><br />
 				<label for="quoted" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addquoted}:&nbsp;&nbsp;</label>
 					<input name="quoted" type="text" size="32" value="Unknown" /><br /><br />
-				<label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addsource}:&nbsp;&nbsp;</label>
+				<label for="source" style="width: 25%; text-align: right; float: left; font-weight: bold;">{source}:&nbsp;&nbsp;</label>
 					<input name="source" type="text" size="32" value="" /><br /><br />
-				<label for="sourcedate" style="width: 25%; text-align: right; float: left; font-weight: bold;">{addsourcedate}:&nbsp;&nbsp;</label>
+				<label for="sourcedate" style="width: 25%; text-align: right; float: left; font-weight: bold;">{sourcedate}:&nbsp;&nbsp;</label>
 					<input name="sourcedate" type="text" size="32" value="" />
 					<span style="color: red; text-align: center;">{dateformat}</span><br /><br />
 				<label for="cat" style="display: inline; font-weight: bold;">{choosecat}{firstcat}:&nbsp;&nbsp;</label>

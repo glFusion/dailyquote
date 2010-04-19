@@ -1,17 +1,29 @@
+{# begin {templatelocation} #}
 <span style="font-weight: normal;">{instr}</span></h2>
   <form action="{site_admin_url}/plugins/dailyquote/index.php" method="POST">
-  <input type="hidden" name="mode" value="savecategory">
-  <input type="hidden" name="id" value="{id}">
+  <input type="hidden" name="id" value="{id}" {xhtml}>
 
   <label for="name" style="width: 25%; text-align: right; float: left; font-weight: bold;">
     {$LANG_DQ['category_name']}:&nbsp;&nbsp;</label>
-  <input name="name" type="text" size="64" value="{name}" />
+  <input name="name" type="text" size="64" value="{name}" {xhtml}>
   <br />
 
   <label for="status" style="width: 25%; text-align: right; float: left; font-weight: bold;">
     {$LANG_DQ['enableq']}:&nbsp;&nbsp;</label>
-  <input name="status" type="checkbox" value="1" {chk} />
+  <input name="status" type="checkbox" value="1" {chk} {xhtml}>
 
   <br />
-  <center><input type="submit" name="add" value="{$LANG_ADMIN['save']}" /></center>
+  <center>
+    <input type="hidden" name="xtype" value="category" {xhtml}>
+    <input type="submit" name="save" value="{$LANG_ADMIN['save']}" {xhtml}>
+    <input type="reset" name="reset" value="{$LANG_DQ['reset']}" {xhtml}>
+    <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+        onclick="javascript: document.location.href='{cancel_url}'"
+        {xhtml}>
+    {!if show_delbtn}
+      <input type="submit" name="delete" value="{$LANG_ADMIN['delete']}" 
+        onclick="return confirm('{$LANG_DQ['confirm_delitem']}');" {xhtml}>
+    {!endif}
+  </center>
 </form>
+{# end {templatelocation} #}

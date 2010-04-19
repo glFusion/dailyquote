@@ -707,10 +707,12 @@ function plugin_itemlist_dailyquote()
     if (plugin_ismoderator_dailyquote()) {
         $plugin = new Plugin();
         $plugin->submissionlabel = $_CONF_DQ['pi_display_name'];
-        $plugin->getsubmissionssql = "SELECT id, quoted, quote, source FROM "
-                                   . $_TABLES['dailyquote_submission'];
+        $plugin->getsubmissionssql = 
+                "SELECT id, quoted, title, source, uid
+                FROM {$_TABLES['dailyquote_submission']}";
         $plugin->addSubmissionHeading($LANG_DQ['quoted']);
-        $plugin->addSubmissionHeading($LANG_DQ['quote']);
+        $plugin->addSubmissionHeading($LANG_DQ['title']);
+        $plugin->addSubmissionHeading($LANG_DQ['source']);
 
         return $plugin;
     }

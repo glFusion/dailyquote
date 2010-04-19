@@ -1,11 +1,12 @@
 <?php
 //  $Id$
 /**
-*   Common functions for the DailyQuote plugin
+*   Quote submission form for the DailyQuote plugin.
+*
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2010 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.0.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -15,11 +16,41 @@
 /**
 *   Displays the add form for single quotes.
 */
-function DQ_editForm($mode='Submit', $A='', $admin=false)
+function DQ_editForm($mode='edit', $A='', $admin=false)
 {
-    global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
+    global $_TABLES, $_CONF, $_USER, $LANG_DQ, $LANG_ADMIN, $_CONF_DQ,
+        $LANG12;
 
     $retval = '';
+
+    switch ($mode) {
+    case 'edit':
+        $saveoption = $LANG_ADMIN['save'];      // Save
+        $sub_type = '<input type="hidden" name="xtype" value="quote"'
+                . XHTML . '>';
+        $cancel_url = $admin ? DQ_ADMIN_URL . '/index.php' :
+                $_CONF['site_url'];
+        break;
+
+    case 'submit':
+        $saveoption = $LANG_ADMIN['save'];      // Save
+        // override sub_type for submit.php
+        $sub_type = 
+                '<input type="hidden" name="type" value="quote"' . XHTML . '>'
+                .'<input type="hidden" name="mode" value="' .
+                    $LANG12[8].'"' . XHTML . '>';
+        $cancel_url = $admin ? DQ_ADMIN_URL . '/index.php' :
+                $_CONF['site_url'];
+        break;
+
+    case 'moderate':
+        $saveoption = $LANG_ADMIN['moderate'];  // Save & Approve
+        $sub_type = '<input type="hidden" name="xtype" value="submission"'
+                . XHTML . '>';
+        $cancel_url = $_CONF['site_admin_url'] . '/moderation.php';
+        break;
+    }
+
 
     $T = new Template(DQ_PI_PATH . '/templates');
     $T->set_file('page', 'editformheader.thtml');
@@ -31,38 +62,45 @@ function DQ_editForm($mode='Submit', $A='', $admin=false)
     $T->set_var('gltoken_name', CSRF_TOKEN);
     $T->set_var('gltoken', SEC_createToken());
 
-    $action = '';
+    //$action = '';
     if ($admin) {
-        if ($mode == 'editsubmission') {
+        /*if ($mode == 'editsubmission') {
             $mode = 'moderation';
             $action='approve';
-        }
+        }*/
         $action_url = DQ_ADMIN_URL . '/index.php';
     } else {
         $action_url = $_CONF['site_url']. '/submit.php';
     }
-    $T->set_var('action_url', $action_url);
+    /*$T->set_var('action_url', $action_url);
     $T->set_var('mode', $mode);
-    $T->set_var('form_action', $action);
+    $T->set_var('form_action', $action);*/
 
     // Load existing values, if any
     if (is_array($A) && !empty($A)) {
-        $T->set_var('quote', $A['quote']);
-        $T->set_var('quoted', $A['quoted']);
-        $T->set_var('title', $A['title']);
-        $T->set_var('source', $A['source']);
-        $T->set_var('sourcedate', $A['sourcedate']);
-        $T->set_var('uid', $A['uid']);
-        $T->set_var('id', $A['id']);
-        $T->set_var('hidden_vars',
-            '<input type="hidden" name="date" value="'.$A['dtadded']. '">');
+        $T->set_var(array(
+            'quote'     => $A['quote'],
+            'quoted'    => $A['quoted'],
+            'title'     => $A['title'],
+            'source'    => $A['source'],
+            'sourcedate' => $A['sourcedate'],
+            'uid'       => $A['uid'],
+            'id'        => $A['id'],
+            'hidden_vars' =>
+                '<input type="hidden" name="date" value="' . 
+                        $A['dtadded'] . XHTML.'">'
+        ) );
     } else {
-        $T->set_var('uid', $_USER['uid']);
-        $T->set_var('id', '');
+        $T->set_var(array(
+            'uid'       => $_USER['uid'],
+            'id'        => '',
+        ) );
     }
 
-    $T->set_var('site_url', $_CONF['site_url']);
-    $T->set_var('pi_name', $_CONF_DQ['pi_name']);
+    $T->set_var(array(
+        'pi_name'       => $_CONF_DQ['pi_name'],
+        'action_url'    => $action_url,
+    ) );
 
     //retrieve categories from db if any and display
     if (!$result = DB_query("SELECT id, name 
@@ -121,8 +159,12 @@ function DQ_editForm($mode='Submit', $A='', $admin=false)
     if ($admin) {
         $T->set_var('show_delbtn', 'true');
     }
-    $T->set_var('catreadme', $LANG_DQ['catreadme']);
-    $T->set_var('submit', $LANG_DQ['submitquote']);
+    $T->set_var(array(
+        'catreadme'     => $LANG_DQ['catreadme'],
+        'lang_save'     => $saveoption,
+        'cancel_url'    => $cancel_url,
+        'submission_option' => $sub_type,
+    ) );
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
 

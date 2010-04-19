@@ -21,8 +21,8 @@ $LANG_DQ= array(
 'absentfile'        => 'Error: You must specify a file to upload.',
 'addformlink'       => 'Add a Quote',
 'addquote'          => 'Add Your Quotation Here',
-'addsource'         => 'Source',
-'addsourcedate'     => 'Source Date',
+'source'         => 'Source',
+'sourcedate'     => 'Source Date',
 'addtitle'          => 'Title',
 'admin_menu'        => 'Daily Quote',
 'adminintro'        => 'From this page you may enable, disable, or configure various dailyquote settings.',
@@ -98,6 +98,7 @@ $LANG_DQ= array(
 'StatsMsg4'         => 'Quotes',
 'subm_by'           => 'Submitted by',
 'submitquote'       => 'Submit Quote',
+'reset'             => 'Reset',
 'tabs'              => 'Notice that the tabs are marked here by the regex &quot; <strong>\ t</strong> &quot; for the sake of the example.  Please use the tab button on your keyboard to create tabs.',
 'title'             => 'Title',
 'txterror'          => 'You have an error in your text file.  Ensure that the &quot;quotation&quot; field is not null on any line, i.e., no line should begin with a tab character.',
@@ -116,6 +117,7 @@ $LANG_DQ= array(
 'contributor'       => 'Contributor',
 'category'          => 'Category',
 'email_subject'     => 'New Daily Quote Notification',
+'confirm_delitem'   => 'Are you sure you want to delete this item?',
 
 );
 
