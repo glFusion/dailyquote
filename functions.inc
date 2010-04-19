@@ -1079,19 +1079,4 @@ function plugin_upgrade_dailyquote()
 }
 
 
-if (!function_exists('DB_escapeString')) {
-    /**
-    *   Add a database string escape function, if not otherwise defined.
-    *   Used for compatibility with glFusion prior to 1.1.9
-    *
-    *   @param  string  $str    String to escape
-    *   @return string          Escaped version of $str
-    */
-    function DB_escapeString($str)
-    {
-        return @addslashes($str);
-    }
-}
-
-
 ?>

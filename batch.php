@@ -3,9 +3,9 @@
 /**
 *   Batch add quotes to the database.  Similar to glFusion's user import.
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2010 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.0.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -70,7 +70,6 @@ function DQ_process_batch(){
 
     // First, upload the file
     USES_class_upload();
-//  require_once($_CONF['path_system'] . 'classes/upload.class.php');
 
     $upload = new upload();
     $upload->setPath($_CONF['path_data']. 'temp');
@@ -127,35 +126,35 @@ function DQ_process_batch(){
             $quote = DB_escapeString(strip_tags((COM_checkWords(trim($quote))), 
                     '<strong><em><br><br />'));
 
-            if (!$quoted || $quoted == '') {
+            /*if (!$quoted || $quoted == '') {
                 $quoted = $LANG_DQ['unknown'];
-            } else {
+            } else {*/
                 $quoted = DB_escapeString(strip_tags((COM_checkWords((trim($quoted))))));
-            }
+            //}
 
-            if (!$title || $title == '') {
+            /*if (!$title || $title == '') {
                 if ($_POST['title'] != '') {
                     $title = slashctrl($_POST['title']);
                 }
-            } else {
+            } else {*/
                 $title = DB_escapeString(strip_tags(COM_checkWords(trim($title))));
-            }
+            //}
 
-            if (!$src || $src == '') {
+            /*if (!$src || $src == '') {
                 if ($_POST['source'] != '') {
                     $source = slashctrl($_POST['source']);
                 }
-            } else {
+            } else {*/
                 $src = DB_escapeString(strip_tags(COM_checkWords(trim($src))));
-            }
+            //}
 
-            if (!$srcdate || $srcdate == '') {
+            /*if (!$srcdate || $srcdate == '') {
                 if ($_POST['sourcedate'] != '') {
                     $srcdate = slashctrl($_POST['sourcedate']);
                 }
-            } else {
+            } else {*/
                 $srcdate = DB_escapeString(strip_tags(COM_checkWords(trim($srcdate))));
-            }
+            //}
 
             // get user info for db
             $uid = $_USER['uid'];

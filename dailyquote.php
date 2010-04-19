@@ -27,7 +27,7 @@ $_TABLES['dailyquote_quoteXcat']   = $DQ_prefix . 'quoteXcat';
 // Static configuration items
 $_CONF_DQ['pi_version'] = '0.1.2';
 $_CONF_DQ['pi_name'] = 'dailyquote';
-$_CONF_DQ['gl_version'] = '1.1.4';
+$_CONF_DQ['gl_version'] = '1.2.0';
 $_CONF_DQ['pi_url'] = 'http://www.leegarner.com';
 $_CONF_DQ['pi_display_name'] = 'Daily Quotes';
 
