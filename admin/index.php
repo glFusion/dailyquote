@@ -51,7 +51,7 @@ function DQ_adminMenu($mode='dailyquote')
                 'url' => DQ_ADMIN_URL . '/index.php?page=categories');
     }
               
-    $menu_arr[] = array('url' => DQ_ADMIN_URL . '/index.php?mode=batchform',
+    $menu_arr[] = array('url' => DQ_ADMIN_URL . '/index.php?page=batchform',
               'text' => $LANG_DQ['batchaddlink']);
     $menu_arr[] = array('url' => $_CONF['site_admin_url'],
                 'text' => $LANG_ADMIN['admin_home']);
@@ -361,7 +361,6 @@ case 'processbatch':
 //case 'edit':
     // 
 }
-
 
 switch ($page) {
 case 'edit':

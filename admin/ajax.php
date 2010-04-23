@@ -1,13 +1,14 @@
 <?php
+//  $Id: updatecatxml.php 101 2008-12-12 16:51:21Z root $
 /**
- *  $Id: updatecatxml.php 101 2008-12-12 16:51:21Z root $
- *  Common AJAX functions
+ *  Common AJAX functions for the Daily Quote plugin.
+ *
  *  @author     Lee Garner <lee@leegarner.com>
  *  @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
  *  @package    dailyquote
- *  @version    0.0.1
+ *  @version    0.0.2
  *  @license    http://opensource.org/licenses/gpl-2.0.php 
- *  GNU Public License v2 or later
+ *              GNU Public License v2 or later
  *  @filesource
  */
 
@@ -15,7 +16,7 @@
 require_once '../../../lib-common.php';
 
 // This is for administrators only
-if (!SEC_hasRights('banner.edit')) {
+if (!SEC_hasRights('dailyquote.edit')) {
     COM_accessLog("User {$_USER['username']} tried to illegally access the dailyquote AJAX functions.");
     exit;
 }

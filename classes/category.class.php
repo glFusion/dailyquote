@@ -12,8 +12,8 @@
 */
 
 /**
-*   Define a class to deal with banners
-*   @package banner
+*   Define a class to deal with quote categories
+*   @package dailyquote
 */
 class Category
 {
@@ -49,7 +49,7 @@ class Category
 
 
     /**
-     *  Read a banner record from the database
+     *  Read a category record from the database
      *  @param  string  $bid    Banner ID to read (required)
      */
     function Read($id)
@@ -65,7 +65,7 @@ class Category
 
 
     /**
-     *  Set the banner variables from the supplied array.
+     *  Set the category variables from the supplied array.
      *  The array may be from a form ($_POST) or database record
      *  @param  array   $A  Array of values
      */
@@ -82,7 +82,7 @@ class Category
 
 
     /**
-     *  Update the 'enabled' value for a banner ad.
+     *  Update the 'enabled' value for a category.
      *  @param  integer $newval     New value to set (1 or 0)
      *  @param  string  $bid        Optional ad ID.  Current object if blank
      */
@@ -110,8 +110,9 @@ class Category
     /**
      *  Delete a category.
      *  Deletes the supplied quote ID if not empty, otherwise
-     *  deletes the current object
-     *  @param  string  $bid    Optional banner ID to delete
+     *  deletes the current object.
+     *
+     *  @param  string  $bid    Optional category ID to delete
      */
     function Delete($id='')
     {
@@ -139,7 +140,8 @@ class Category
 
 
     /**
-     *  Returns the current user's access level to this banner
+     *  Returns the current user's access level to this category.
+     *
      *  @return integer     User's access level (1 - 3)
      */
     function Access()
@@ -155,7 +157,8 @@ class Category
 
     /**
      *  Determines whether the current user has a given level of access
-     *  to this banner object.
+     *  to this category object.
+     *
      *  @see    Access()
      *  @param  integer $level  Minimum access level required
      *  @return boolean     True if user has access >= level, false otherwise

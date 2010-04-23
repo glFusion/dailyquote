@@ -12,8 +12,8 @@
 */
 
 /**
-*   Define a class to deal with banners
-*   @package banner
+*   Define a class to deal with quotes
+*   @package dailyquote
 */
 class DailyQuote
 {
@@ -59,7 +59,8 @@ class DailyQuote
 
 
     /**
-     *  Constructor
+     *  Constructor.
+     *
      *  @param string $id Quote ID to retrieve, blank for empty object
      */
     function DailyQuote($id='')
@@ -76,6 +77,7 @@ class DailyQuote
     /**
      *  Read a quote record from the database.
      *  If no quote ID is specified, a random quote is read.
+     *
      *  @param  string  $qid    Optional quote ID to read
      */
     function Read($qid = '')
@@ -99,8 +101,9 @@ class DailyQuote
 
 
     /**
-     *  Set the banner variables from the supplied array.
-     *  The array may be from a form ($_POST) or database record
+     *  Set the variables from the supplied array.
+     *  The array may be from a form ($_POST) or database record.
+     *
      *  @param  array   $A  Array of values
      */
     function setVars($A)
@@ -126,7 +129,8 @@ class DailyQuote
 
 
     /**
-     *  Update the 'enabled' value for a banner ad.
+     *  Update the 'enabled' value for a quote.
+     *
      *  @param  integer $newval     New value to set (1 or 0)
      *  @param  string  $bid        Optional ad ID.  Current object if blank
      */
@@ -154,8 +158,9 @@ class DailyQuote
     /**
      *  Delete a quote.
      *  Deletes the supplied quote ID if not empty, otherwise
-     *  deletes the current object
-     *  @param  string  $bid    Optional banner ID to delete
+     *  deletes the current object.
+     *
+     *  @param  string  $bid    Optional quote ID to delete
      */
     function Delete($id='', $table='dailyquote_quotes')
     {
@@ -185,7 +190,8 @@ class DailyQuote
 
 
     /**
-     *  Returns the current user's access level to this banner
+     *  Returns the current user's access level to this quote.
+     *
      *  @return integer     User's access level (1 - 3)
      */
     function Access($isNew = false)
@@ -218,7 +224,8 @@ class DailyQuote
 
     /**
      *  Determines whether the current user has a given level of access
-     *  to this banner object.
+     *  to this quote object.
+     *
      *  @see    Access()
      *  @param  integer $level  Minimum access level required
      *  @return boolean     True if user has access >= level, false otherwise
@@ -235,6 +242,7 @@ class DailyQuote
 
     /**
      *  Save the current quote object using the supplied values.
+     *
      *  @param  array   $A  Array of values from $_POST or database
      */
     function Save($A, $table='dailyquote_quotes')
@@ -317,9 +325,10 @@ class DailyQuote
      *  Retrieves a single quote.  If $id is empty, a random quote is selected.
      *  If called within an instantiated object, then the object properties
      *  are populated.
+     *
      *  @param  string  $qid    Optional quote specifier
      *  @param  string  $cid    Optional category specifier
-     *  @return array   Values from quote table.
+     *  @return array           Values from quote table.
      */
     function getQuote($qid='', $cid='')
     {
@@ -369,9 +378,10 @@ class DailyQuote
 
 
     /**
-    *   Enclose the Quoted field in link tags for Google search
+    *   Enclose the Quoted field in link tags for Google search.
+    *
     *   @param  string  $Quoted     Person quoted
-    *   @return string  URL for google search, or 'unknown'
+    *   @return string              URL for google search, or 'unknown'
     */
     function GoogleLink($Quoted)
     {
