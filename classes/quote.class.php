@@ -70,6 +70,9 @@ class DailyQuote
         if ($this->id != '') {
             $this->Read($this->id);
         }
+        /*if ($this->isNew) {
+            $this->id = COM_makeSID();
+        }*/
 
     }
 
@@ -111,7 +114,7 @@ class DailyQuote
         if (!is_array($A))
             return;
 
-        $this->id = COM_sanitizeID($A['id'], false);
+        $this->id = COM_sanitizeID($A['id'], true);
         $this->quote = $A['quote'];
         $this->quoted = $A['quoted'];
         $this->source = $A['source'];
@@ -125,7 +128,7 @@ class DailyQuote
 
 
     function GetID()
-    {   return $thid->id;   }
+    {   return $this->id;   }
 
 
     /**
@@ -261,14 +264,13 @@ class DailyQuote
             $table = 'dailyquote_submission';
 
         $access = $this->hasAccess(3, $this->isNew);
-        if (!$access) {
+        if (!$access || empty($this->id)) {
             COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->id}.");
             return COM_showMessageText($MESSAGE[31], $MESSAGE[30]);
         }
 
         // Determine if this is an INSERT or UPDATE
         if ($this->isNew) {
-            $this->id = COM_makeSID();
             $sql = "INSERT INTO {$_TABLES[$table]}
                     (id, dt, quote, quoted, title, source, sourcedate, uid)
                 VALUES (

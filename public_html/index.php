@@ -169,14 +169,15 @@ function DQ_listQuotes($sort, $asc, $page)
 
         if(SEC_hasRights('dailyquote.edit')) {
             $editlink = '<a href="' . DQ_ADMIN_URL . 
-                        '/index.php?mode=edit&id='.$row['id'] . '">';
+                        '/index.php?edit=quote&id='.$row['id'] . '">';
             $icon_url = "{$_CONF['layout_url']}/images/edit.$_IMAGE_TYPE";
             $editlink .= COM_createImage($icon_url, $LANG_ADMIN['edit']);
             $editlink .= '</a>&nbsp;';
             $editlink .= 
                 COM_createLink(
                     COM_createImage(
-                        DQ_URL . "/images/deleteitem.$_IMAGE_TYPE", 
+                        $_CONF['layout_url'] . 
+                                "/images/admin/delete.$_IMAGE_TYPE", 
                         $LANG_DQ['del_quote'],
                         array(
                             'onclick'=>'return confirm(\'' .
@@ -184,7 +185,7 @@ function DQ_listQuotes($sort, $asc, $page)
                             'class'=> 'gl_mootip',
                         )
                     ),
-                    DQ_ADMIN_URL . '/index.php?mode=deletequote&id='.$row['id']
+                    DQ_ADMIN_URL . '/index.php?delete=x&xtype=quote&id='.$row['id']
                 );
             $T->set_var('editlink', $editlink);
         }

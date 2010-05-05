@@ -33,10 +33,11 @@ function DQ_editForm($mode='edit', $A='', $admin=false)
         break;
 
     case 'submit':
+    case $LANG12[8]:
         $saveoption = $LANG_ADMIN['save'];      // Save
         // override sub_type for submit.php
         $sub_type = 
-                '<input type="hidden" name="type" value="quote"' . XHTML . '>'
+                '<input type="hidden" name="type" value="dailyquote"' . XHTML . '>'
                 .'<input type="hidden" name="mode" value="' .
                     $LANG12[8].'"' . XHTML . '>';
         $cancel_url = $admin ? DQ_ADMIN_URL . '/index.php' :

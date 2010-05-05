@@ -207,7 +207,7 @@ if (!in_array('dailyquote', $_PLUGINS)) {
 }
 
 // Only let admin users access this page
-if (!SEC_hasRights('dailyquote.admin')) {
+if (!SEC_hasRights('dailyquote.admin,dailyquote.edit', 'OR')) {
     // Someone is trying to illegally access this page
     COM_errorLog("Someone has tried to illegally access the dailyquote Admin page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
     $display = COM_siteHeader();
@@ -221,8 +221,8 @@ if (!SEC_hasRights('dailyquote.admin')) {
 
 $action = '';
 $expected = array(
-    'edit', 'moderate', 'cancel', 'mode', 'save', 
-    'delete', 'delitem', 'validate',
+    'edit', 'moderate', 'cancel', 'save', 
+    'delete', 'delitem', 'validate', 'mode', 
 );
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
@@ -254,7 +254,7 @@ if (isset($_REQUEST['mode'])) {
 */
 
 $q_id = isset($_REQUEST['id']) ? COM_sanitizeID($_REQUEST['id'], false) : '';
-$type = isset($_POST['xtype']) ? $_POST['xtype'] : '';
+$type = isset($_REQUEST['xtype']) ? $_REQUEST['xtype'] : '';
 
 /*if (isset($_POST['delete_btn']) && !empty($_POST['delete_btn'])) {
     if ($mode == 'edit') {
@@ -279,6 +279,14 @@ $content = '';      // initialize variable for page content
 $A = array();       // initialize array for form vars
 
 switch ($action) {
+case 'mode':
+    switch ($var) {
+    case 'edit':
+        $page = $var;
+        break;
+    }
+    break;
+
 case 'categories':
 case 'moderate':
     $page = $action;
@@ -300,9 +308,10 @@ case 'save':
         USES_dailyquote_class_quote();
         $Q = new Dailyquote();
         $status = $Q->Save($_POST);
-        if ($status == '' ) {
-            DB_delete($_TABLES['dailyquote_submission'], 'id', $Q->GetID());
-            plugin_moderationapprove_dailyquote($Q->GetID());
+        $q_id = $Q->GetID();
+        if ($status == '' && !empty($q_id)) {
+            DB_delete($_TABLES['dailyquote_submission'], 'id', $q_id);
+            plugin_moderationapprove_dailyquote($q_id);
             $page = 'moderation';
         } else {
             $page = 'moderate';
@@ -332,6 +341,7 @@ case 'delitem':
 case 'delete':
     switch ($type) {
     case 'dailyquote':
+    case 'quote':
         DailyQuote::Delete($q_id);
         break;
     case 'submission':
@@ -365,17 +375,18 @@ case 'processbatch':
 switch ($page) {
 case 'edit':
     switch ($var) {
-    case 'quote':
-        if ($q_id != '') {
-            $A = DailyQuote::getQuote($q_id);
-        }
-        USES_dailyquote_submitform();
-        $content .= DQ_editForm($action, $A, true);
-        break;
     case 'category':
         USES_dailyquote_class_category();
         $C = new Category($q_id);
         $content .= $C->EditForm();
+        break;
+    case 'quote':
+    default:
+        if ($q_id != '') {
+            $A = DailyQuote::getQuote($q_id);
+        }
+        USES_dailyquote_submitform();
+        $content .= DQ_editForm('edit', $A, true);
         break;
     }
     break;

@@ -5,7 +5,7 @@
                     <p>{catreadme}</p>
                     <p align="center">
   <input type="submit" value="{lang_save}" name="save"{xhtml}>
-  <input type="reset" value="{$LANG_BANNER['reset']}" name="reset"{xhtml}>
+  <input type="reset" value="{$LANG_DQ['reset']}" name="reset"{xhtml}>
   <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
         onclick="javascript: document.location.href='{cancel_url}'"
         {xhtml}>
