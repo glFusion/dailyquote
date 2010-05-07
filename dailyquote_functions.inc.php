@@ -133,4 +133,63 @@ function DQ_stripslashes($var)
 }
 
 
+/**
+*   Display the site header, with or without blocks according to configuration.
+*
+*   @param  string  $title  Title to put in header
+*   @param  string  $meta   Optional header code
+*   @return string          HTML for site header, from COM_siteHeader()
+*/
+function DQ_siteHeader($title='', $meta='')
+{
+    global $_CONF_DQ;
+
+    $retval = '';
+
+    switch($_CONF_DQ['displayblocks']) {
+    case 2:     // right only
+    case 0:     // none
+        $retval .= COM_siteHeader('none', $title, $meta);
+        break;
+
+    case 1:     // left only
+    case 3:     // both
+    default :
+        $retval .= COM_siteHeader('menu', $title, $meta);
+        break;
+    }
+
+    return $retval;
+
+}
+
+
+/**
+*   Display the site footer, with or without blocks as configured.
+*
+*   @return string      HTML for site footer, from COM_siteFooter()
+*/
+function DQ_siteFooter()
+{
+    global $_CONF_DQ;
+
+    $retval = '';
+
+    switch($_CONF_DQ['displayblocks']) {
+    case 2 : // right only
+    case 3 : // left and right
+        $retval .= COM_siteFooter(true);
+        break;
+
+    case 0: // none
+    case 1: // left only
+        $retval .= COM_siteFooter();
+        break;
+    }
+
+    return $retval;
+
+}
+
+
 ?>

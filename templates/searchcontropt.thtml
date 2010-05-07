@@ -1,3 +1,0 @@
-{# begin {templatelocation} #}
-						<option value="{contr}">{contr}</option>
-{# end {templatelocation} #}

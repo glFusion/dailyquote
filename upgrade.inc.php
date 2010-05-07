@@ -24,9 +24,25 @@ global $_CONF, $_CONF_DQ;
 */
 function DQ_do_upgrade($current_ver)
 {
-    global $_TABLES;
+    global $_CONF_DQ;
+
+    require_once DQ_PI_PATH . '/install_defaults.php';
 
     $error = 0;
+
+    if ($current_ver < '0.1.4') {
+        // upgrade to 0.1.4
+        $c = config::get_instance();
+        if ($c->group_exists($_CONF_DQ['pi_name'])) {
+            $c->add('displayblocks', $_DQ_DEFAULT['displayblocks'], 'select',
+                0, 0, 13, 170, true, $_CONF_DQ['pi_name']);
+        } else {
+            $error = 1;
+        }
+
+        if ($error)
+            return $error;
+    }
 
     return $error;
 

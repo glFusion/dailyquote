@@ -1,4 +1,5 @@
 {# begin {templatelocation} #}
+{templatelocation} DEPRECATED
     <tr>
         <td>
             <h2 align="center">{categories}</h2>

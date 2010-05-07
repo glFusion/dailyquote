@@ -158,7 +158,8 @@ $LANG_configselects['dailyquote'] = array(
     5 => array('Top of Page' => 1, 'Below Featured Article' => 2, 'Bottom of Page' => 3),
     9 => array('Never' => 0, 'If Submission Queue' => 1, 'Always' => 2),
     10 => array('5' => 5, '10' => 10, '25' => 25, '50' => 50),
-    12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3)
+    12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3),
+    13 => array('None' => 0, 'Left' => 1, 'Right' => 2, 'Both' => 3),
 );
 
 $LANG_confignames['dailyquote'] = array(
@@ -179,6 +180,7 @@ $LANG_confignames['dailyquote'] = array(
     'whatsnew' => 'Show Quotes in "What\'s New" block?',
     'whatsnewdays' => 'Number of days for a quote to be considered "new"',
     'email_admin' => 'Notification Email to Admin?',
+    'displayblocks'  => 'Display glFusion Blocks',
 );
 
 

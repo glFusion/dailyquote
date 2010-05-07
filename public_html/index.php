@@ -103,10 +103,26 @@ function DQ_listQuotes($sort, $asc, $page)
     }
 
     // Display quotes if any to display
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T->set_file('page', 'dispquotesheader.thtml');
-    $T->parse('output','page');
-    $retval .= $T->finish($T->get_var('output'));
+    $T = new Template(DQ_PI_PATH . '/templates');
+    $T->set_file('page', 'dispquotes.thtml');
+
+    // Set up sorting options
+    $sortby_opts = array('dt' => $LANG_DQ['date'],
+                    'quote' => $LANG_DQ['quotation'],
+                    'quoted' => $LANG_DQ['quoted'],
+                );
+    $sortby = '';
+    foreach ($sortby_opts as $key=>$value) {
+        $sel = $sort == $key ? ' selected="selected"' : '';
+        $sortby .= '<option value="' . $key . $sel . '">' . $value . "</option>\n";
+    }
+    $T->set_var('sortby_opts', $sortby);
+    $T ->set_var('submit', $LANG_DQ['sort']);
+    if ($dir == 'ASC') {
+        $T->set_var('asc_sel', 'selected="selected"');
+    } else {
+        $T->set_var('desc_sel', 'selected="selected"');
+    }
 
     // Calculate page navigation
     $prevpage = $page - 1;
@@ -114,18 +130,19 @@ function DQ_listQuotes($sort, $asc, $page)
     $pagestart = ($page - 1) * $displim;
     $baseurl = DQ_URL . '/index.php?sort=' . $sort . '&asc=' . $asc;
     $numpages = ceil($numquotes / $displim);
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T->set_file('page', 'pagenav.thtml');
+    //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+    //$T->set_file('page', 'pagenav.thtml');
     $T->set_var('google_paging', 
             COM_printPageNavigation($baseurl, $page, $numpages));
-    $T->parse('output','page');
-    $google_pagenav = $T->finish($T->get_var('output'));
-    $retval .= $google_pagenav;
+    //$T->parse('output','page');
+    //$google_pagenav = $T->finish($T->get_var('output'));
+    //$retval .= $google_pagenav;
 
     //  Now get each quote and display it
     while ($row = DB_fetchArray($result)) {
-        $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-        $T->set_file('page', 'singlequote.thtml');
+        //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+        //$T->set_file('page', 'singlequote.thtml');
+        $T->set_block('page', 'QuoteRow', 'qRow');
 
         $catres = DB_query("SELECT 
                 c.id AS catid, c.name AS catname
@@ -141,17 +158,12 @@ function DQ_listQuotes($sort, $asc, $page)
         }
         $catlist = join(',' , $catnames);
  
-        $T->set_var('title', $row['title']);
-        $T->set_var('quote', htmlspecialchars($row['quote']));
-        $T->set_var('quoted', DailyQuote::GoogleLink($row['quoted']));
-
         /*if (!empty($row['catid']) && !empty($row['catname'])) {
             $T->set_var(array(
                 'catid'     => $row['catid'],
                 'catname'   => $row['catname'],
             ) );
         }*/
-        $T->set_var('catname', $catlist);
         if (!empty($row['source'])){
             $T->set_var('source', '&nbsp;--&nbsp;' . htmlspecialchars($row['source']));
         }
@@ -159,13 +171,25 @@ function DQ_listQuotes($sort, $asc, $page)
             $T->set_var('sourcedate', '&nbsp;&nbsp;(' . 
                 htmlspecialchars($row['sourcedate']) . ')');
         }
+
         $contr = DB_query("SELECT uid, username 
                             FROM {$_TABLES['users']} 
                             WHERE uid={$row['uid']}");
-        list($uid,$username) = DB_fetchArray($contr);
-        $username = DQ_linkProfile($uid, $username);
-        $T->set_var('contr', $username);
-        $T->set_var('datecontr', strftime($_CONF['shortdate'], $row['dt']));
+        if ($contr) {
+            list($uid, $username) = DB_fetchArray($contr);
+            $username = DQ_linkProfile($uid, $username);
+        } else {
+            $username = $LANG_DQ['anonymous'];
+        }
+
+        $T->set_var(array(
+            'title'         => htmlspecialchars($row['title']),
+            'quote'         => htmlspecialchars($row['quote']),
+            'quoted'        => DailyQuote::GoogleLink($row['quoted']),
+            'catname'       => $catlist,
+            'contr'         => $username,
+            'datecontr'     => strftime($_CONF['shortdate'], $row['dt']),
+        ) );
 
         if(SEC_hasRights('dailyquote.edit')) {
             $editlink = '<a href="' . DQ_ADMIN_URL . 
@@ -189,13 +213,11 @@ function DQ_listQuotes($sort, $asc, $page)
                 );
             $T->set_var('editlink', $editlink);
         }
-        $T->parse('output','page');
-        $retval .= $T->finish($T->get_var('output'));
+        $T->parse('qRow', 'QuoteRow', true);
     }
-    $retval .= $google_pagenav;
 
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T->set_file('page', 'dispquotesfooter.thtml');
+    //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+    //$T->set_file('page', 'dispquotesfooter.thtml');
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
     return $retval;
@@ -208,6 +230,8 @@ function DQ_listQuotes($sort, $asc, $page)
 function DQ_listCategories()
 {
     global $_TABLES, $_CONF, $LANG_DQ;
+
+    $retval = '';
 
     $sql = "SELECT DISTINCT 
                 id, name
@@ -225,44 +249,34 @@ function DQ_listCategories()
     }
 
     // Display cats if any to display
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T->set_file('page', 'dispcatsheader.thtml');
-    $T->set_var('categories', $LANG_DQ['categories']);
-    $T->parse('output','page');
-    $retval .= $T->finish($T->get_var('output'));
-    $i = 0;
+    $T = new Template(DQ_PI_PATH . '/templates');
+    $T->set_file('page', 'dispcats.thtml');
 
     // display horizontal rows -- 3 cats per row
-    // if you adjust this number, you need to adjust the cell 
-    // width in the .thtml file
+    $i = 0;
     $col = 3;
     while ($row = DB_fetchArray($result)) {
-        $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-        $T->set_file('page', 'singlecat.thtml');
-        $dispcat = "<a href=\"" . DQ_URL . '/index.php?cat=' . $row['id'] .
-                '">' . $row['name'] . '</a>';
-        $T->set_var('dispcat', $dispcat);
-        $T->parse('output','page');
-        $retval .= $T->finish($T->get_var('output'));
-
+        $T->set_block('page', 'CatRow', 'cRow');
+        $T->set_var(array(
+            'pi_url'    => DQ_URL . '/index.php',
+            'cat_id'    => $row['id'],
+            'dispcat'   => $row['name'],
+            'cell_width' => (int)(100 / $col),
+        ) );
+    
         // Determine if it's time for a new row
         $i++;
-        if ($i % $col === 0){
-            $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-            $T->set_file('page', 'newcatrow.thtml');
-            $T->parse('output','page');
-            $retval .= $T->finish($T->get_var('output'));
+        if ($i % $col === 0) {
+            $T->set_var('newrow', 'true');
         }
+        $T->parse('cRow', 'CatRow', true);
     }
 
-    // Show a message if there are no categories
-    if ($i == 0)
-        $retval .= "<p align=\"center\">".$LANG_DQ['StatsMsg2']."</p>";
+    if ($i > 0) {
+        $T->parse('output', 'page');
+        $retval .= $T->finish($T->get_var('output'));
+    }
 
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T->set_file('page', 'dispcatsfooter.thtml');
-    $T->parse('output','page');
-    $retval .= $T->finish($T->get_var('output'));
     return $retval;
 }
 
@@ -271,7 +285,7 @@ function DQ_listCategories()
 *   Displays a menu of sort by options for the display page
 *   @return string  HTML for sort selection form
 */
-function DQ_menuSort($sort='', $dir='')
+function X_DQ_menuSort($sort='', $dir='')
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
     
@@ -315,10 +329,10 @@ $asc = isset($_GET['asc']) ? $_GET['asc'] : 'ASC';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 
-$display = COM_siteHeader();
+$display = DQ_siteHeader();
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-$T->set_file('page', 'dqheader.thtml');
-$T->set_var('site_url', $_CONF['site_url']);
+//$T->set_file('page', 'dqheader.thtml');
+$T->set_file('page', 'index.thtml');
 $T->set_var('plugin', 'dailyquote');
 
 if (isset($_GET['msg'])){
@@ -348,18 +362,16 @@ if ($access == 3) {
             $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']);
 }
 $T->set_var('indexintro', $indexintro);
-$T->parse('output','page');
-$display .= $T->finish($T->get_var('output'));
+$T->set_var('randomquote', DQ_random_quote($qid, $cid));
 
-$display .= DQ_random_quote($qid, $cid);
-
+$content = '';
 switch ($mode) {
 case 'categories':
-    $display .= DQ_listCategories();
+    $content .= DQ_listCategories();
     break;
 default:
-    $display .= DQ_menuSort($sort, $asc);
-    $display .= DQ_listQuotes($sort, $asc, $page);
+    //$content .= DQ_menuSort($sort, $asc);
+    $content .= DQ_listQuotes($sort, $asc, $page);
     break;
 }
 
@@ -368,12 +380,15 @@ default:
 
 //display quote listing by date desc as default
 //$display .= display_quote($sort, $asc, $page);
-
-$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-$T->set_file('page', 'dqfooter.thtml');
+$T->set_var('content', $content);
 $T->parse('output','page');
 $display .= $T->finish($T->get_var('output'));
-$display .= COM_siteFooter(true);
+
+/*$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
+$T->set_file('page', 'dqfooter.thtml');
+$T->parse('output','page');
+$display .= $T->finish($T->get_var('output'));*/
+$display .= DQ_siteFooter();
 echo $display;
 
 ?>

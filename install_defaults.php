@@ -41,6 +41,7 @@ $_DQ_DEFAULT = array(
     'whatsnew' => 0,          // show new quotes in whatsnew block?
     'whatsnewdays' => 14,     // number of days to be considered new
     'email_admin' => 1,       // email admin? 0=never, 1=if queue, 2=always
+    'displayblocks' => 3,    // display both block colums by default
 );
 
 
@@ -90,6 +91,8 @@ function plugin_initconfig_dailyquote($group_id = 0)
                 0, 0, 0, 150, true, $_CONF_DQ['pi_name']);
         $c->add('email_admin', $_DQ_DEFAULT['email_admin'], 'select',
                 0, 0, 9, 160, true, $_CONF_DQ['pi_name']);
+        $c->add('displayblocks', $_DQ_DEFAULT['displayblocks'], 'select',
+                0, 0, 13, 170, true, $_CONF_DQ['pi_name']);
 
         $c->add('fs_cblock', NULL, 'fieldset', 0, 2, NULL, 0, true, $_CONF_DQ['pi_name']);
         $c->add('cb_enable', $_DQ_DEFAULT['cb_enable'], 'select',
