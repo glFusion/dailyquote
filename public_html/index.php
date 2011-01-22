@@ -333,7 +333,7 @@ $display = DQ_siteHeader();
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
 //$T->set_file('page', 'dqheader.thtml');
 $T->set_file('page', 'index.thtml');
-$T->set_var('plugin', 'dailyquote');
+$T->set_var('pi_url', DQ_URL);
 
 if (isset($_GET['msg'])){
     $msg = "msg" . $_GET['msg'];

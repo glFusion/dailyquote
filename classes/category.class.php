@@ -257,11 +257,9 @@ class Category
         $defsort_arr = array('field' => 'name', 'direction' => 'desc');
 
         //$menu_arr = Category::AdminMenu();
-        $retval .= COM_startBlock('WhereAmI', '', 
+        $retval .= COM_startBlock($LANG_DQ['categories'], '', 
             COM_getBlockTemplate('_admin_block', 'header'));
 
-        //$retval .= ADMIN_createMenu($menu_arr, $LANG_DQ['admin_hdr'], 
-            //plugin_geticon_dailyquote());
         $retval .= DQ_adminMenu('categories');
 
         $text_arr = array(

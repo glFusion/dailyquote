@@ -35,6 +35,12 @@ function DQ_adminMenu($mode='dailyquote')
 
     $menu_arr = array();
 
+    if (isset($LANG_DQ['hlp_admin_' . $mode])) {
+        $hlp_text = $LANG_DQ['hlp_admin_' . $mode];
+    } else {
+        $hlp_text = $LANG_DQ['hlp_admin_dailyquote'];
+    }
+
     if ($mode == 'dailyquote') {
         $menu_arr[] = array('text' => $LANG_DQ['newquote'],
                 'url' => DQ_ADMIN_URL . '/index.php?edit=quote');
@@ -56,8 +62,8 @@ function DQ_adminMenu($mode='dailyquote')
     $menu_arr[] = array('url' => $_CONF['site_admin_url'],
                 'text' => $LANG_ADMIN['admin_home']);
 
-    $retval = ADMIN_createMenu($menu_arr, $LANG_DQ['admin_hdr'], 
-            plugin_geticon_dailyquote());
+    $retval = ADMIN_createMenu($menu_arr, $hlp_text, 
+                plugin_geticon_dailyquote());
 
     return $retval;
 
@@ -97,7 +103,8 @@ function DQ_adminList()
 
     $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
 
-    $retval .= COM_startBlock('WhereAmI', '', COM_getBlockTemplate('_admin_block', 'header'));
+    $retval .= COM_startBlock($_CONF_DQ['pi_display_name'], '', 
+                COM_getBlockTemplate('_admin_block', 'header'));
 
     $retval .= DQ_adminMenu();
 
@@ -195,14 +202,7 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 */
 // If plugin is installed but not enabled, display an error and exit gracefully
 if (!in_array('dailyquote', $_PLUGINS)) {
-    $display = COM_siteHeader();
-    $display .= "<span class=\"alert\">";
-    $display .= COM_startBlock ('Alert');
-    $display .= 'This function is not available.';
-    $display .= COM_endBlock();
-    $display .= "</span>";
-    $display .= COM_siteFooter(true);
-    echo $display;
+    COM_404();
     exit;
 }
 
@@ -416,7 +416,7 @@ case 'categories':
 
 case 'batchform':
     USES_dailyquote_batch();
-    $content .= DQ_adminMenu();
+    $content .= DQ_adminMenu($page);
     $content .= DQ_batch_form();
     break;
 
