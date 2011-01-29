@@ -8,9 +8,9 @@
   <input name="name" type="text" size="64" value="{name}" {xhtml}>
   <br />
 
-  <label for="status" style="width: 25%; text-align: right; float: left; font-weight: bold;">
+  <label for="enabled" style="width: 25%; text-align: right; float: left; font-weight: bold;">
     {$LANG_DQ['enableq']}:&nbsp;&nbsp;</label>
-  <input name="status" type="checkbox" value="1" {chk} {xhtml}>
+  <input name="enabled" type="checkbox" value="1" {chk} {xhtml}>
 
   <br />
   <center>

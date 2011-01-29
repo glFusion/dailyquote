@@ -126,10 +126,14 @@ class Category
             }
         }
 
+        $id = COM_sanitizeID($id, false);
+
+        // Can't delete category 1
+        if ($id == 1) return;
+
         if (!DailyQuote::hasAccess(3))
             return;
 
-        $id = COM_sanitizeID($id, false);
         DB_delete($_TABLES['dailyquote_cat'],
             'id', $id);
 
@@ -296,7 +300,7 @@ class Category
         $menu_arr[] = array('url'=> DQ_ADMIN_URL . '/index.php?mode=categories',
                 'text' => 'Categories');
 
-        $retval .= COM_startBlock('WhereAmI', '', 
+        $retval .= COM_startBlock('', '', 
             COM_getBlockTemplate('_admin_block', 'header'));
 
         $retval .= ADMIN_createMenu($menu_arr, $LANG_DQ['admin_hdr'], 
@@ -312,7 +316,8 @@ class Category
                             ' checked ' : '',
             'cancel_url' => DQ_ADMIN_URL . '/index.php?page=categories',
         ));
-        if (!$this->isUsed()) {
+        //if (!$this->isUsed()) {
+        if ($this->id > 1) {
             $T->set_var('show_delbtn', 'true');
         }
 
@@ -385,14 +390,15 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        if (!Category::isUsed($A['id'])) {
+        //if (!Category::isUsed($A['id'])) {
+        if ($A['id'] > 1) {
             $retval .= COM_createLink(COM_createImage(
                 $_CONF['layout_url'] . '/images/admin/delete.png',
-                'Delete this quote',
+                $LANG_ADMIN['delete'],
                 array('class'=>'gl_mootip',
                 'onclick'=>'return confirm(\'' . 
                             $LANG_DQ['confirm_delitem'] .'\');',
-                'title' => 'Delete this quote',
+                'title' => $LANG_ACCESS['delete'],
                 )),
                 DQ_ADMIN_URL . '/index.php?delete=category&id=' . $A['id']
             );
