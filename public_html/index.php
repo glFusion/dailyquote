@@ -58,9 +58,9 @@ function DQ_listQuotes($sort, $asc, $page)
                 q.id, quote, quoted, title, source, sourcedate, dt, q.uid
             FROM 
                 {$_TABLES['dailyquote_quotes']} q 
-            INNER JOIN {$_TABLES['dailyquote_quoteXcat']} l
+            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} l
                 ON q.id = l.qid
-            INNER JOIN {$_TABLES['dailyquote_cat']} c
+            LEFT JOIN {$_TABLES['dailyquote_cat']} c
                 ON l.cid = c.id
             WHERE 
                 q.enabled = '1' 

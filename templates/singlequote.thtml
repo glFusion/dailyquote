@@ -6,19 +6,23 @@
       {title}
     </p>
     {!endif}
-                    <p>&quot;{quote}&quot;</p>
-                    <p align="right"><em>{quoted}{source}</em>{sourcedate}</p>
-                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                      <tr>
-                        <td style="text-align: left; font-size: 8pt; margin-left: 45%;">{editlink}</td>
-                        <td style="text-align: right; font-size: 8pt;">
-                          {$LANG_DQ['subm_by']}:&nbsp;{contr}&nbsp;/&nbsp;
-                          {datecontr}&nbsp;&nbsp;:&nbsp;
-                          <span style="font-style:italic;">{catname}</span>
-                        </td>
-                      </tr>
-                    </table>
-                    <hr width="45%">
-                  </td>
-                </tr>
+    <p>&quot;{quote}&quot;</p>
+    <p align="right"><em>{quoted}{source}</em>{sourcedate}</p>
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td style="text-align: left; font-size: 8pt; margin-left: 45%;">
+          {editlink}
+        </td>
+        <td style="text-align: right; font-size: 8pt;">
+          {$LANG_DQ['subm_by']}:&nbsp;{contr}&nbsp;/&nbsp;
+          {datecontr}
+          {!if catname}
+          &nbsp;&nbsp;:&nbsp;<span style="font-style:italic;">{catname}</span>
+          {!endif}
+        </td>
+      </tr>
+    </table>
+    <hr width="45%" {xhtml}>
+  </td>
+</tr>
 {# end {templatelocation} #}

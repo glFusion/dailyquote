@@ -36,8 +36,11 @@
           <td style="text-align: left; font-size: 8pt; margin-left: 45%;">{editlink}</td>
           <td style="text-align: right; font-size: 8pt;">
             {$LANG_DQ['subm_by']}:&nbsp;{contr}&nbsp;/&nbsp;
-            {datecontr}&nbsp;&nbsp;:&nbsp;
+            {datecontr}
+            {!if catname}
+            &nbsp;&nbsp;:&nbsp;
             <span style="font-style:italic;">{catname}</span>
+            {!endif}
           </td>
         </tr>
       </table>

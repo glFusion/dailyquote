@@ -339,7 +339,7 @@ case 'delitem':
     break;
 
 case 'delete':
-    switch ($type) {
+    switch ($var) {
     case 'dailyquote':
     case 'quote':
         DailyQuote::Delete($q_id);
