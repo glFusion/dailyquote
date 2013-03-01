@@ -997,8 +997,9 @@ function plugin_enablestatechange_dailyquote($enabled)
     global $_TABLES;
 
     $enabled = $enabled == true ? 1 : 0;
-    $blocks = array('dailyquote_random', 'dailyquote_dgmenu');
+    if ($enabled == 1) return;  // Never automatically enable
 
+    $blocks = array('dailyquote_random', 'dailyquote_dgmenu');
     foreach ($blocks as $block) {
         DB_query("UPDATE {$_TABLES['blocks']}
                 SET is_enabled=$enabled
