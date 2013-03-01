@@ -328,6 +328,14 @@ class Category
     }
 
 
+    /**
+    *   Check if a category is used before allowing deletion.
+    *   At least one category is required, so always returnt rue for
+    *   category #1.
+    *
+    *   @param  integer $id     Category ID to check
+    *   @return boolean         True if category contains quotes.
+    */
     function isUsed($id = 0)
     {
         global $_TABLES;
@@ -338,10 +346,7 @@ class Category
             }
         }
         $id = (int)$id;
-        if ($id == 0)
-            return false;
-        elseif ($id == 1)
-            return true;        // can't delete default category
+        if ($id < 2) return true;   // 0 is an error, 1 can't be deleted
 
         if (DB_count($_TABLES['dailyquote_quoteXcat'], 'cid', $id) > 0) {
             return true;
