@@ -18,8 +18,10 @@ USES_dailyquote_class_quote();
 USES_dailyquote_functions();
 
 // Clean $_POST and $_GET, in case magic_quotes_gpc is set
-$_POST = DQ_stripslashes($_POST);
-$_GET = DQ_stripslashes($_GET);
+if (GVERSION < '1.3.0') {
+    $_POST = DQ_stripslashes($_POST);
+    $_GET = DQ_stripslashes($_GET);
+}
 
 // Retrieve access settings
 $anonview = $_CONF_DQ['default_permissions'][3];
