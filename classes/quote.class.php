@@ -63,17 +63,13 @@ class DailyQuote
      *
      *  @param string $id Quote ID to retrieve, blank for empty object
      */
-    function DailyQuote($id='')
+    function __construct($id='')
     {
         $this->id = COM_sanitizeID($id, false);
         $this->isNew = true;
         if ($this->id != '') {
             $this->Read($this->id);
         }
-        /*if ($this->isNew) {
-            $this->id = COM_makeSID();
-        }*/
-
     }
 
 
@@ -83,7 +79,7 @@ class DailyQuote
      *
      *  @param  string  $qid    Optional quote ID to read
      */
-    function Read($qid = '')
+    public function Read($qid = '')
     {
         global $_TABLES;
 
@@ -109,7 +105,7 @@ class DailyQuote
      *
      *  @param  array   $A  Array of values
      */
-    function setVars($A)
+    public function setVars($A)
     {
         if (!is_array($A))
             return;
@@ -137,7 +133,7 @@ class DailyQuote
      *  @param  integer $newval     New value to set (1 or 0)
      *  @param  string  $bid        Optional ad ID.  Current object if blank
      */
-    function toggleEnabled($newval, $id='')
+    public function toggleEnabled($newval, $id='')
     {
         global $_TABLES;
 
@@ -165,7 +161,7 @@ class DailyQuote
      *
      *  @param  string  $bid    Optional quote ID to delete
      */
-    function Delete($id='', $table='dailyquote_quotes')
+    public function Delete($id='', $table='dailyquote_quotes')
     {
         global $_TABLES;
 
@@ -197,7 +193,7 @@ class DailyQuote
      *
      *  @return integer     User's access level (1 - 3)
      */
-    function Access($isNew = false)
+    public function Access($isNew = false)
     {
         global $_USER, $_CONF_DQ;
 
@@ -233,7 +229,7 @@ class DailyQuote
      *  @param  integer $level  Minimum access level required
      *  @return boolean     True if user has access >= level, false otherwise
      */
-    function hasAccess($level=3, $isNew=false)
+    public function hasAccess($level=3, $isNew=false)
     {
         if (DailyQuote::Access($isNew) < $level) {
             return false;
@@ -248,7 +244,7 @@ class DailyQuote
      *
      *  @param  array   $A  Array of values from $_POST or database
      */
-    function Save($A, $table='dailyquote_quotes')
+    public function Save($A, $table='dailyquote_quotes')
     {
         global $_CONF, $_TABLES, $_USER, $MESSAGE, $LANG_DQ, $_CONF_DQ;
 
@@ -276,21 +272,21 @@ class DailyQuote
                 VALUES (
                     '{$this->id}',
                     " . time() . ",
-                    '" . DB_escapeString(COM_checkwords($A['quote'])). "',
-                    '" . DB_escapeString(COM_checkwords($A['quoted'])). "',
-                    '" . DB_escapeString(COM_checkwords($A['title'])) . "',
-                    '" . DB_escapeString(COM_checkwords($A['source'])) . "',
-                    '" . DB_escapeString(COM_checkwords($A['sourcedate'])) . "',
+                    '" . DB_escapeString(self::SafeText($A['quote'])). "',
+                    '" . DB_escapeString(self::SafeText($A['quoted'])). "',
+                    '" . DB_escapeString(self::SafeText($A['title'])) . "',
+                    '" . DB_escapeString(self::SafeText($A['source'])) . "',
+                    '" . DB_escapeString(self::SafeText($A['sourcedate'])) . "',
                     '" . (int)$A['uid'] . "'
             )";
         } else {
             $sql = "UPDATE {$_TABLES[$table]}
                 SET
-                    quote = '" . DB_escapeString(COM_checkwords($A['quote'])). "',
-                    quoted = '" . DB_escapeString(COM_checkwords($A['quoted'])). "',
-                    title = '" . DB_escapeString(COM_checkwords($A['title'])) . "',
-                    source = '" . DB_escapeString(COM_checkwords($A['source'])) . "',
-                    sourcedate = '" . DB_escapeString(COM_checkwords($A['sourcedate'])) . "'
+                    quote = '" . DB_escapeString(self::SafeText($A['quote'])). "',
+                    quoted = '" . DB_escapeString(self::SafeText($A['quoted'])). "',
+                    title = '" . DB_escapeString(self::SafeText($A['title'])) . "',
+                    source = '" . DB_escapeString(self::SafeText($A['source'])) . "',
+                    sourcedate = '" . DB_escapeString(self::SafeText($A['sourcedate'])) . "'
                 WHERE
                     id = '" . DB_escapeString($this->id) . "'";
         }
@@ -332,7 +328,7 @@ class DailyQuote
      *  @param  string  $cid    Optional category specifier
      *  @return array           Values from quote table.
      */
-    function getQuote($qid='', $cid='')
+    public function getQuote($qid='', $cid='')
     {
         global $_TABLES;
 
@@ -385,7 +381,7 @@ class DailyQuote
     *   @param  string  $Quoted     Person quoted
     *   @return string              URL for google search, or 'unknown'
     */
-    function GoogleLink($Quoted)
+    private static function GoogleLink($Quoted)
     {
         global $_CONF, $_TABLES, $LANG_DQ, $_CONF_DQ;
 
@@ -405,6 +401,17 @@ class DailyQuote
         return $retval;
     }
 
+
+    /**
+    *   Sanitize text inputs
+    *
+    *   @param  string  $str    String to be sanitized
+    *   @return string      Sanitized string
+    */
+    private static function SafeText($str)
+    {
+        return htmlspecialchars(COM_checkWords($str),ENT_QUOTES,COM_getEncodingt());
+    }
 
 }   // class DailyQuote
 
