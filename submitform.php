@@ -54,9 +54,9 @@ function DQ_editForm($mode='edit', $A='', $admin=false)
 
 
     $T = new Template(DQ_PI_PATH . '/templates');
-    $T->set_file('page', 'editformheader.thtml');
-    $T->parse('output','page');
-    $retval .= $T->finish($T->get_var('output'));
+    //$T->set_file('page', 'editformheader.thtml');
+    //$T->parse('output','page');
+    //$retval .= $T->finish($T->get_var('output'));
 
     //displays the add quote form for single quotations
     $T->set_file('page', 'editform.thtml');
