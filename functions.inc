@@ -659,16 +659,16 @@ function phpblock_dailyquote_random()
     if (!empty($row)) {
         $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('page', 'blk_random.thtml');
-        $T->set_var('randomquote', htmlspecialchars($row['quote']));
-        $T->set_var('quoted', htmlspecialchars($row['quoted']));
-        $T->set_var('sourcedate', htmlspecialchars($row['sourcedate']));
-        $T->set_var('source', htmlspecialchars($row['source']));
+        $T->set_var(array(
+            'randomquote'   => $row['quote'],
+            'quoted'        => $row['quoted'],
+            'sourcedate'    => $row['sourcedate'],
+            'source'        => $row['source'],
+        ) );
         $T->parse('output','page');
         $retval = $T->finish($T->get_var('output'));
-   }
-
+    }
     return $retval;
-
 }
 
 
@@ -936,6 +936,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
 
     USES_dailyquote_class_quote();
 
+    $quote = '';
     switch ($op) {
     case 'tagname':
         $retval = 'dailyquote';
@@ -962,10 +963,10 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         
         if (is_array($quote) && !empty($quote)) {
             $T->set_var(array(
-                'quote'     => htmlspecialchars($quote['quote']),
-                'quoted'    => htmlspecialchars($quote['quoted']),
-                'source'    => htmlspecialchars($quote['source']),
-                'sourcedate' => htmlspecialchars($quote['sourcedate']),
+                'quote'     => $quote['quote'],
+                'quoted'    => $quote['quoted'],
+                'source'    => $quote['source'],
+                'sourcedate' => $quote['sourcedate'],
                 'qid'       => $quote['id'],
             ) );
             $T->parse('output','block');

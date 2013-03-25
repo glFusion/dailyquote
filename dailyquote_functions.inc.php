@@ -46,20 +46,20 @@ function DQ_random_quote($qid='', $cid='')
     $T->set_var('site_url', $_CONF['site_url']);
     $T->set_var('randomboxtitle', $LANG_DQ['randomboxtitle']);
     if ($_CONF_DQ['phpblk_title'] == 1) {
-        $T->set_var('title', htmlspecialchars($A['title']));
+        $T->set_var('title', $A['title']);
     } else {
         $T->set_var('title', '');
     }
 
-    $T->set_var('randomquote', htmlspecialchars($A['quote']));
-    $T->set_var('quoted', htmlspecialchars($A['quoted']));
+    $T->set_var('randomquote', $A['quote']);
+    $T->set_var('quoted', $A['quoted']);
     if ($_CONF_DQ['phpblk_srcdate'] == 1) {
         if (!empty($A['source'])) {
-            $dispsource = "&nbsp;--&nbsp;" . htmlspecialchars($A['source']);
+            $dispsource = "&nbsp;--&nbsp;" . $A['source'];
             $T->set_var('source', $dispource);
         }
         if (!empty($Sourcedate)) {
-            $dispsourcedate = "&nbsp;&nbsp;(" . htmlspecialchars($A['sourcedate']) . ")";
+            $dispsourcedate = "&nbsp;&nbsp;(" . $A['sourcedate'] . ")";
             $T->set_var('sourcedate', $dispsourcedate);
         }
     }
@@ -67,7 +67,7 @@ function DQ_random_quote($qid='', $cid='')
         $T->set_var('subm_by', $LANG_DQ['subm_by'] . ':&nbsp;');
         $T->set_var('dispcontr', $username);
         $T->set_var('dispcontr', $username);
-        $T->set_var('datecontr', '&nbsp;/&nbsp;' . htmlspecialchars($A['date']));
+        $T->set_var('datecontr', '&nbsp;/&nbsp;' . $A['date']);
     }
 /*    if ($_CONF_DQ['phpblock_categories'] == 1) {
         $T->set_var('cat', '&nbsp;&nbsp;' . $LANG_DQ['cat'] . ':&nbsp;');

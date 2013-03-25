@@ -336,19 +336,14 @@ class DailyQuote
         $cid = (int)$cid;
 
         //get random quote
-        $sql = "SELECT  q.*
-                FROM 
-                    {$_TABLES['dailyquote_quotes']} q ";
+        $sql = "SELECT  q.* FROM  {$_TABLES['dailyquote_quotes']} q";
         if ($cid > 0) {
             $sql .= " LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} l
                     ON l.qid = q.id
                 LEFT JOIN {$_TABLES['dailyquote_cat']} c
                     ON l.cid = c.id ";
         }
-
         $sql .= " WHERE 1=1 ";
-        //$sql .= "WHERE 
-        //            q.enabled = '1'";
         if ($qid == '') {
             if ($cid != '') {
                 $sql .= " AND c.id = '$cid' ";
@@ -371,6 +366,9 @@ class DailyQuote
         if (is_object($this))
             $this->SetVars($row);
 
+        foreach (array('title', 'quote', 'quoted', 'source', 'sourcedate') as $i) {
+            $row[$i] = htmlspecialchars($row[$i], ENT_QUOTES,COM_getEncodingt());
+        }
         return $row;
     }
 
@@ -403,14 +401,15 @@ class DailyQuote
 
 
     /**
-    *   Sanitize text inputs
+    *   Sanitize text inputs. This is to sanitize text before saving to the DB.
     *
     *   @param  string  $str    String to be sanitized
     *   @return string      Sanitized string
     */
     private static function SafeText($str)
     {
-        return htmlspecialchars(COM_checkWords($str),ENT_QUOTES,COM_getEncodingt());
+        //return htmlspecialchars(COM_checkWords($str),ENT_QUOTES,COM_getEncodingt());
+        return COM_checkWords($str);
     }
 
 }   // class DailyQuote
