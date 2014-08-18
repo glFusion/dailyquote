@@ -1083,4 +1083,24 @@ function plugin_upgrade_dailyquote()
 }
 
 
+/**
+*   Support merging local accounts into remote accounts
+*
+*   @param  integer $origUID    Original (local) user ID
+*   @param  integer $destUID    New (remote) user ID
+*/
+function plugin_user_move_dailyquote($origUID, $destUID)
+{
+    global $_TABLES;
+
+    $origUID = (int)$origUID;
+    $destUID = (int)$destUID;
+
+    DB_query("UPDATE {$_TABLES['dailyquote_submissions']}
+            SET uid = $destUID WHERE uid = $origUID", 1);
+    DB_query("UPDATE {$_TABLES['dailyquote_quotes']}
+            SET uid = $destUID WHERE uid = $origUID", 1);
+}
+
+
 ?>
