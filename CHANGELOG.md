@@ -1,5 +1,3 @@
-$Id$
-
 glDailyQuote - Change Log
 
 glDailyQuote - 0.1.1
