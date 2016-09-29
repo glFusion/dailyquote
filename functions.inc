@@ -947,9 +947,26 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('block', 'autotag.thtml');
 
+        $cat = 0;
+        if (!empty($autotag['parm2'])) {
+            $parm2 = explode(' ', $autotag['parm2']);
+            foreach ($parm2 as $parm) {
+                $kv = explode(':', $parm);
+                switch ($kv[0]) {
+                case 'cat':
+                    if (isset($kv[1]) && !empty($kv[1])) {
+                        $cat = (int)$kv[1];
+                    }
+                    break;
+                }
+            }
+        }
+        $nocache = false;
         switch ($option) {
         case 'random':
-            $quote = DailyQuote::getQuote();
+            $quote = DailyQuote::getQuote('', $cat);
+            // Don't cache random quote in template
+            $nocache = true;
             break;
 
         case 'quote':
@@ -960,7 +977,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
             break;
 
         } // switch ($op)
-        
+ 
         if (is_array($quote) && !empty($quote)) {
             $T->set_var(array(
                 'quote'     => $quote['quote'],
@@ -968,7 +985,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
                 'source'    => $quote['source'],
                 'sourcedate' => $quote['sourcedate'],
                 'qid'       => $quote['id'],
-            ) );
+            ), false, $nocache );
             $T->parse('output','block');
             $HTML = $T->finish($T->get_var('output'));
             $retval = str_replace($autotag['tagstr'], $HTML, $content);
@@ -1102,5 +1119,38 @@ function plugin_user_move_dailyquote($origUID, $destUID)
             SET uid = $destUID WHERE uid = $origUID", 1);
 }
 
+
+/**
+*   Get additional CSS into the site header.
+*   Allows for custom CSS to be placed by the site admin.
+*
+*   @return array   List of paths to CSS files
+*/
+function plugin_getheadercss_dailyquote()
+{
+    global $_CONF_DQ;
+
+    // When looking for CSS files, we'll check in this order:
+    //  1. layout/plugin/custom
+    //  2. layout/plugin
+    //  3. plugin/custom
+    //  4. plugin (default distribution version)
+    $pi_css = DQ_PI_PATH . '/css/';
+    $layout_css = "{$_CONF['path_layout']}plugins/{$_CONF_DQ['pi_name']}/";
+    $files = array('style.css');
+    foreach ($files as $file) {
+        if (@file_exists($layout_css . 'custom/' . $file)) {
+            $styles[] = $layout_css . 'custom/' . $file;
+        } elseif (@file_exists($layout_css . $file)) {
+            $styles[] = $layout_css . $file;
+        } elseif (@file_exists($pi_css . 'custom/' . $file)) {
+            $styles[] = $pi_css . 'custom/' . $file;
+        } elseif (@file_exists($pi_css . $file)) {
+            $styles[] = $pi_css . $file;
+        }
+    }
+
+    return $styles;
+}
 
 ?>
