@@ -948,6 +948,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         $T->set_file('block', 'autotag.thtml');
 
         $cat = 0;
+        $incl_src = '';
         if (!empty($autotag['parm2'])) {
             $parm2 = explode(' ', $autotag['parm2']);
             foreach ($parm2 as $parm) {
@@ -957,6 +958,9 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
                     if (isset($kv[1]) && !empty($kv[1])) {
                         $cat = (int)$kv[1];
                     }
+                    break;
+                case 'source':
+                    $incl_src = true;
                     break;
                 }
             }
@@ -982,7 +986,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
             $T->set_var(array(
                 'quote'     => $quote['quote'],
                 'quoted'    => $quote['quoted'],
-                'source'    => $quote['source'],
+                'source_url' => $incl_src ? $quote['source'] : '',
                 'sourcedate' => $quote['sourcedate'],
                 'qid'       => $quote['id'],
             ), false, $nocache );
