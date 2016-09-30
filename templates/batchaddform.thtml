@@ -4,7 +4,7 @@
 <table>
   <tr>
     <td>{$LANG_DQ['batchadd']}:</td>
-    <td><input type="file" name="batch_import_file" size="45" {xhtml}></td>
+    <td><input type="file" name="batch_import_file" size="45" /></td>
   </tr>
 
   <tr>
@@ -24,18 +24,18 @@
 
   <tr>
     <td>{$LANG_DQ['addtitle']}:</td>
-    <td><input name="title" type="text" size="32" value="" {xhtml}></td>
+    <td><input name="title" type="text" size="32" value="" /></td>
   </p>
 
   <tr>
     <td>{$LANG_DQ['source']}:</td>
-    <td><input name="source" type="text" size="32" value="" {xhtml}></td>
+    <td><input name="source" type="text" size="32" value="" /></td>
   </tr>
 
   <tr>
     <td>{$LANG_DQ['sourcedate']}:</td>
     <td>
-      <input name="sourcedate" type="text" size="32" value="" {xhtml}>
+      <input name="sourcedate" type="text" size="32" value="" />
       <span style="color: red; text-align: center;">
         {$LANG_DQ['srcdateformat']}
       </span>

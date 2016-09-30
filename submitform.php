@@ -4,9 +4,9 @@
 *   Quote submission form for the DailyQuote plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2010 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.1.2
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -26,8 +26,7 @@ function DQ_editForm($mode='edit', $A='', $admin=false)
     switch ($mode) {
     case 'edit':
         $saveoption = $LANG_ADMIN['save'];      // Save
-        $sub_type = '<input type="hidden" name="xtype" value="quote"'
-                . XHTML . '>';
+        $sub_type = '<input type="hidden" name="xtype" value="quote" />';
         $cancel_url = $admin ? DQ_ADMIN_URL . '/index.php' :
                 $_CONF['site_url'];
         break;
@@ -37,17 +36,16 @@ function DQ_editForm($mode='edit', $A='', $admin=false)
         $saveoption = $LANG_ADMIN['save'];      // Save
         // override sub_type for submit.php
         $sub_type = 
-                '<input type="hidden" name="type" value="dailyquote"' . XHTML . '>'
+                '<input type="hidden" name="type" value="dailyquote" />'
                 .'<input type="hidden" name="mode" value="' .
-                    $LANG12[8].'"' . XHTML . '>';
+                    $LANG12[8].'" />';
         $cancel_url = $admin ? DQ_ADMIN_URL . '/index.php' :
                 $_CONF['site_url'];
         break;
 
     case 'moderate':
         $saveoption = $LANG_ADMIN['moderate'];  // Save & Approve
-        $sub_type = '<input type="hidden" name="xtype" value="submission"'
-                . XHTML . '>';
+        $sub_type = '<input type="hidden" name="xtype" value="submission" />';
         $cancel_url = $_CONF['site_admin_url'] . '/moderation.php';
         break;
     }
@@ -89,7 +87,7 @@ function DQ_editForm($mode='edit', $A='', $admin=false)
             'id'        => $A['id'],
             'hidden_vars' =>
                 '<input type="hidden" name="date" value="' . 
-                        $A['dtadded'] . XHTML.'">'
+                        $A['dtadded'] . '/>';
         ) );
     } else {
         $T->set_var(array(

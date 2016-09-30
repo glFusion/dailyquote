@@ -3,7 +3,7 @@
       <div style="float:right;">
         <a href="{site_url}/dailyquote/index.php">
           <img src="{site_url}/dailyquote/images/dailyquote.png" 
-            border="0" width="48" height="48" {xhtml}>
+            border="0" width="48" height="48" />
         </a>
       </div>
 

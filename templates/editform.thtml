@@ -7,7 +7,7 @@
   <input type="hidden" name="type" value="{pi_name}">
   <input type="hidden" name="uid" value="{uid}">
   <input type="hidden" name="id" value="{id}">
-  <input type="hidden" name="{gltoken_name}" value="{gltoken}"{xhtml}>
+  <input type="hidden" name="{gltoken_name}" value="{gltoken}" />
 
   <label for="title" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['addtitle']}:&nbsp;&nbsp;</label>
   <input name="title" type="text" size="32" value="{title}" />

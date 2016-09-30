@@ -22,7 +22,7 @@
         </td>
       </tr>
     </table>
-    <hr width="45%" {xhtml}>
+    <hr width="45%" />
   </td>
 </tr>
 {# end {templatelocation} #}
