@@ -1,11 +1,10 @@
 <?php
-//  $Id$
 /**
 *   Common functions for the DailyQuote plugin
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.0.1
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -15,28 +14,6 @@
 require_once('../lib-common.php');
 
 USES_dailyquote_class_quote();
-USES_dailyquote_functions();
-
-// Clean $_POST and $_GET, in case magic_quotes_gpc is set
-if (GVERSION < '1.3.0') {
-    $_POST = DQ_stripslashes($_POST);
-    $_GET = DQ_stripslashes($_GET);
-}
-
-// Retrieve access settings
-$anonview = $_CONF_DQ['default_permissions'][3];
-if ($anonview < 2 && $_USER['uid'] < 2) {
-    // Someone is trying to illegally access this page
-    COM_errorLog("Someone has tried to illegally access the dailyquote page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
-    $display = COM_siteHeader();
-    $display .= COM_startBlock($LANG_DQ['access_denied']);
-    $display .= $LANG_DQ['access_denied_msg1'];
-    $display .= COM_endBlock();
-    $display .= COM_siteFooter(true);
-    echo $display;
-    exit;
-}
-
 
 /**
 *   Displays the quotes listing.

@@ -1,12 +1,11 @@
 <?php
-//  $Id$
 /**
 *   Administrative entry point for the DailyQuote plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.1.2
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -17,13 +16,6 @@ require_once('../../../lib-common.php');
 
 USES_lib_admin();
 USES_dailyquote_class_quote();
-USES_dailyquote_functions();
-
-// Clean $_POST and $_GET, in case magic_quotes_gpc is set
-if (GVERSION < '1.3.0') {
-    $_POST = DQ_stripslashes($_POST);
-    $_GET = DQ_stripslashes($_GET);
-}
 
 /**
 *   Create the administrators' menu.

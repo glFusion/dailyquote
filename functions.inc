@@ -1,11 +1,10 @@
 <?php
-//  $Id$
 /**
 *   Common functions for the DailyQuote plugin
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.1.1
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
 *               GNU Public License v2 or later
 *   @filesource
@@ -54,9 +53,6 @@ require_once "$langpath/$langfile";
 
 function USES_dailyquote_submitform()
 {   require_once DQ_PI_PATH . '/submitform.php';    }
-
-function USES_dailyquote_functions()
-{   require_once DQ_PI_PATH . '/dailyquote_functions.inc.php';  }
 
 function USES_dailyquote_class_quote()
 {   require_once DQ_PI_PATH . '/classes/quote.class.php';   }
@@ -867,8 +863,6 @@ function plugin_savesubmission_dailyquote($A)
             $A['uid'] = $owner_id;
             $A['dt_add'] = time();
 
-            //USES_dailyquote_functions();
-            //if (DQ_insertSubmission($A, $table))
             USES_dailyquote_class_quote();
             $Q = new DailyQuote();
             if ($Q->Save($A, $table) != '')
@@ -1156,5 +1150,118 @@ function plugin_getheadercss_dailyquote()
 
     return $styles;
 }
+
+
+/**
+*   Displays a quote box at the top of the regular listings.
+*   If no quote id is specified, a random one is selected.  If a
+*   category ID is given, then the random quote is selected from among
+*   that category.
+*
+*   @param  string  $qid    Quote ID to retrieve
+*   @param  integer $cid    Category ID for random quotes
+*   @return string          HTML display for the quote
+*/
+function DQ_random_quote($qid='', $cid='')
+{
+    global $_CONF, $LANG_DQ, $_CONF_DQ;
+
+    USES_dailyquote_class_quote();
+    $A = DailyQuote::getQuote($qid, $cid);
+    if (!is_array($A)) {
+        return '';
+    }
+
+    if ($A['quote'] == '') {
+        return '';
+    }
+
+    $T = new Template($_CONF['path'] . 'plugins/' . $_CONF_DQ['pi_name'] . '/templates');
+    $T->set_file('page', 'randomquotebox.thtml');
+    $T->set_var('site_url', $_CONF['site_url']);
+    $T->set_var('randomboxtitle', $LANG_DQ['randomboxtitle']);
+    if ($_CONF_DQ['phpblk_title'] == 1) {
+        $T->set_var('title', $A['title']);
+    } else {
+        $T->set_var('title', '');
+    }
+
+    $T->set_var('randomquote', $A['quote']);
+    $T->set_var('quoted', $A['quoted']);
+    if ($_CONF_DQ['phpblk_srcdate'] == 1) {
+        if (!empty($A['source'])) {
+            $dispsource = "&nbsp;--&nbsp;" . $A['source'];
+            $T->set_var('source', $dispource);
+        }
+        if (!empty($Sourcedate)) {
+            $dispsourcedate = "&nbsp;&nbsp;(" . $A['sourcedate'] . ")";
+            $T->set_var('sourcedate', $dispsourcedate);
+        }
+    }
+    if (($_CONF_DQ['phpblock_contribdate'] == 1) && ($username != $LANG_DQ['anonymous'])) {
+        $T->set_var('subm_by', $LANG_DQ['subm_by'] . ':&nbsp;');
+        $T->set_var('dispcontr', $username);
+        $T->set_var('datecontr', '&nbsp;/&nbsp;' . $A['date']);
+    }
+    $T->parse('output','page');
+    $retval = $T->finish($T->get_var('output'));
+    return $retval;
+}
+
+
+/**
+*   Display the site header, with or without blocks according to configuration.
+*
+*   @param  string  $title  Title to put in header
+*   @param  string  $meta   Optional header code
+*   @return string          HTML for site header, from COM_siteHeader()
+*/
+function DQ_siteHeader($title='', $meta='')
+{
+    global $_CONF_DQ;
+
+    $retval = '';
+
+    switch($_CONF_DQ['displayblocks']) {
+    case 2:     // right only
+    case 0:     // none
+        $retval .= COM_siteHeader('none', $title, $meta);
+        break;
+
+    case 1:     // left only
+    case 3:     // both
+    default :
+        $retval .= COM_siteHeader('menu', $title, $meta);
+        break;
+    }
+    return $retval;
+}
+
+
+/**
+*   Display the site footer, with or without blocks as configured.
+*
+*   @return string      HTML for site footer, from COM_siteFooter()
+*/
+function DQ_siteFooter()
+{
+    global $_CONF_DQ;
+
+    $retval = '';
+
+    switch($_CONF_DQ['displayblocks']) {
+    case 2 : // right only
+    case 3 : // left and right
+        $retval .= COM_siteFooter(true);
+        break;
+
+    case 0: // none
+    case 1: // left only
+        $retval .= COM_siteFooter();
+        break;
+    }
+    return $retval;
+}
+
 
 ?>
