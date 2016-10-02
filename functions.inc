@@ -134,22 +134,16 @@ function plugin_showstats_dailyquote($showsitestats)
         return $retval;
     }*/
 
-    $result = DB_query("SELECT 
-                            q.quoted, COUNT(*) 
-                        FROM 
-                            {$_TABLES['dailyquote_quotes']} q 
-                        LEFT JOIN
-                            {$_TABLES['dailyquote_quoteXcat']} l
-                            ON q.id = l.qid
-                        LEFT JOIN
-                            {$_TABLES['dailyquote_cat']} c
-                            ON l.cid = c.id
-                        WHERE 
-                            q.enabled= '1' AND c.enabled = '1' 
-                        GROUP BY quoted 
-                        ORDER BY 2 DESC, 1 ASC 
-                        LIMIT 10"
-    );
+    $result = DB_query("SELECT q.quoted, COUNT(*) 
+            FROM {$_TABLES['dailyquote_quotes']} q 
+            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
+                ON q.id = x.qid
+            LEFT JOIN {$_TABLES['dailyquote_cat']} c
+                ON x.cid = c.id
+            WHERE q.enabled= '1' AND c.enabled = '1' 
+            GROUP BY quoted 
+            ORDER BY 2 DESC, 1 ASC 
+            LIMIT 10");
     $nrows  = DB_numRows($result);
     $retval .= COM_startBlock($LANG_DQ['StatsMsg1']);
     if ($nrows > 0) {
@@ -349,22 +343,15 @@ function plugin_getwhatsnew_dailyquote()
 
     $days = (int)$_CONF_DQ['whatsnewdays'];
 
-    $sql = "SELECT DISTINCT 
-                q.id, q.quote
-            FROM 
-                {$_TABLES['dailyquote_quotes']} q 
-            LEFT JOIN
-                {$_TABLES['dailyquote_quoteXcat']} l
-                ON q.id = l.qid
-            LEFT JOIN
-                {$_TABLES['dailyquote_cat']} c
-                ON c.id = l.cid
-            WHERE
-                q.enabled='1' 
-            AND
-                c.enabled='1'
-            AND 
-                q.dt >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL {$days} DAY))
+    $sql = "SELECT DISTINCT q.id, q.quote
+            FROM {$_TABLES['dailyquote_quotes']} q 
+            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
+                ON q.id = x.qid
+            LEFT JOIN {$_TABLES['dailyquote_cat']} c
+                ON c.id = x.cid
+            WHERE q.enabled='1' 
+            AND c.enabled='1'
+            AND q.dt >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL {$days} DAY))
             ORDER BY q.dt DESC 
             LIMIT 15 ";
     //echo $sql;die;
@@ -387,13 +374,12 @@ function plugin_getwhatsnew_dailyquote()
             $T->set_var('quote_link', DQ_URL . '/index.php?qid=' . $row['id']);
             $T->set_var('quote_title', $quote);
             $T->set_var('quote_text', $quote_text);
-            $T->set_var('XHTML', XHTML);
             $T->parse('output', 'block');
             $items .= $T->finish($T->get_var('output'));
         }
         return $items;
     } else {
-        return $LANG_DQ['newempty'] . '<br ' . XHTML . '>' . LB;
+        return $LANG_DQ['newempty'] . '<br />' . LB;
     }
 }
 
@@ -439,16 +425,6 @@ function plugin_autouninstall_dailyquote()
 
     return $out;
 
-}
-
-
-//chks for magic_quotes and acts accordingly. use only for gpc otherwise use DB_escapeString
-function slashctrl($str)
-{
-    if (!get_magic_quotes_gpc()) {  //right from the manual :P
-        $str = DB_escapeString($str);
-    }
-    return $str;
 }
 
 

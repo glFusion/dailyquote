@@ -1,5 +1,4 @@
 <?php
-//  $Id$
 /**
 *   Batch add quotes to the database.  Similar to glFusion's user import.
 *   @author     Lee Garner <lee@leegarner.com>
@@ -125,36 +124,10 @@ function DQ_process_batch(){
         } else {
             $quote = DB_escapeString(strip_tags((COM_checkWords(trim($quote))), 
                     '<strong><em><br><br />'));
-
-            /*if (!$quoted || $quoted == '') {
-                $quoted = $LANG_DQ['unknown'];
-            } else {*/
-                $quoted = DB_escapeString(strip_tags((COM_checkWords((trim($quoted))))));
-            //}
-
-            /*if (!$title || $title == '') {
-                if ($_POST['title'] != '') {
-                    $title = slashctrl($_POST['title']);
-                }
-            } else {*/
-                $title = DB_escapeString(strip_tags(COM_checkWords(trim($title))));
-            //}
-
-            /*if (!$src || $src == '') {
-                if ($_POST['source'] != '') {
-                    $source = slashctrl($_POST['source']);
-                }
-            } else {*/
-                $src = DB_escapeString(strip_tags(COM_checkWords(trim($src))));
-            //}
-
-            /*if (!$srcdate || $srcdate == '') {
-                if ($_POST['sourcedate'] != '') {
-                    $srcdate = slashctrl($_POST['sourcedate']);
-                }
-            } else {*/
-                $srcdate = DB_escapeString(strip_tags(COM_checkWords(trim($srcdate))));
-            //}
+            $quoted = DB_escapeString(strip_tags((COM_checkWords((trim($quoted))))));
+            $title = DB_escapeString(strip_tags(COM_checkWords(trim($title))));
+            $src = DB_escapeString(strip_tags(COM_checkWords(trim($src))));
+            $srcdate = DB_escapeString(strip_tags(COM_checkWords(trim($srcdate))));
 
             // get user info for db
             $uid = $_USER['uid'];

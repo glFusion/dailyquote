@@ -1,5 +1,4 @@
 <?php
-//  $Id$
 /**
 *   English language file for the DailyQuote plugin.
 *

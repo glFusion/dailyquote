@@ -1,5 +1,4 @@
 <?php
-//  $Id: dutch_utf-8.php 49 2010-04-23 22:23:25Z root $
 /**
 *   Dutch language file for the DailyQuote plugin.
 *
