@@ -1,8 +1,0 @@
-{# begin {templatelocation} #}
-{templatelocation} DEPRECATED
-    <tr>
-        <td style="text-align: center; font-weight: bold;">
-            {google_paging}
-        </td>
-    </tr>
-{# end {templatelocation} #}

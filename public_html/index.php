@@ -19,34 +19,31 @@ USES_dailyquote_class_quote();
 *   Displays the quotes listing.
 *
 *   @param  string  $sort   Field to sort by
-*   @param  string  $asc    Either 'ASC' or 'DESC'
+*   @param  string  $dir    Either 'ASC' or 'DESC'
 *   @param  integer $page   Page number to display
 *   @return string          HTML for quote listing
 */
-function DQ_listQuotes($sort, $asc, $page)
+function DQ_listQuotes($sort, $dir, $page)
 {
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
         $LANG_ADMIN;
 
     $catid = isset($_REQUEST['cat']) ? (int)$_REQUEST['cat'] : 0;
-    if ($asc != 'ASC') $asc = 'DESC';
+    if ($dir != 'ASC') $dir = 'DESC';
     if ($page < 1) $page = 1;
 
     // TODO: this query only gives us the quotes with one category name.
     $sql = "SELECT 
                 q.id, quote, quoted, title, source, sourcedate, dt, q.uid
-            FROM 
-                {$_TABLES['dailyquote_quotes']} q 
-            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} l
-                ON q.id = l.qid
+            FROM {$_TABLES['dailyquote_quotes']} q 
+            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
+                ON q.id = x.qid
             LEFT JOIN {$_TABLES['dailyquote_cat']} c
-                ON l.cid = c.id
-            WHERE 
-                q.enabled = '1' 
-            AND 
-                (c.enabled = '1' OR c.enabled IS NULL) ";
+                ON x.cid = c.id
+            WHERE q.enabled = '1' 
+            AND (c.enabled = '1' OR c.enabled IS NULL) ";
     if ($catid > 0) {
-        $sql .= " AND l.cid = $catid ";
+        $sql .= " AND x.cid = $catid ";
     }
 
     // Just get the total possible entries, to calculage page navigation
@@ -64,8 +61,7 @@ function DQ_listQuotes($sort, $asc, $page)
         break;
     }
     $sql .= " GROUP BY q.id ORDER BY $sorted ";
-
-    $sql .= $asc == 'ASC' ? ' ASC' : ' DESC';
+    $sql .= $dir == 'ASC' ? ' ASC' : ' DESC';
 
     // Retrieve results per page setting, set to reasonable default if missing.
     $displim = (int)$_CONF_DQ['indexdisplim'];
@@ -93,10 +89,11 @@ function DQ_listQuotes($sort, $asc, $page)
     $sortby = '';
     foreach ($sortby_opts as $key=>$value) {
         $sel = $sort == $key ? ' selected="selected"' : '';
-        $sortby .= '<option value="' . $key . $sel . '">' . $value . "</option>\n";
+        $sortby .= "<option value=\"$key\" $sel>$value</option>\n";
     }
     $T->set_var('sortby_opts', $sortby);
-    $T ->set_var('submit', $LANG_DQ['sort']);
+    $T->set_var('submit', $LANG_DQ['sort']);
+    $T->set_var('pi_url', DQ_URL);
     if ($dir == 'ASC') {
         $T->set_var('asc_sel', 'selected="selected"');
     } else {
@@ -107,15 +104,10 @@ function DQ_listQuotes($sort, $asc, $page)
     $prevpage = $page - 1;
     $nextpage = $page + 1;
     $pagestart = ($page - 1) * $displim;
-    $baseurl = DQ_URL . '/index.php?sort=' . $sort . '&asc=' . $asc;
+    $baseurl = DQ_URL . '/index.php?sort=' . $sort . '&dir=' . $dir;
     $numpages = ceil($numquotes / $displim);
-    //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    //$T->set_file('page', 'pagenav.thtml');
     $T->set_var('google_paging', 
             COM_printPageNavigation($baseurl, $page, $numpages));
-    //$T->parse('output','page');
-    //$google_pagenav = $T->finish($T->get_var('output'));
-    //$retval .= $google_pagenav;
 
     //  Now get each quote and display it
     while ($row = DB_fetchArray($result)) {
@@ -137,12 +129,6 @@ function DQ_listQuotes($sort, $asc, $page)
         }
         $catlist = join(',' , $catnames);
  
-        /*if (!empty($row['catid']) && !empty($row['catname'])) {
-            $T->set_var(array(
-                'catid'     => $row['catid'],
-                'catname'   => $row['catname'],
-            ) );
-        }*/
         if (!empty($row['source'])){
             $T->set_var('source', '&nbsp;--&nbsp;' . htmlspecialchars($row['source']));
         }
@@ -161,13 +147,14 @@ function DQ_listQuotes($sort, $asc, $page)
             $username = $LANG_DQ['anonymous'];
         }
 
+        $dt = new Date($row['dt'], $_CONF['timezone']);
         $T->set_var(array(
             'title'         => htmlspecialchars($row['title']),
             'quote'         => htmlspecialchars($row['quote']),
             'quoted'        => DailyQuote::GoogleLink($row['quoted']),
             'catname'       => $catlist,
             'contr'         => $username,
-            'datecontr'     => strftime($_CONF['shortdate'], $row['dt']),
+            'datecontr'     => $dt->format($_CONF['shortdate'], true),
         ) );
 
         if(SEC_hasRights('dailyquote.edit')) {
@@ -176,8 +163,7 @@ function DQ_listQuotes($sort, $asc, $page)
             $icon_url = "{$_CONF['layout_url']}/images/edit.$_IMAGE_TYPE";
             $editlink .= COM_createImage($icon_url, $LANG_ADMIN['edit']);
             $editlink .= '</a>&nbsp;';
-            $editlink .= 
-                COM_createLink(
+            $editlink .= COM_createLink(
                     COM_createImage(
                         $_CONF['layout_url'] . 
                                 "/images/admin/delete.$_IMAGE_TYPE", 
@@ -195,8 +181,6 @@ function DQ_listQuotes($sort, $asc, $page)
         $T->parse('qRow', 'QuoteRow', true);
     }
 
-    //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    //$T->set_file('page', 'dispquotesfooter.thtml');
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
     return $retval;
@@ -212,12 +196,9 @@ function DQ_listCategories()
 
     $retval = '';
 
-    $sql = "SELECT DISTINCT 
-                id, name
-            FROM 
-                {$_TABLES['dailyquote_cat']} c
-            WHERE 
-                c.enabled='1' 
+    $sql = "SELECT DISTINCT id, name
+            FROM {$_TABLES['dailyquote_cat']} c
+            WHERE c.enabled='1' 
             ORDER BY name ASC";
 
     $result = DB_query($sql);
@@ -259,52 +240,12 @@ function DQ_listCategories()
     return $retval;
 }
 
-
-/**
-*   Displays a menu of sort by options for the display page
-*   @return string  HTML for sort selection form
-*/
-function X_DQ_menuSort($sort='', $dir='')
-{
-    global $_CONF, $LANG_DQ, $_CONF_DQ;
-    
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T ->set_file('page', 'sortnav.thtml');
-    $T ->set_var('site_url', $_CONF['site_url']);
-    $T ->set_var('submit', $LANG_DQ['sort']);
-
-    $sortby_opts = array('dt' => $LANG_DQ['date'],
-                    'quote' => $LANG_DQ['quotation'],
-                    'quoted' => $LANG_DQ['quoted'],
-                );
-    $sortby = '';
-    foreach ($sortby_opts as $key=>$value) {
-        $sel = $sort == $key ? ' selected="selected"' : '';
-        $sortby .= '<option value="' . $key . $sel . '">' . $value . "</option>\n";
-    }
-    $T->set_var('sortby_opts', $sortby);
-    if ($dir == 'ASC')
-        $T->set_var('asc_sel', 'selected="selected"');
-    else
-        $T->set_var('desc_sel', 'selected="selected"');
-
-    $T->parse('output','page');
-    $retval = $T->finish($T->get_var('output'));
-    return $retval;
-}
-
-
-
-/* 
-* MAIN
-*/
-
 // Retrieve and sanitize provided parameters
 $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : 'quotes';
 $qid = isset($_REQUEST['qid']) ? COM_sanitizeID($_REQUEST['qid']) : '';
 $cid = isset($_REQUEST['cid']) ? (int)$_REQUEST['cid'] : 0;
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'dt';
-$asc = isset($_GET['asc']) ? $_GET['asc'] : 'ASC';
+$dir = isset($_GET['dir']) ? $_GET['dir'] : 'ASC';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 
@@ -349,24 +290,13 @@ case 'categories':
     $content .= DQ_listCategories();
     break;
 default:
-    //$content .= DQ_menuSort($sort, $asc);
-    $content .= DQ_listQuotes($sort, $asc, $page);
+    $content .= DQ_listQuotes($sort, $dir, $page);
     break;
 }
 
-//display the sort by menu
-//$display .= sort_by_menu();
-
-//display quote listing by date desc as default
-//$display .= display_quote($sort, $asc, $page);
 $T->set_var('content', $content);
 $T->parse('output','page');
 $display .= $T->finish($T->get_var('output'));
-
-/*$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-$T->set_file('page', 'dqfooter.thtml');
-$T->parse('output','page');
-$display .= $T->finish($T->get_var('output'));*/
 $display .= DQ_siteFooter();
 echo $display;
 
