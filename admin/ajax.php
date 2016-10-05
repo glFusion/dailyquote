@@ -1,16 +1,15 @@
 <?php
-//  $Id: updatecatxml.php 101 2008-12-12 16:51:21Z root $
 /**
- *  Common AJAX functions for the Daily Quote plugin.
- *
- *  @author     Lee Garner <lee@leegarner.com>
- *  @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
- *  @package    dailyquote
- *  @version    0.0.2
- *  @license    http://opensource.org/licenses/gpl-2.0.php 
- *              GNU Public License v2 or later
- *  @filesource
- */
+*   Common AJAX functions for the Daily Quote plugin.
+*
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+*   @package    dailyquote
+*   @version    0.2.0
+*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*               GNU Public License v2 or later
+*   @filesource
+*/
 
 /** Include required glFusion common functions */
 require_once '../../../lib-common.php';
@@ -25,41 +24,35 @@ $base_url = $_CONF['site_url'];
 
 switch ($_GET['action']) {
 case 'toggleEnabled':
-    $newval = $_REQUEST['newval'] == 1 ? 1 : 0;
+    $newval = (isset($_GET['newval'] && $_GET['newval'] == 1) ? 1 : 0;
+    $id = COM_sanitizeId($_GET['id']);
 
     switch ($_GET['type']) {
     case 'quote':
         USES_dailyquote_class_quote();
-        DailyQuote::toggleEnabled($newval, $_REQUEST['id']);
+        DailyQuote::toggleEnabled($newval, $id);
         break;
 
     case 'category':
         USES_dailyquote_class_category();
-        Category::toggleEnabled($newval, $_REQUEST['id']);
+        Category::toggleEnabled($newval, $id);
         break;
 
      default:
         exit;
     }
 
-    $img_url = $base_url . "/" . $_CONF_DQ['pi_name'] . "/images/";
-    $img_url .= $newval == 1 ? 'on.png' : 'off.png';
-
-    header('Content-Type: text/xml');
-    header("Cache-Control: no-cache, must-revalidate");
-    //A date in the past
-    header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-
-    echo '<?xml version="1.0" encoding="ISO-8859-1"?>
-    <info>'. "\n";
-    echo "<newval>$newval</newval>\n";
-    echo "<id>{$_REQUEST['id']}</id>\n";
-    echo "<type>{$_REQUEST['type']}</type>\n";
-    echo "<imgurl>$img_url</imgurl>\n";
-    echo "<baseurl>{$base_url}</baseurl>\n";
-    echo "</info>\n";
+    $result = array(
+        'id' => $id,
+        'newval' => $newval,
+    );
+    $result = json_encode($result);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-cache, must-revalidate');
+    // A date in the past to force no caching
+    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+    echo $result;
     break;
-
 }
 
 ?>

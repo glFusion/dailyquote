@@ -1,15 +1,24 @@
-/*  $Id: toggleEnabled.js 12 2009-07-09 18:53:04Z root $
- */
+/*
+*   Toggle enabled flag for quotes and categories
+*/
 var DQ_xmlHttp;
 
-function DQ_toggleEnabled(newval, id, type, base_url)
+//function DQ_toggleEnabled(oldval, id, type, base_url)
+//{
+function DQ_toggleEnabled(ck, id, type)
 {
+  if (ck.checked) {
+    newval=1;
+  } else {
+    newval=0;
+  }
+
   DQ_xmlHttp = DQ_GetXmlHttpObject();
   if (DQ_xmlHttp==null) {
     alert ("Browser does not support HTTP Request")
     return
   }
-  var url=base_url + "/admin/plugins/dailyquote/ajax.php?action=toggleEnabled";
+  var url = glfusionSiteUrl + "/admin/plugins/dailyquote/ajax.php?action=toggleEnabled";
   url=url+"&id="+id;
   url=url+"&type="+type;
   url=url+"&newval="+newval;
@@ -21,29 +30,17 @@ function DQ_toggleEnabled(newval, id, type, base_url)
 
 function DQ_sc_Enabled()
 {
-  var newstate;
+  if (DQ_xmlHttp.readyState==4 || DQ_xmlHttp.readyState=="complete") {
+    jsonObj = JSON.parse(DQ_xmlHttp.responseText)
 
-  if (DQ_xmlHttp.readyState==4 || DQ_xmlHttp.readyState=="complete")
-  {
-    xmlDoc=DQ_xmlHttp.responseXML;
-    id = xmlDoc.getElementsByTagName("id")[0].childNodes[0].nodeValue;
-    imgurl = xmlDoc.getElementsByTagName("imgurl")[0].childNodes[0].nodeValue;
-    baseurl = xmlDoc.getElementsByTagName("baseurl")[0].childNodes[0].nodeValue;
-    type = xmlDoc.getElementsByTagName("type")[0].childNodes[0].nodeValue;
-    if (xmlDoc.getElementsByTagName("newval")[0].childNodes[0].nodeValue == 1) {
-        newval = 0;
+    // Get the checkbox element ID
+    var elem = 'togena' + jsonObj.id;
+    if (jsonObj.newval == 1) {
+        document.getElementById(elem).checked = true;
     } else {
-        newval = 1;
+        document.getElementById(elem).checked = false;
     }
-    newhtml = 
-        " <img src=\""+imgurl+"\" " +
-        "style=\"display:inline; width:16px; height:16px;\" " +
-        "onclick='DQ_toggleEnabled("+newval+", \""+id+"\", \""+type+"\", \""+baseurl+"\");" +
-        "' /> ";
-    document.getElementById("togena"+id).innerHTML=newhtml;
   }
-
-        //"width=\"16\" height=\"16\" " +
 }
 
 function DQ_GetXmlHttpObject()
