@@ -1,14 +1,17 @@
 {# begin {templatelocation} #}
+<div class="dq_random">
 {randomquote}<br />
+</div>
 {!if quoted}
-  <div style="text-align:right;">
+<div class="dq_random dq_quoted">
   {quoted}<br />
   {!if source}
-    <i>{source}&nbsp;</i>
+    <span class="dq_source">{source}&nbsp;</span>
   {!endif}
   {!if sourcedate}
-    <i>({sourcedate})</i>
+    <span class="dq_source">({sourcedate})</span>
   {!endif}
   </div>
+</div>
 {!endif}
 {# end {templatelocation} #}

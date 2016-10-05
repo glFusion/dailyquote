@@ -4,3 +4,34 @@
   font-style: italic;
 }
 
+.dq-icon-danger {
+    color: red;
+}
+
+.dq_quotelist {
+    width: 85%;
+    margin: auto;
+}
+.dq_quotelist_quote {
+    margin-top: 1rem;
+}
+.dq_quotelist_attrib {
+    text-align: right;
+    font-style: italic;
+}
+.dq_quotelist_quote .dq_submitter {
+    text-align: right;
+    font-size: 75%;
+    font-style: italic;
+}
+.dq_quotelist_quote .dq_title {
+    text-align: left;
+    font-weight: bold;
+    text-decoration: underline;
+}
+.dq_random.dq_quoted {
+    text-align: right;
+}
+.dq_random.dq_quoted .dq_source {
+    font-style: italic;
+}
