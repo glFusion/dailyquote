@@ -1,5 +1,4 @@
 <?php
-//  $Id: upgrade.inc.php 5217 2009-12-06 21:15:25Z lgarner $
 /**
 *   Upgrade routines for the Dailyquote plugin
 *

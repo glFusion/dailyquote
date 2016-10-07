@@ -1,5 +1,4 @@
 <?php
-//  $Id$
 /**
 *   Installation defaults for the Daily Quote plugin
 *   @author     Lee Garner <lee@leegarner.com>
