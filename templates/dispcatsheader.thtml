@@ -1,8 +1,0 @@
-{# begin {templatelocation} #}
-{templatelocation} DEPRECATED
-    <tr>
-        <td>
-            <h2 align="center">{categories}</h2>
-            <table border="0" cellspacing="" cellpadding="5" width="80%" align="center">
-                <tr>
-{# end {templatelocation} #}

@@ -1,7 +1,0 @@
-{# begin {templatelocation} #}
-{templatelocation} DEPRECATED
-                </tr>
-            </table>
-        </td>
-    </tr>
-{# end {templatelocation} #}
