@@ -31,6 +31,27 @@
   <input name="sourcedate" type="text" size="32" value="{sourcedate}" />
   <span style="color: red; text-align: center;">{$LANG_DQ['hlp_srcdate']}</span><br /><br />
 
-  <label for="cat" style="display: inline; font-weight: bold;">{$LANG_DQ['choosecat']}:&nbsp;&nbsp;</label>
+{!if is_admin}
+  <label for="enabled" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['enabled']}:&nbsp;&nbsp;</label>
+  <input name="enabled" type="text" size="32" value="1" {ena_chk} /><br /><br />
+{!endif}
+
+{!if catinput}
+  <label for="cat" style="width: 25%; text-align: right; float: left; font-weight: bold;">{$LANG_DQ['choosecat']}:&nbsp;&nbsp;</label>
   {catinput}<br /><br />
+{!endif}
+
+  <p>{catreadme}</p>
+  <p align="center">
+    <input type="submit" value="{$LANG_ADMIN['save']}" name="{saveaction}" />
+    <input type="reset" value="{$LANG_DQ['reset']}" name="reset" />
+    <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
+        onclick="javascript: document.location.href='{cancel_url}'" />
+{!if show_delbtn}
+    <input type="submit" name="delquote" value="{$LANG_ADMIN['delete']}" 
+        onclick="return confirm('{$LANG_ADVT['confirm_delitem']}');" />
+{!endif}
+    {submission_option}
+  </p>
+</form>
 {# end {templatelocation} #}

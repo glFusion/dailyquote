@@ -14,13 +14,12 @@
 
   <br />
   <center>
-    <input type="hidden" name="xtype" value="category" />
-    <input type="submit" name="save" value="{$LANG_ADMIN['save']}" />
+    <input type="submit" name="savecat" value="{$LANG_ADMIN['save']}" />
     <input type="reset" name="reset" value="{$LANG_DQ['reset']}" />
     <input type="reset" value="{$LANG_ADMIN['cancel']}" name="cancel" 
         onclick="javascript: document.location.href='{cancel_url}'" />
     {!if show_delbtn}
-      <input type="submit" name="delete" value="{$LANG_ADMIN['delete']}" 
+      <input type="submit" name="delcat" value="{$LANG_ADMIN['delete']}" 
         onclick="return confirm('{$LANG_DQ['confirm_delitem']}');" />
     {!endif}
   </center>

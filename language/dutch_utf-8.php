@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.1.0
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -42,7 +42,7 @@ $LANG_DQ = array(
 'cathead'            => 'De volgende quotes vallen onder de &quot;%s&quot; categorie:',
 'catindexlink'       => 'Categorie&euml;n',
 'catreadme'          => 'De standaard categorie is &quot;Diversen&quot; als er geen andere categorie is gekozen',
-'choosecat'          => 'Kies een of meerdere categorie&euml;n waaronder de quote moet behoren',
+'choosecat'          => 'Kies een of meerdere categorie&euml;n',
 'date'               => 'Datum',
 'dateformat'         => '(Datum Formaat YYYY-MM-DD)',
 'disperror'          => 'Fout opgetreden tijdens het ophalen van de quote lijst',
