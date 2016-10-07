@@ -24,18 +24,18 @@ $base_url = $_CONF['site_url'];
 
 switch ($_GET['action']) {
 case 'toggleEnabled':
-    $newval = (isset($_GET['newval'] && $_GET['newval'] == 1) ? 1 : 0;
+    $newval = (isset($_GET['newval']) && $_GET['newval'] == 1) ? 1 : 0;
     $id = COM_sanitizeId($_GET['id']);
 
     switch ($_GET['type']) {
     case 'quote':
         USES_dailyquote_class_quote();
-        DailyQuote::toggleEnabled($newval, $id);
+        dqQuote::toggleEnabled($newval, $id);
         break;
 
     case 'category':
         USES_dailyquote_class_category();
-        Category::toggleEnabled($newval, $id);
+        dqCategory::toggleEnabled($newval, $id);
         break;
 
      default:

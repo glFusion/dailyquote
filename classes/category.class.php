@@ -1,13 +1,12 @@
 <?php
-//  $Id: quote.class.php 17 2009-09-07 20:26:13Z root $
 /**
 *   Class to handle quote categories
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.0.1
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
+*               GNU Public License v2 or later
 *   @filesource
 */
 
@@ -15,26 +14,27 @@
 *   Define a class to deal with quote categories
 *   @package dailyquote
 */
-class Category
+class dqCategory
 {
     /** Category ID
-     *  @var integer */
+    *   @var integer */
     var $id;
 
     /** Category Name
-     *  @var string */
+    *   @var string */
     var $name;
 
     /** Status.  1=enabled, 0=disabled
-     *  @var boolean */
+    *   @var boolean */
     var $enabled;
 
-  
+ 
     /**
-     *  Constructor
-     *  @param string $bid Banner ID to retrieve, blank for empty class
-     */
-    function Category($id='')
+    *   Constructor
+    *
+    *   @param string $bid Category ID to retrieve, blank for empty class
+    */
+    public function __construct($id=0)
     {
         global $_CONF, $_CONF_DQ;
 
@@ -44,32 +44,31 @@ class Category
         } else {
             $this->id = 0;
         }
-
     }
 
 
     /**
-     *  Read a category record from the database
-     *  @param  string  $bid    Banner ID to read (required)
-     */
-    function Read($id)
+    *   Read a category record from the database
+    *
+    *   @param  string  $id     Category ID to read (required)
+    */
+    public function Read($id)
     {
         global $_TABLES;
 
-        $A = DB_fetchArray(DB_query("
-            SELECT * FROM {$_TABLES['dailyquote_cat']}
-            WHERE id='".DB_escapeString($id)."'"));
-
+        $A = DB_fetchArray(DB_query("SELECT * FROM {$_TABLES['dailyquote_cat']}
+                WHERE id='".DB_escapeString($id)."'"));
         $this->setVars($A);
     }
 
 
     /**
-     *  Set the category variables from the supplied array.
-     *  The array may be from a form ($_POST) or database record
-     *  @param  array   $A  Array of values
-     */
-    function setVars($A)
+    *   Set the category variables from the supplied array.
+    *   The array may be from a form ($_POST) or database record
+    *
+    *   @param  array   $A  Array of values
+    */
+    public function setVars($A)
     {
         if (!is_array($A))
             return;
@@ -77,16 +76,16 @@ class Category
         $this->id = (int)$A['id'];
         $this->name = $A['name'];
         $this->enabled = $A['enabled'] == 1 ? 1 : 0;
-
     }
 
 
     /**
-     *  Update the 'enabled' value for a category.
-     *  @param  integer $newval     New value to set (1 or 0)
-     *  @param  string  $bid        Optional ad ID.  Current object if blank
-     */
-    function toggleEnabled($newval, $id='')
+    *   Update the 'enabled' value for a category.
+    *
+    *   @param  integer $newval     New value to set (1 or 0)
+    *   @param  string  $bid        Optional ad ID.  Current object if blank
+    */
+    public function toggleEnabled($newval, $id='')
     {
         global $_TABLES;
 
@@ -108,31 +107,20 @@ class Category
 
 
     /**
-     *  Delete a category.
-     *  Deletes the supplied quote ID if not empty, otherwise
-     *  deletes the current object.
-     *
-     *  @param  string  $bid    Optional category ID to delete
-     */
-    function Delete($id='')
+    *   Delete a category.
+    *   Deletes the supplied quote ID if not empty, otherwise
+    *   deletes the current object.
+    *
+    *   @param  string  $bid    Optional category ID to delete
+    */
+    public static function Delete($id='')
     {
         global $_TABLES;
-
-        if ($id == '') {
-            if (is_object($this)) {
-                $id = $this->id;
-            } else {
-                return;
-            }
-        }
 
         $id = COM_sanitizeID($id, false);
 
         // Can't delete category 1
         if ($id == 1) return;
-
-        if (!DailyQuote::hasAccess(3))
-            return;
 
         DB_delete($_TABLES['dailyquote_cat'],
             'id', $id);
@@ -144,55 +132,17 @@ class Category
 
 
     /**
-     *  Returns the current user's access level to this category.
-     *
-     *  @return integer     User's access level (1 - 3)
-     */
-    function Access()
-    {
-        global $_USER;
-
-        if (SEC_hasRights('dailyquote.edit'))
-            return 3;
-        else
-            return 2;
-    }
-
-
-    /**
-     *  Determines whether the current user has a given level of access
-     *  to this category object.
-     *
-     *  @see    Access()
-     *  @param  integer $level  Minimum access level required
-     *  @return boolean     True if user has access >= level, false otherwise
-     */
-    function hasAccess($level=3)
-    {
-        if (DailyQuote::Access() < $level) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-
-    /**
-     *  Save the current quote object using the supplied values.
-     *  @param  array   $A  Array of values from $_POST or database
-     */
-    function Save($A = array())
+    *   Save the current category object using the supplied values.
+    *
+    *   @param  array   $A  Array of values from $_POST or database
+    *   @return string      Empty string on success, error message on failure
+    */
+    public function Save($A = array())
     {
         global $_CONF, $_TABLES, $_USER, $MESSAGE, $LANG_DQ, $_CONF_DQ;
 
         if (is_array($A) && !empty($A))
             $this->setVars($A);
-
-        $access = $this->hasAccess(3);
-        if ($access < 3) {
-            COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->id}.");
-            return COM_showMessageText($MESSAGE[31], $MESSAGE[30]);
-        }
 
         // Determine if this is an INSERT or UPDATE
         if ($this->id == 0) {
@@ -202,18 +152,14 @@ class Category
                     '" . DB_escapeString($this->name) . "',
                     1)";
         } else {
-            $sql = "UPDATE {$_TABLES['dailyquote_cat']}
-                SET
-                    name = '" . DB_escapeString($this->name). "',
-                    enabled = " . (int)$this->enabled . "
-                WHERE
-                    id = " . $this->id;
+            $sql = "UPDATE {$_TABLES['dailyquote_cat']} SET
+                        name = '" . DB_escapeString($this->name). "',
+                        enabled = {$this->enabled}
+                    WHERE id = {$this->id}";
         }
-        //echo $sql;die;
         DB_query($sql);
 
         return '';
-
     }
 
 
@@ -221,7 +167,7 @@ class Category
     *   Administrator menu for categories
     *   @return string      HTML for menu block
     */
-    function AdminMenu()
+    public function AdminMenu()
     {
         global $_CONF, $LANG_ADMIN, $LANG_DQ;
 
@@ -241,9 +187,10 @@ class Category
  
     /**
     *   Create an admin list of quotes
+    *
     *   @return string  HTML for list
     */
-    function AdminList()
+    public function AdminList()
     {
         global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
         global $_CONF_DQ, $LANG_DQ;
@@ -252,6 +199,8 @@ class Category
 
         $header_arr = array(      # display 'text' and use table field 'field'
             array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
+            array('field' => 'enabled', 
+                'text' => $LANG_DQ['enabled'], 'sort' => false),
             array('text' => 'Category ID', 'field' => 'id', 'sort' => true),
             array('text' => 'Category Name', 'field' => 'name', 'sort' => true),
             array('text' => $LANG_ADMIN['delete'], 'field' => 'delete',
@@ -259,12 +208,6 @@ class Category
         );
 
         $defsort_arr = array('field' => 'name', 'direction' => 'desc');
-
-        //$menu_arr = Category::AdminMenu();
-        $retval .= COM_startBlock($LANG_DQ['categories'], '', 
-            COM_getBlockTemplate('_admin_block', 'header'));
-
-        $retval .= DQ_adminMenu('categories');
 
         $text_arr = array(
             'has_extras' => true,
@@ -280,7 +223,6 @@ class Category
 
         $retval .= ADMIN_list('dailyquote', 'DQ_cat_getListField', $header_arr,
                         $text_arr, $query_arr, $defsort_arr, '', '', '', $form_arr);
-        $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
         return $retval;
     }
@@ -288,27 +230,21 @@ class Category
 
     /**
     *   Creates a form for editing or creating new categories
+    *
     *   @return string      HTML for the form
     */
-    function EditForm()
+    public function EditForm()
     {
-        global $_CONF, $LANG_DQ;
+        global $_CONF, $LANG_DQ, $_CONF_DQ;
 
         $retval = '';
 
-        $menu_arr = $this->AdminMenu();
-        $menu_arr[] = array('url'=> DQ_ADMIN_URL . '/index.php?mode=categories',
-                'text' => 'Categories');
-
-        $retval .= COM_startBlock('', '', 
-            COM_getBlockTemplate('_admin_block', 'header'));
-
-        $retval .= ADMIN_createMenu($menu_arr, $LANG_DQ['admin_hdr'], 
-            plugin_geticon_dailyquote());
-        $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
-
         $T = new Template(DQ_PI_PATH . '/templates');
-        $T->set_file('page', 'catform.thtml');
+        if ($_CONF_DQ['_is_uikit']) {
+            $T->set_file('page', 'catform.uikit.thtml');
+        } else {
+            $T->set_file('page', 'catform.thtml');
+        }
         $T->set_var(array(
             'name'      => $this->name,
             'id'        => $this->id,
@@ -316,7 +252,6 @@ class Category
                             ' checked ' : '',
             'cancel_url' => DQ_ADMIN_URL . '/index.php?page=categories',
         ));
-        //if (!$this->isUsed()) {
         if ($this->id > 1) {
             $T->set_var('show_delbtn', 'true');
         }
@@ -327,36 +262,7 @@ class Category
         return $retval;
     }
 
-
-    /**
-    *   Check if a category is used before allowing deletion.
-    *   At least one category is required, so always returnt rue for
-    *   category #1.
-    *
-    *   @param  integer $id     Category ID to check
-    *   @return boolean         True if category contains quotes.
-    */
-    function isUsed($id = 0)
-    {
-        global $_TABLES;
-
-        if ($id == 0) {
-            if (is_object($this)) {
-                $id = $this->id;
-            }
-        }
-        $id = (int)$id;
-        if ($id < 2) return true;   // 0 is an error, 1 can't be deleted
-
-        if (DB_count($_TABLES['dailyquote_quoteXcat'], 'cid', $id) > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-        
-}   // class Category
-
+}   // class dqCategory
 
 
 /**
@@ -375,38 +281,49 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
     switch($fieldname) {
     case 'edit':
-        $retval .= COM_createLink(
-            $icon_arr['edit'],
-            DQ_ADMIN_URL . "/index.php?edit=category&amp;id={$A['id']}"
-        );
-        if ($A['enabled'] == 1) {
-            $ena_icon = 'on.png';
-            $enabled = 0;
+        if ($_CONF_DQ['_is_uikit']) {
+            $retval .= COM_createLink('',
+                DQ_ADMIN_URL . "/index.php?edit=category&amp;id={$A['id']}",
+                array('class' => 'uk-icon uk-icon-edit')
+            );
         } else {
-            $ena_icon = 'off.png';
-            $enabled = 1;
+            $retval .= COM_createLink($icon_arr['edit'],
+                DQ_ADMIN_URL . "/index.php?edit=category&amp;id={$A['id']}"
+            );
         }
-        $retval .= "<span id=togena{$A['id']}>\n" .
-                "<img src=\"{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}" . 
-                    "/images/{$ena_icon}\" ".
-                "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
-                "\"category\", \"{$_CONF['site_url']}\");'>\n" .
-                "</span>\n";
+        break;
+
+    case 'enabled':
+        $value = $fieldvalue == 1 ? 1 : 0;
+        $chk = $fieldvalue == 1 ? ' checked="checked" ' : '';
+        $retval .= '<input type="checkbox" id="togena' . $A['id'] . '"' .
+            $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] . 
+                '", "category");\' />';
         break;
 
     case 'delete':
-        //if (!Category::isUsed($A['id'])) {
         if ($A['id'] > 1) {
-            $retval .= COM_createLink(COM_createImage(
-                $_CONF['layout_url'] . '/images/admin/delete.png',
-                $LANG_ADMIN['delete'],
-                array('class'=>'gl_mootip',
-                'onclick'=>'return confirm(\'' . 
-                            $LANG_DQ['confirm_delitem'] .'\');',
-                'title' => $LANG_ACCESS['delete'],
-                )),
-                DQ_ADMIN_URL . '/index.php?delete=category&id=' . $A['id']
-            );
+            if ($_CONF_DQ['_is_uikit']) {
+                $retval = COM_createLink('',
+                    DQ_ADMIN_URL . '/index.php?delete=category&id=' . $A['id'],
+                    array(
+                        'class' => 'uk-icon uk-icon-trash dq-icon-danger',
+                        'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
+                        'title' => $LANG_ADMIN['delete'],
+                    )
+                );
+            } else {
+                $retval .= COM_createLink(COM_createImage(
+                    $_CONF['layout_url'] . '/images/admin/delete.png',
+                    $LANG_ADMIN['delete'],
+                    array('class'=>'gl_mootip',
+                    'onclick'=>'return confirm(\'' . 
+                                $LANG_DQ['confirm_delitem'] .'\');',
+                    'title' => $LANG_ACCESS['delete'],
+                    )),
+                    DQ_ADMIN_URL . '/index.php?delete=category&id=' . $A['id']
+                );
+            }
         }
         break;
     case 'name':

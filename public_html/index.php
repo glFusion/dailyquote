@@ -65,16 +65,15 @@ function DQ_listQuotes($sort, $dir, $page)
 
     // Retrieve results per page setting, set to reasonable default if missing.
     $displim = (int)$_CONF_DQ['indexdisplim'];
-    if ($displim < 5) $displim = 15;
+    if ($displim <= 0) $displim = 15;
     $startlimit = ($displim * $page) - $displim;
     $sql .= " LIMIT $startlimit, $displim";
 
     //echo $sql;die;
     $result = DB_query($sql);
     if (!$result) {
-        $retval = $LANG_DQ['disperror'];
         COM_errorLog("An error occured while retrieving list of quotes",1);
-        return '';
+        return $LANG_DQ['disperror'];
     }
 
     // Display quotes if any to display
@@ -82,10 +81,11 @@ function DQ_listQuotes($sort, $dir, $page)
     $T->set_file('page', 'dispquotes.thtml');
 
     // Set up sorting options
-    $sortby_opts = array('dt' => $LANG_DQ['date'],
-                    'quote' => $LANG_DQ['quotation'],
-                    'quoted' => $LANG_DQ['quoted'],
-                );
+    $sortby_opts = array(
+        'dt' => $LANG_DQ['date'],
+        'quote' => $LANG_DQ['quotation'],
+        'quoted' => $LANG_DQ['quoted'],
+    );
     $sortby = '';
     foreach ($sortby_opts as $key=>$value) {
         $sel = $sort == $key ? ' selected="selected"' : '';
@@ -151,7 +151,7 @@ function DQ_listQuotes($sort, $dir, $page)
         $T->set_var(array(
             'title'         => htmlspecialchars($row['title']),
             'quote'         => htmlspecialchars($row['quote']),
-            'quoted'        => DailyQuote::GoogleLink($row['quoted']),
+            'quoted'        => dqQuote::GoogleLink($row['quoted']),
             'catname'       => $catlist,
             'contr'         => $username,
             'datecontr'     => $dt->format($_CONF['shortdate'], true),
@@ -240,6 +240,22 @@ function DQ_listCategories()
     return $retval;
 }
 
+$expected = array(
+    'savesubmission',
+    'categories', 'quotes',
+);
+foreach($expected as $provided) {
+    if (isset($_POST[$provided])) {
+        $action = $provided;
+        $actionvar = $_POST[$provided];
+        break;
+    } elseif (isset($_GET[$provided])) {
+    	$action = $provided;
+        $actionvar = $_GET[$provided];
+        break;
+    }
+}
+
 // Retrieve and sanitize provided parameters
 $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : 'quotes';
 $qid = isset($_REQUEST['qid']) ? COM_sanitizeID($_REQUEST['qid']) : '';
@@ -285,10 +301,20 @@ $T->set_var('indexintro', $indexintro);
 $T->set_var('randomquote', DQ_random_quote($qid, $cid));
 
 $content = '';
-switch ($mode) {
+switch ($action) {
 case 'categories':
     $content .= DQ_listCategories();
     break;
+
+case 'savesubmission':
+    USES_dailyquote_class_quote();
+    $Q = new dqQuote();
+    $message = $Q->SaveSubmission($_POST);
+    if (empty($message)) $message = sprintf($LANG12[25], $_CONF_DQ['pi_name']);
+    LGLIB_storeMessage($message);
+    COM_refresh(DQ_URL);
+    break;
+
 default:
     $content .= DQ_listQuotes($sort, $dir, $page);
     break;

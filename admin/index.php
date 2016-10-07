@@ -22,7 +22,7 @@ USES_dailyquote_class_quote();
 *
 *   @return string  HTML for the admin menu
 */
-function DQ_adminMenu($mode='dailyquote')
+function DQ_adminMenu($mode='')
 {
     global $_CONF, $LANG_ADMIN, $LANG_DQ;
 
@@ -34,23 +34,23 @@ function DQ_adminMenu($mode='dailyquote')
         $hlp_text = $LANG_DQ['hlp_admin_dailyquote'];
     }
 
-    if ($mode == 'dailyquote') {
+    if ($mode == 'quotes') {
         $menu_arr[] = array('text' => $LANG_DQ['newquote'],
-                'url' => DQ_ADMIN_URL . '/index.php?edit=quote');
+                'url' => DQ_ADMIN_URL . '/index.php?editquote=x');
     } else {
         $menu_arr[] = array('text' => $LANG_DQ['glsearchlabel'],
-                'url' => DQ_ADMIN_URL . '/index.php?page=quotes');
+                'url' => DQ_ADMIN_URL . '/index.php?quotes=x');
     }
 
     if ($mode == 'categories') {
         $menu_arr[] = array('text' => 'New Category',
-                'url' => DQ_ADMIN_URL . '/index.php?edit=category');
+                'url' => DQ_ADMIN_URL . '/index.php?editcat=x');
     } else {
         $menu_arr[] = array('text' => $LANG_DQ['manage_cats'],
-                'url' => DQ_ADMIN_URL . '/index.php?page=categories');
+                'url' => DQ_ADMIN_URL . '/index.php?categories=x');
     }
               
-    $menu_arr[] = array('url' => DQ_ADMIN_URL . '/index.php?page=batchform',
+    $menu_arr[] = array('url' => DQ_ADMIN_URL . '/index.php?batchform=x',
               'text' => $LANG_DQ['batchaddlink']);
     $menu_arr[] = array('url' => $_CONF['site_admin_url'],
                 'text' => $LANG_ADMIN['admin_home']);
@@ -59,7 +59,6 @@ function DQ_adminMenu($mode='dailyquote')
                 plugin_geticon_dailyquote());
 
     return $retval;
-
 }
 
 
@@ -95,12 +94,6 @@ function DQ_adminList()
     );
 
     $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
-
-    $retval .= COM_startBlock($_CONF_DQ['pi_display_name'], '', 
-                COM_getBlockTemplate('_admin_block', 'header'));
-
-    $retval .= DQ_adminMenu();
-
     $text_arr = array(
         'has_extras' => true,
         'form_url' => "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php?type=quote"
@@ -112,13 +105,11 @@ function DQ_adminList()
         'sql' => "SELECT * FROM {$_TABLES['dailyquote_quotes']} ",
         'query_fields' => array('title', 'quotes', 'quoted'),
         'default_filter' => 'WHERE 1=1'
-        //'default_filter' => COM_getPermSql ()
     );
 
     $retval .= ADMIN_list('dailyquote', 'DQ_admin_getListField', $header_arr,
                     $text_arr, $query_arr, $defsort_arr, '', '', 
                     $options, $form_arr);
-    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
     return $retval;
 }
@@ -141,47 +132,58 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
     switch($fieldname) {
     case 'edit':
-        $retval .= COM_createLink(
-            $icon_arr['edit'],
-            DQ_ADMIN_URL . "/index.php?edit=quote&amp;id={$A['id']}"
-        );
+        if ($_CONF_DQ['_is_uikit']) {
+            $retval .= COM_createLink('',
+                DQ_ADMIN_URL . "/index.php?editquote=x&amp;id={$A['id']}",
+                array('class' => 'uk-icon uk-icon-edit')
+            );
+        } else {
+            $retval .= COM_createLink(
+                $icon_arr['edit'],
+                DQ_ADMIN_URL . "/index.php?editquote=x&amp;id={$A['id']}"
+            );
+        }
         break;
 
     case 'enabled':
-        if ($fieldvalue == 1) {
-            $ena_icon = 'on.png';
-            $enabled = 0;
-        } else {
-            $ena_icon = 'off.png';
-            $enabled = 1;
-        }
-        $retval .= "<span id=togena{$A['id']}>\n" .
-                "<img src=\"{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}" . 
-                    "/images/{$ena_icon}\" ".
-                "onclick='DQ_toggleEnabled({$enabled}, \"{$A['id']}\", ".
-                "\"quote\", \"{$_CONF['site_url']}\");'>\n" .
-                "</span>\n";
+        $value = $fieldvalue == 1 ? 1 : 0;
+        $chk = $fieldvalue == 1 ? ' checked="checked" ' : '';
+        $retval .= '<input type="checkbox" id="togena' . $A['id'] . '"' .
+            $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] . 
+                '", "quote");\' />';
         break;
+
     case 'title':
-        $retval = stripslashes($A['title']);
-        break;
     case 'quote':
         $max_len = 40;
         $ellipses = strlen($A['quote']) > $max_len ? ' ...' : '';
         $retval = substr(stripslashes($A['quote']), 0, $max_len) . $ellipses;
         break;
+
     case 'dt';
-        $retval = date('Y-m-d', $A['dt']);
+        $dt = new Date($A['dt'], $_CONF['timezone']);
+        $retval = $dt->format($_CONF['shortdate'], true);
         break;
 
     case 'delete':
-        $retval = COM_createLink('<img src='. $_CONF['layout_url'] .
-            '/images/admin/delete.png>',
-            DQ_ADMIN_URL . "/index.php?delete=dailyquote&amp;id={$A['id']}");
+        if ($_CONF_DQ['_is_uikit']) {
+            $retval = COM_createLink('',
+                DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['id'],
+                array(
+                    'class' => 'uk-icon uk-icon-trash dq-icon-danger',
+                    'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
+                    'title' => $LANG_ADMIN['delete'],
+                )
+            );
+        } else {
+             $retval = COM_createLink('<img src='. $_CONF['layout_url'] .
+                '/images/admin/delete.png>',
+                DQ_ADMIN_URL . "/index.php?delquote=x&amp;id={$A['id']}");
+        }
         break;
 
     default:
-        $retval = $fieldvalue;
+        $retval = strip_tags($fieldvalue);
         break;
     }
 
@@ -203,65 +205,33 @@ if (!in_array('dailyquote', $_PLUGINS)) {
 if (!SEC_hasRights('dailyquote.admin,dailyquote.edit', 'OR')) {
     // Someone is trying to illegally access this page
     COM_errorLog("Someone has tried to illegally access the dailyquote Admin page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
-    $display = COM_siteHeader();
-    $display .= COM_startBlock($LANG_DQ['access_denied']);
-    $display .= $LANG_DQ['access_denied_msg'];
-    $display .= COM_endBlock();
-    $display .= COM_siteFooter(true);
-    echo $display;
+    COM_404();
     exit;
 }
 
 $action = '';
 $expected = array(
-    'edit', 'moderate', 'cancel', 'save', 
+    'editquote', 'savequote', 'delquote',
+    'editcat', 'savecat', 'delcat',
+    'savemoderation',
+    'moderate',
     'delete', 'delitem', 'validate', 'mode', 
+    'quotes', 'categories', 'batchform',
 );
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
-        $var = $_POST[$provided];
+        $actionvar = $_POST[$provided];
         break;
     } elseif (isset($_GET[$provided])) {
     	$action = $provided;
-        $var = $_GET[$provided];
+        $actionvar = $_GET[$provided];
         break;
     }
 }
 
-/*
-if (isset($_REQUEST['mode'])) {
-    $mode = $_REQUEST['mode'];
-} elseif (isset($_POST['delitem']) && !empty($_POST['delitem'])) {
-    switch($_GET['type']) {
-    case 'quote':
-        $mode = 'delMultiQuote';
-        break;
-    default:
-        $mode = 'adminquotes';
-        break;
-    }
-} else {
-    $mode = 'adminquotes';
-}
-*/
+$item_id = isset($_REQUEST['id']) ? COM_sanitizeID($_REQUEST['id'], false) : '';
 
-$q_id = isset($_REQUEST['id']) ? COM_sanitizeID($_REQUEST['id'], false) : '';
-$type = isset($_REQUEST['xtype']) ? $_REQUEST['xtype'] : '';
-
-/*if (isset($_POST['delete_btn']) && !empty($_POST['delete_btn'])) {
-    if ($mode == 'edit') {
-        $table = 'dailyquote_quotes';
-    } else {
-        $table = 'dailyquote_submission';
-    }
-    DailyQuote::Delete($q_id, $table);
-    $mode = '';
-} elseif (isset($_POST['submit_btn']) && !empty($_POST['submit_btn']) &&
-        $mode == 'edit') {
-    $mode = 'savequote';
-}   
-*/
 if (isset($_REQUEST['page'])) {
     $page = COM_applyFilter($_REQUEST['page']);
 } else {
@@ -273,129 +243,112 @@ $A = array();       // initialize array for form vars
 
 switch ($action) {
 case 'mode':
-    switch ($var) {
-    case 'edit':
-        $page = $var;
-        break;
+    $page = $actionvar;
+    break;
+
+case 'savecat':
+    USES_dailyquote_class_category();
+    $C = new Category($_POST['id']);
+    $C->Save($_POST);
+    $page = 'categories';
+    break;
+
+case 'savequote':
+    $Q = new dqQuote($item_id);
+    $message = $Q->Save($_POST, 'dailyquote_quotes');
+    if (!empty($message)) {
+        LGLIB_storeMessage($message);
     }
+    echo COM_refresh(DQ_ADMIN_URL);
     break;
 
-case 'categories':
-case 'moderate':
-    $page = $action;
+case 'savemoderation':
+    // Save the quote to the prod table and delete from the queue
+    $Q = new dqQuote($item_id);
+    $message = $Q->Save($_POST, 'dailyquote_quotes');
+    if (!empty($message)) {
+        // Error saving
+        LGLIB_storeMessage($message);
+    } else {
+        DB_delete($_TABLES['dailyquote_submission'], "id='" . DB_escapeString($item_id));
+    } 
+    echo COM_refresh(DQ_ADMIN_URL);
     break;
 
-/*case $LANG_ADMIN['save']:
-case $LANG12[8]:
-case 'savequote':*/
-case 'save':
-    switch ($type) {
-    case 'quote':
-        USES_dailyquote_class_quote();
-        $Q = new DailyQuote($q_id);
-        $Q->Save($_POST);
-        $page = 'quotes';
-    break;
-
-    case 'submission':
-        USES_dailyquote_class_quote();
-        $Q = new Dailyquote();
-        $status = $Q->Save($_POST);
-        $q_id = $Q->GetID();
-        if ($status == '' && !empty($q_id)) {
-            DB_delete($_TABLES['dailyquote_submission'], 'id', $q_id);
-            plugin_moderationapprove_dailyquote($q_id);
-            $page = 'moderation';
-        } else {
-            $page = 'moderate';
-            $A = $_POST;
-            $content .= $status;
-        }
-        break;
-    case 'category':
-        USES_dailyquote_class_category();
-        $C = new Category($_POST['id']);
-        $C->Save($_POST);
-        $page = 'categories';
-        break;
-    }
+case 'delquote':
+    dqQuote::Delete($item_id);
+    COM_refresh(DQ_ADMIN_URL);
     break;
 
 case 'delitem':
 //case 'delMultiQuote':
     if (is_array($_POST['delitem'])) {
         foreach ($_POST['delitem'] as $item) {
-            DailyQuote::Delete($item);
+            dqQuote::Delete($item);
         }
         $page = 'quotes';
     }
     break;
 
-case 'delete':
-    switch ($var) {
+case 'delcat':
+    USES_dailyquote_class_category();
+    Category::Delete($item_id);
+    $page = 'categories';
+    break;
+ 
+/*case 'delete':
+    switch ($actionvar) {
     case 'dailyquote':
     case 'quote':
-        DailyQuote::Delete($q_id);
+        dqQuote::Delete($item_id);
         break;
     case 'submission':
-        if ($q_id != '') {
-            DB_delete($_TABLES['dailyquote_submission'], 'id', $q_id);
+        if ($item_id != '') {
+            DB_delete($_TABLES['dailyquote_submission'], 'id', $item_id);
         }
         $page = 'moderation';
         break;
     case 'category':
         USES_dailyquote_class_category();
         Category::Delete($_REQUEST['id']);
-        $page = 'categories';
+        echo COM_refresh(DQ_ADMIN_URL . '/index.php?page=categories');
+        exit;
         break;
     }
-    break;
-
-//case 'savecategory':
-
-//case 'deletecat':
+*/
 
 case 'processbatch':
     USES_dailyquote_batch();
     $content .= DQ_process_batch();
-    $page = 'adminlist';
+    COM_refresh(DQ_ADMIN_URL);
     break;
 
-//case 'edit':
-    // 
+default:
+    $page = $action;
+    break;
 }
 
 switch ($page) {
 case 'edit':
-    switch ($var) {
-    case 'category':
-        USES_dailyquote_class_category();
-        $C = new Category($q_id);
-        $content .= $C->EditForm();
-        break;
-    case 'quote':
-    default:
-        if ($q_id != '') {
-            $A = DailyQuote::getQuote($q_id);
-        }
-        USES_dailyquote_submitform();
-        $content .= DQ_editForm('edit', $A, true);
-        break;
-    }
+    // "edit" is here so this will work with submit.php
+case 'editquote':
+    USES_dailyquote_class_quote();
+    $Q = new dqQuote($item_id);
+    $content .= $Q->Edit();
+    break;
+
+case 'editcat':
+    USES_dailyquote_class_category();
+    $C = new Category($item_id);
+    $content .= $C->EditForm();
     break;
 
 //case 'editsubmission':
 case 'moderate':
-    if ($q_id != '' && empty($A)) {
-        $result = DB_query("SELECT * 
-                FROM {$_TABLES['dailyquote_submission']}
-                WHERE id='" . DB_escapeString($q_id) . "'");
-        if ($result && DB_numRows($result) == 1) {
-            $A = DB_fetchArray($result);
-        }
-    }
-    USES_dailyquote_submitform();
-    $content .= DQ_editForm($action, $A, true);
+    $Q = new dqQuote($item_id, 'submission');
+    $Q->setTable('quotes');
+    $Q->isNew = true;
+    $content .= $Q->Edit($action);
     break;
 
 case 'moderation':
@@ -409,27 +362,22 @@ case 'categories':
 
 case 'batchform':
     USES_dailyquote_batch();
-    $content .= DQ_adminMenu($page);
     $content .= DQ_batch_form();
     break;
 
 case 'quotes':
 default:
+    $page = 'quotes';
     $content .= DQ_adminList();
     break;
 }
 
-$T = new Template(DQ_PI_PATH . '/templates');
-$T->set_file('page', 'dqheader.thtml');
-$T->set_var('site_url', $_CONF['site_url']);
-$T->set_var('site_admin_url', $_CONF['site_admin_url']);
-//$T->set_var('gimmebreak', $LANG_DQ['gimmebreak']);
-$T->set_var('indextitle', $LANG_DQ['admintitle']);
-$T->set_var('indexintro', $LANG_DQ['adminintro']);
-$T->parse('output','page');
-
 $display = COM_siteHeader();
+$display .= COM_startBlock($_CONF_DQ['pi_display_name'] . ' ver. ' . $_CONF_DQ['pi_version'], '', 
+                COM_getBlockTemplate('_admin_block', 'header'));
+$display .= DQ_adminMenu($page);
 $display .= $content;
+$display .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 $display .= COM_siteFooter();
 
 echo $display;

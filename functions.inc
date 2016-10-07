@@ -38,6 +38,7 @@ define('DQ_ADMIN_URL',
     $_CONF['site_url'].'/admin/plugins/'.$_CONF_DQ['pi_name']);
 define('DQ_URL', 
     $_CONF['site_url'].'/'.$_CONF_DQ['pi_name']);
+$_CONF_DQ['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
 
 
 /**
@@ -50,9 +51,6 @@ if (!file_exists("$langpath/$langfile")) {
 }
 require_once "$langpath/$langfile";
 
-
-function USES_dailyquote_submitform()
-{   require_once DQ_PI_PATH . '/submitform.php';    }
 
 function USES_dailyquote_class_quote()
 {   require_once DQ_PI_PATH . '/classes/quote.class.php';   }
@@ -490,7 +488,7 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
     USES_dailyquote_class_quote();
 
     // Check access to view quotes
-    if (!DailyQuote::hasAccess(2)) {
+    if (!dqQuote::hasAccess(2)) {
         return '';
     }
 
@@ -529,8 +527,8 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
         return '';
     }
 
-    $Q = DailyQuote::getQuote();
-    if (empty($Q['quote'])) {
+    $Q = dqQuote::getQuote();
+    if (!$Q) {
         return '';
     }
 
@@ -543,10 +541,10 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
     $T->set_file('page', 'centerblock.thtml');
 
     $T->set_var(array(
-        'dispquote'     => $Q['quote'],
-        'dispquoted'    => $Q['quoted'],
-        'source'        => $Q['source'],
-        'title'         => $Q['title'],a
+        'dispquote'     => $Q->quote,
+        'dispquoted'    => $Q->quoted,
+        'source'        => $Q->source,
+        'title'         => $Q->title,
     ) );
 
     $T->parse('output','page');
@@ -558,7 +556,6 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
     }
 
     return $retval;
-
 }
 
 
@@ -627,15 +624,15 @@ function phpblock_dailyquote_random()
  
     $retval = '';
 
-    $row = DailyQuote::getQuote();
-    if (!empty($row)) {
+    $Q = dqQuote::getQuote();
+    if ($Q) {
         $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('page', 'blk_random.thtml');
         $T->set_var(array(
-            'randomquote'   => $row['quote'],
-            'quoted'        => $row['quoted'],
-            'sourcedate'    => $row['sourcedate'],
-            'source'        => $row['source'],
+            'randomquote'   => $Q->quote,
+            'quoted'        => $Q->quoted,
+            'sourcedate'    => $Q->sourcedate,
+            'source'        => $Q->source,
         ) );
         $T->parse('output','page');
         $retval = $T->finish($T->get_var('output'));
@@ -716,11 +713,9 @@ function plugin_moderationapprove_dailyquote($id)
 {
     global $_TABLES;
 
-    $id = COM_sanitizeID($id, false);
     DB_query("UPDATE {$_TABLES['dailyquote_quotes']}
-            SET enabled = 1
-            WHERE id='$id'");
-
+        SET enabled = 1
+        WHERE id='" . DB_escapeString($id) . "'");
     return '';
 }
 
@@ -740,8 +735,7 @@ function plugin_moderationdelete_dailyquote($id)
     global $_TABLES;
 
     // Delete the category lookup entries for the rejected quotation.
-    DB_delete ($_TABLES['dailyquote_quoteXcat'], 'qid', DB_escapeString($id));
-
+    DB_delete ($_TABLES['dailyquote_quoteXcat'], 'qid', $id);
     return '';
 }
 
@@ -754,32 +748,29 @@ function plugin_moderationdelete_dailyquote($id)
 */
 function plugin_submit_dailyquote() 
 {
-    global  $HTTP_POST_VARS, $LANG12, $_CONF, $_CONF_DQ, $_USER, $LANG_DQ;
+    global  $LANG12, $_CONF, $_CONF_DQ, $_USER, $LANG_DQ;
 
-    // If mode = preview or editsubmission, load the ad info.
-    if ($HTTP_POST_VARS['mode'] == $LANG12[32] ||
-        $HTTP_POST_VARS['mode'] == 'editsubmission') {
-        $A = $HTTP_POST_VARS;
-    } else {
-        $A = array();
-    }
+    // if a previous submission being re-edited due to an error,
+    // use the previous field values
+    $A = isset($_POST['savesubmission']) ? $_POST : array();
 
-    if (SEC_hasRights('dailyquote.submit') ||
-        (COM_isAnonUser && $_CONF_DQ['anonadd'] == 1) ||
-        ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1)) {
-        USES_dailyquote_submitform();
-        return DQ_editForm($LANG12['8'], $A);
+    if (SEC_hasRights('dailyquote.submit') || $_CONF_DQ['queue'] == 0) {
+        // user has submit right or submission queue is not being used
+        USES_dailyquote_class_quote();
+        $Q = new dqQuote();
+        $retval = $Q->Edit('', $A);   // Directly edit prod table
+    } elseif ( (COM_isAnonUser() && $_CONF_DQ['anonadd'] == 1) ||
+            ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1) ) {
+        // user has regular access and queue is being used
+        USES_dailyquote_class_quote();
+        $Q = new dqQuote('', 'submission');  // Send to the submission table
+        $retval = $Q->Edit('submit', $A);  
     } else {
         COM_errorLog("Someone has tried to illegally access the dailyquote submission page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
-        $display = COM_siteHeader();
-        $display .= COM_startBlock($LANG_DQ['access_denied']);
-        $display .= $LANG_DQ['access_denied_msg'];
-        $display .= COM_endBlock();
-        $display .= COM_siteFooter(true);
-        echo $display;
+        COM_404();
         exit;
     }
-
+    return $retval;
 }
 
 
@@ -817,32 +808,33 @@ function plugin_savesubmission_dailyquote($A)
     // If this user is an authorized submitter, or we're not using the
     // submission queue, then put it directly into the quotes table.
     if (SEC_hasRights($_CONF_DQ['pi_name']. '.submit')) {
-        $table = 'dailyquote_quotes';
+        //$table = 'dailyquote_quotes';
         $msg = '02';    // "has been saved" message
         $email_admin = 0;
     } elseif ($_CONF_DQ['queue'] == 0) {
         // Same tables as above, but set $email_admin
-        $table = 'dailyquote_quotes';
+        //$table = 'dailyquote_quotes';
         $msg = '02';    // "has been saved" message
         $email_admin = $_CONF_DQ['email_admin'] == 2 ? 1 : 0;
     } else {
-        $table = 'dailyquote_submission';
+        //$table = 'dailyquote_submission';
         $msg = '01';    // "added to queue" message
         $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
     }
 
     if ($errmsg == '') {        // Only save if no errors so far
-        if ($_POST['mode'] == $LANG12[8] ||
-            $_POST['mode'] == $LANG_ADMIN['save']) {     // mode = Submit
+        if ($A['mode'] == $LANG12[8] ||
+            $A['mode'] == $LANG_ADMIN['save']) {     // mode = Submit
             // This is a user-submitted ad
             //$A['id'] = COM_makeSid();
             $A['uid'] = $owner_id;
             $A['dt_add'] = time();
 
             USES_dailyquote_class_quote();
-            $Q = new DailyQuote();
-            if ($Q->Save($A, $table) != '')
+            $Q = new dqQuote();
+            if ($Q->SaveSubmission($A) != '') {
                 return false;       // Catastrophic failure
+            }
         }
 
     }    // if $errormsg == ''
@@ -868,15 +860,14 @@ function plugin_savesubmission_dailyquote($A)
         return COM_refresh($_CONF['site_url']
                     . "/index.php?msg=$msg&amp;plugin=". $_CONF_DQ['pi_name']);
     } else {
+        // An error occurred, return to the submission form
         $display = COM_siteHeader();
         $display .= "<span class=alert><ul>$errmsg</ul></span\n";
-        $A['ad_id'] = '';   // reset so it'll still look like a new entry
-        USES_dailyquote_submitform();
-        $display .= DQ_editForm($LANG12['8'], $A);
+        $Q->id = '';
+        $display .= $Q->Edit();
         $display .= COM_siteFooter();
         return $display;
     }
-
 }
 
 
@@ -895,6 +886,7 @@ function plugin_geticon_dailyquote()
 
 /**
 *   Implements the [dailyquote:] autotag.
+*
 *   @param  string  $op         Requested operation
 *   @param  string  $content    Page content
 *   @param  string  $autotag    Autotag content
@@ -938,7 +930,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         $nocache = false;
         switch ($option) {
         case 'random':
-            $quote = DailyQuote::getQuote('', $cat);
+            $quote = dqQuote::getQuote('', $cat);
             // Don't cache random quote in template
             $nocache = true;
             break;
@@ -946,19 +938,19 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         case 'quote':
             $qid = COM_sanitizeID($autotag['parm2']);
             if ($qid != '') {
-                $quote = DailyQuote::getQuote($qid);
+                $quote = dqQuote::getQuote($qid);
             }
             break;
 
         } // switch ($op)
  
-        if (is_array($quote) && !empty($quote)) {
+        if ($quote) {
             $T->set_var(array(
-                'quote'     => $quote['quote'],
-                'quoted'    => $quote['quoted'],
-                'source_url' => $incl_src ? $quote['source'] : '',
-                'sourcedate' => $quote['sourcedate'],
-                'qid'       => $quote['id'],
+                'quote'     => $quote->quote,
+                'quoted'    => $quote->quoted,
+                'source_url' => $incl_src ? $quote->source : '',
+                'sourcedate' => $quote->sourcedate,
+                'qid'       => $quote->id,
             ), false, $nocache );
             $T->parse('output','block');
             $HTML = $T->finish($T->get_var('output'));
@@ -975,12 +967,13 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
     }   // switch ($op)
 
     return $retval;
-
 }
 
 
 /**
-*   Enable or disable this plugin's blocks when the plugin is changed.
+*   Disable this plugin's blocks when the plugin is changed.
+*   Does not automatically enable blocks since there's no way to know
+*   which blocks should be enabled.
 *
 *   @param  boolean $enabled    Plugin's "enabled" state
 */
@@ -989,7 +982,7 @@ function plugin_enablestatechange_dailyquote($enabled)
     global $_TABLES;
 
     $enabled = $enabled == true ? 1 : 0;
-    if ($enabled == 1) return;  // Never automatically enable
+    if ($enabled == 1) return;  // Never automatically enable blocks
 
     $blocks = array('dailyquote_random', 'dailyquote_dgmenu');
     foreach ($blocks as $block) {
@@ -1143,12 +1136,8 @@ function DQ_random_quote($qid='', $cid='')
     global $_CONF, $LANG_DQ, $_CONF_DQ;
 
     USES_dailyquote_class_quote();
-    $A = DailyQuote::getQuote($qid, $cid);
-    if (!is_array($A)) {
-        return '';
-    }
-
-    if ($A['quote'] == '') {
+    $Q = dqQuote::getQuote($qid, $cid);
+    if (!$Q) {
         return '';
     }
 
@@ -1157,27 +1146,27 @@ function DQ_random_quote($qid='', $cid='')
     $T->set_var('site_url', $_CONF['site_url']);
     $T->set_var('randomboxtitle', $LANG_DQ['randomboxtitle']);
     if ($_CONF_DQ['phpblk_title'] == 1) {
-        $T->set_var('title', $A['title']);
+        $T->set_var('title', $Q->title);
     } else {
         $T->set_var('title', '');
     }
 
-    $T->set_var('randomquote', $A['quote']);
-    $T->set_var('quoted', $A['quoted']);
+    $T->set_var('randomquote', $Q->quote);
+    $T->set_var('quoted', $Q->quoted);
     if ($_CONF_DQ['phpblk_srcdate'] == 1) {
-        if (!empty($A['source'])) {
-            $dispsource = "&nbsp;--&nbsp;" . $A['source'];
+        if (!empty($Q->source)) {
+            $dispsource = "&nbsp;--&nbsp;{$Q->source}";
             $T->set_var('source', $dispource);
         }
         if (!empty($Sourcedate)) {
-            $dispsourcedate = "&nbsp;&nbsp;(" . $A['sourcedate'] . ")";
+            $dispsourcedate = "&nbsp;&nbsp;({$Q->sourcedate})";
             $T->set_var('sourcedate', $dispsourcedate);
         }
     }
     if (($_CONF_DQ['phpblock_contribdate'] == 1) && ($username != $LANG_DQ['anonymous'])) {
         $T->set_var('subm_by', $LANG_DQ['subm_by'] . ':&nbsp;');
         $T->set_var('dispcontr', $username);
-        $T->set_var('datecontr', '&nbsp;/&nbsp;' . $A['date']);
+        $T->set_var('datecontr', '&nbsp;/&nbsp;' . $Q->date);
     }
     $T->parse('output','page');
     $retval = $T->finish($T->get_var('output'));
