@@ -248,7 +248,7 @@ case 'mode':
 
 case 'savecat':
     USES_dailyquote_class_category();
-    $C = new Category($_POST['id']);
+    $C = new dqCategory($_POST['id']);
     $C->Save($_POST);
     $page = 'categories';
     break;
@@ -292,7 +292,7 @@ case 'delitem':
 
 case 'delcat':
     USES_dailyquote_class_category();
-    Category::Delete($item_id);
+    dqCategory::Delete($item_id);
     $page = 'categories';
     break;
  
@@ -357,7 +357,7 @@ case 'moderation':
 
 case 'categories':
     USES_dailyquote_class_category();
-    $content .= Category::AdminList();
+    $content .= dqCategory::AdminList();
     break;
 
 case 'batchform':
