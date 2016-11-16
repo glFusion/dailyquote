@@ -108,16 +108,14 @@ class dqCategory
 
     /**
     *   Delete a category.
-    *   Deletes the supplied quote ID if not empty, otherwise
-    *   deletes the current object.
     *
     *   @param  string  $bid    Optional category ID to delete
     */
-    public static function Delete($id='')
+    public static function Delete($id)
     {
         global $_TABLES;
 
-        $id = COM_sanitizeID($id, false);
+        $id = (int)$id);
 
         // Can't delete category 1
         if ($id == 1) return;
