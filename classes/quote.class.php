@@ -432,7 +432,10 @@ class dqQuote
                 enabled = {$this->enabled},
                 uid = {$this->uid}";
         $sql = $sql1 . $sql2 . $sql3;
-        DB_query($sql);
+        DB_query($sql, 1);
+        if (DB_error()) {
+            return 'An error occurred inserting the quote';
+        }
 
         // Delete all lookup records for this quote to make sure we
         // get rid of unused categories.

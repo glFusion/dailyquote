@@ -31,10 +31,10 @@ function DQ_batch_form(){
                         WHERE enabled='1' 
                         ORDER BY name");
     $catlist = '';
-    $chk = ' checked ';
+    $chk = 'checked="checked"';
     if ($result) {
         while ($row = DB_fetchArray($result, false)) {
-            $catlist .= '<input type="radio" name="cat" value="'.
+            $catlist .= '<input type="checkbox" name="cat[]" value="'.
                         $row['id'] . '" ' . $chk . '>&nbsp;' . 
                         $row['name']. '&nbsp;';
             $chk = '';
@@ -69,6 +69,7 @@ function DQ_process_batch(){
 
     // First, upload the file
     USES_class_upload();
+    USES_dailyquote_class_quote();
 
     $upload = new upload();
     $upload->setPath($_CONF['path_data']. 'temp');
@@ -95,16 +96,13 @@ function DQ_process_batch(){
         return $LANG_DQ['absentfile'];
     }
 
-    // Set the category from the radio button                
-    $catid = (int)$_POST['cat'];
-
     // Following variables track import processing statistics
     $successes = 0;
     $failures = 0;
     while ($batchline = fgets($handle,4096)) {
         $singleline = rtrim($batchline);
         list ($quote, $quoted, $title, $src, $srcdate) = 
-                split ("\t", $singleline);
+                explode("\t", $singleline);
 
         if ($verbose_import) {
             $msg = "<br><b>Working on quote=$quote, quoted=$quoted, " . 
@@ -122,40 +120,19 @@ function DQ_process_batch(){
             }
             $failures++;
         } else {
-            $quote = DB_escapeString(strip_tags((COM_checkWords(trim($quote))), 
-                    '<strong><em><br><br />'));
-            $quoted = DB_escapeString(strip_tags((COM_checkWords((trim($quoted))))));
-            $title = DB_escapeString(strip_tags(COM_checkWords(trim($title))));
-            $src = DB_escapeString(strip_tags(COM_checkWords(trim($src))));
-            $srcdate = DB_escapeString(strip_tags(COM_checkWords(trim($srcdate))));
-
-            // get user info for db
-            $uid = $_USER['uid'];
-
-            //insert all data to the db
-            $qid = COM_makesid();
-            $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_quotes']} 
-                SET 
-                    id = '$qid',
-                    quote='$quote', 
-                    quoted='$quoted', 
-                    title='$title', 
-                    source='$src', 
-                    sourcedate='$srcdate', 
-                    dt = UNIX_TIMESTAMP(), 
-                    enabled = '1', 
-                    uid='$uid'";
-            //echo "$sql<br />\n";
-            $result = DB_query($sql);
-            if ($result) {
-                // Successful import.  Now add a lookup entry IF a valid
-                // category was selected.
-                if ($catid > 0) {
-                    DB_query("INSERT INTO {$_TABLES['dailyquote_quoteXcat']} 
-                        SET 
-                            qid = '$qid', 
-                            cid = '$catid'");
-                }
+            $Q = new dqQuote();
+            // Convert to hash for $Q->Save() function
+            $A = array(
+                'categories' => $_POST['cat'],
+                'quote' => $quote,
+                'quoted' => $quoted,
+                'title' => $title,
+                'source' => $src,
+                'sourcedate' => $srcdate,
+                'enabled' => 1,
+            );
+            $message = $Q->Save($A);
+            if ($message == '') {
                 if ($verbose_import) {
                     $retval .= "<br> $quote by <em>$quoted</em> successfully added.<br>\n";
                 }

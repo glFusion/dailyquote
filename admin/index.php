@@ -213,7 +213,7 @@ $action = '';
 $expected = array(
     'editquote', 'savequote', 'delquote',
     'editcat', 'savecat', 'delcat',
-    'savemoderation',
+    'savemoderation', 'processbatch',
     'moderate',
     'delete', 'delitem', 'validate', 'mode', 
     'quotes', 'categories', 'batchform',
@@ -319,8 +319,8 @@ case 'delcat':
 
 case 'processbatch':
     USES_dailyquote_batch();
-    $content .= DQ_process_batch();
-    COM_refresh(DQ_ADMIN_URL);
+    $content = DQ_process_batch();
+    $page = 'none';
     break;
 
 default:
@@ -339,7 +339,7 @@ case 'editquote':
 
 case 'editcat':
     USES_dailyquote_class_category();
-    $C = new Category($item_id);
+    $C = new dqCategory($item_id);
     $content .= $C->EditForm();
     break;
 
@@ -363,6 +363,10 @@ case 'categories':
 case 'batchform':
     USES_dailyquote_batch();
     $content .= DQ_batch_form();
+    break;
+
+case 'none':
+    // Used if the action sets the entire page content
     break;
 
 case 'quotes':
