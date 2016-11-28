@@ -5,7 +5,7 @@
 *   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
 *   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -32,11 +32,11 @@ if (file_exists($_CONF['path'] . '/plugins/dailyquote/config.php')) {
     include_once $_CONF['path'] . '/plugins/dailyquote/config.php';
 }
 
-define('DQ_PI_PATH', 
+define('DQ_PI_PATH',
     $_CONF['path'].'plugins/'.$_CONF_DQ['pi_name']);
-define('DQ_ADMIN_URL', 
+define('DQ_ADMIN_URL',
     $_CONF['site_url'].'/admin/plugins/'.$_CONF_DQ['pi_name']);
-define('DQ_URL', 
+define('DQ_URL',
     $_CONF['site_url'].'/'.$_CONF_DQ['pi_name']);
 $_CONF_DQ['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
 
@@ -75,7 +75,7 @@ function plugin_getmenuitems_dailyquote()
 
     // Check user has rights to view this plugin, if so, do it.
     if ($_CONF_DQ['anonview'] == '1' || !COM_isAnonUser()) {
-        $menuitems[$_CONF_DQ['pi_display_name']] = 
+        $menuitems[$_CONF_DQ['pi_display_name']] =
             DQ_URL . '/index.php';
     }
 
@@ -90,7 +90,7 @@ function plugin_getmenuitems_dailyquote()
  */
 function plugin_getheaderjs_dailyquote()
 {
-    global $_CONF, $_CONF_DQ; 
+    global $_CONF, $_CONF_DQ;
 
     $scripts = array();
     $scripts[] = DQ_PI_PATH . '/js/toggleEnabled.js';
@@ -101,8 +101,8 @@ function plugin_getheaderjs_dailyquote()
 
 /**
 *   Shows the statistics for the plugin on stats.php.
-*   If $showsitestats is 1 then we are to only print the overall stats in 
-*   the 'site statistics' box otherwise we show the detailed stats for the 
+*   If $showsitestats is 1 then we are to only print the overall stats in
+*   the 'site statistics' box otherwise we show the detailed stats for the
 *   plugin.
 *
 *   @param  integer  $showsitestate   Flag to let us know which stats to get
@@ -132,34 +132,34 @@ function plugin_showstats_dailyquote($showsitestats)
         return $retval;
     }*/
 
-    $result = DB_query("SELECT q.quoted, COUNT(*) 
-            FROM {$_TABLES['dailyquote_quotes']} q 
+    $result = DB_query("SELECT q.quoted, COUNT(*)
+            FROM {$_TABLES['dailyquote_quotes']} q
             LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
                 ON q.id = x.qid
             LEFT JOIN {$_TABLES['dailyquote_cat']} c
                 ON x.cid = c.id
-            WHERE q.enabled= '1' AND c.enabled = '1' 
-            GROUP BY quoted 
-            ORDER BY 2 DESC, 1 ASC 
+            WHERE q.enabled= '1' AND c.enabled = '1'
+            GROUP BY quoted
+            ORDER BY 2 DESC, 1 ASC
             LIMIT 10");
     $nrows  = DB_numRows($result);
     $retval .= COM_startBlock($LANG_DQ['StatsMsg1']);
     if ($nrows > 0) {
         $T->set_var('item_label', $LANG_DQ['StatsMsg3']);
         $T->set_var('stat_name', $LANG_DQ['StatsMsg4']);
-        
+
         while ($A = DB_fetchArray($result)) {
-            $T->set_var('item_url', 
+            $T->set_var('item_url',
                         "{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/search.php?stat=" . $A['quoted']);
             $T->set_var('item_text', $A['quoted']);
             $T->set_var('item_stat', $A['COUNT(*)']);
-            $T->parse('stat_row','statrow',true); 
+            $T->parse('stat_row','statrow',true);
         }
         $T->parse('output','itemstats');
         $retval .= $T->finish($T->get_var('output'));
     } else {
         $retval .= $LANG_DQ['StatsMsg2'];
-    }   
+    }
     $retval .= COM_endBlock();
     return $retval;
 
@@ -180,7 +180,7 @@ function plugin_statssummary_dailyquote()
 
 
 /**
-*   This will put an option for the plugin in the command and control 
+*   This will put an option for the plugin in the command and control
 *   block on moderation.php
 *
 *   @return   array   Array containing (pi_name, pi_admin_url, pi_icon_url)
@@ -213,8 +213,8 @@ function plugin_getadminoption_dailyquote()
     if (SEC_hasRights('dailyquote.admin')) {
         $count = DB_count($_TABLES['dailyquote_quotes'], 'enabled', 1);
         return array(
-            $LANG_DQ['admin_menu'], 
-            DQ_ADMIN_URL . '/index.php', 
+            $LANG_DQ['admin_menu'],
+            DQ_ADMIN_URL . '/index.php',
             $count
         );
     } else {
@@ -227,7 +227,7 @@ function plugin_getadminoption_dailyquote()
 *   Provide any new items that show up in the type drop-down on search.php.i
 *   @return array   Single name=>display_name value for the selection
 */
-function plugin_searchtypes_dailyquote() 
+function plugin_searchtypes_dailyquote()
 {
     global $LANG_DQ;
 
@@ -237,9 +237,9 @@ function plugin_searchtypes_dailyquote()
 
 
 /**
-*   Search for pages matching the user query and returns an array of 
-*   for the header and table rows back to search.php where it will be 
-*   formated and printed 
+*   Search for pages matching the user query and returns an array of
+*   for the header and table rows back to search.php where it will be
+*   formated and printed
 *
 *   @param    string  $query      Keywords user is looking for
 *   @param    date    $datestart  Start date to get results for
@@ -253,11 +253,11 @@ function plugin_searchtypes_dailyquote()
 *   @return   object              search result object
 */
 function plugin_dopluginsearch_dailyquote(
-    $query, 
-    $datestart, 
-    $dateend, 
-    $topic, 
-    $type, 
+    $query,
+    $datestart,
+    $dateend,
+    $topic,
+    $type,
     $author,
     $keyType,
     $page,
@@ -271,28 +271,27 @@ function plugin_dopluginsearch_dailyquote(
     }
 
     $htmlquery = urlencode($query);
-
     $query = trim(DB_escapeString(htmlspecialchars($query)));
 
     // Build search SQL
-    $sql = "SELECT 
-            q.id as id, q.quote as description, 
-            q.title as title, q.uid as uid, 
+    $sql = "SELECT
+            q.id as id, q.quote as description,
+            q.title as title, q.uid as uid,
             q.dt as date,
             CONCAT('/{$_CONF_DQ['pi_name']}/index.php?qid=',q.id,'&query=$htmlquery') as url
-        FROM 
+        FROM
             {$_TABLES['dailyquote_quotes']} q
-        WHERE 
+        WHERE
             q.enabled = 1
     ";
 
     if (!empty($datestart) && !empty($dateend)) {
-            $delim = substr($datestart, 4, 1);
-            $DS = explode($delim,$datestart);
-            $DE = explode($delim,$dateend);
-            $startdate = mktime(0,0,0,$DS[1],$DS[2],$DS[0]);
-            $enddate = mktime(0,0,0,$DE[1],$DE[2],$DE[0]) + 3600;
-            $sql .= " AND (q.dt BETWEEN '$startdate' AND '$enddate') ";
+        $delim = substr($datestart, 4, 1);
+        $DS = explode($delim,$datestart);
+        $DE = explode($delim,$dateend);
+        $startdate = mktime(0,0,0,$DS[1],$DS[2],$DS[0]);
+        $enddate = mktime(0,0,0,$DE[1],$DE[2],$DE[0]) + 3600;
+        $sql .= " AND (q.dt BETWEEN '$startdate' AND '$enddate') ";
     }
 
     if (!empty($author)) {
@@ -306,7 +305,6 @@ function plugin_dopluginsearch_dailyquote(
     $search->setSQL($sql);
 
     return $search;
-
 }
 
 
@@ -319,7 +317,7 @@ function plugin_whatsnewsupported_dailyquote()
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
 
-    if ($_CONF_DQ['whatsnew'] == '0' || 
+    if ($_CONF_DQ['whatsnew'] == '0' ||
             ($_CONF_DQ['anonview'] == '0') && COM_isAnonUser()) {
         return false;
     } else {
@@ -342,15 +340,15 @@ function plugin_getwhatsnew_dailyquote()
     $days = (int)$_CONF_DQ['whatsnewdays'];
 
     $sql = "SELECT DISTINCT q.id, q.quote
-            FROM {$_TABLES['dailyquote_quotes']} q 
+            FROM {$_TABLES['dailyquote_quotes']} q
             LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
                 ON q.id = x.qid
             LEFT JOIN {$_TABLES['dailyquote_cat']} c
                 ON c.id = x.cid
-            WHERE q.enabled='1' 
+            WHERE q.enabled='1'
             AND c.enabled='1'
             AND q.dt >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL {$days} DAY))
-            ORDER BY q.dt DESC 
+            ORDER BY q.dt DESC
             LIMIT 15 ";
     //echo $sql;die;
     $result = DB_query($sql);
@@ -411,7 +409,7 @@ function plugin_autouninstall_dailyquote()
                             $_CONF_DQ['pi_name']. '_quoteXcat',
                         ),
         'groups'    => array($_CONF_DQ['pi_name'] . ' Admin'),
-        'features'  => array($_CONF_DQ['pi_name'] . '.add', 
+        'features'  => array($_CONF_DQ['pi_name'] . '.add',
                             $_CONF_DQ['pi_name'] . '.edit',
                             $_CONF_DQ['pi_name'] . '.view',
                         ),
@@ -422,7 +420,6 @@ function plugin_autouninstall_dailyquote()
     );
 
     return $out;
-
 }
 
 
@@ -474,7 +471,7 @@ function DQ_catlink($catid, $catname)
 function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
 {
     global $_CONF, $_USER, $_TABLES, $PHP_SELF, $LANG_DQ, $_CONF_DQ;
-    
+
     $retval = '';
     $img_dir = $_CONF['layout_url'] . '/' . $_CONF_DQ['pi_name'] . '/image_set';
 
@@ -505,7 +502,7 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
         }
     }
 
-    // Check if there are no featured articles in this topic 
+    // Check if there are no featured articles in this topic
     // and if so then place it at the top of the page
     if ($topic != "") {
         $wherenames = array('tid', 'featured', 'draft_flag');
@@ -588,8 +585,8 @@ function phpblock_dailyquote_dqmenu()
     $content .= $href . "<br />\n";
 
     // Link to the submission form
-    if (($anonadd == '1' && $_USER['uid'] < 2) || 
-        ($loginadd == '1' && $_USER['uid'] > 2) || 
+    if (($anonadd == '1' && $_USER['uid'] < 2) ||
+        ($loginadd == '1' && $_USER['uid'] > 2) ||
         SEC_hasRights('dailyquote.add')) {
         $href = COM_createLink($LANG_DQ['addformlink'],
             $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']);
@@ -597,7 +594,7 @@ function phpblock_dailyquote_dqmenu()
     }
 
     if (SEC_hasRights('dailyquote.edit')) {
-        // Link to the manage quotes page 
+        // Link to the manage quotes page
         $href = COM_createLink($LANG_DQ['managelink'],
             DQ_ADMIN_URL . '/index.php');
         $content .= $href . "<br />\n";
@@ -621,7 +618,7 @@ function phpblock_dailyquote_random()
     global $_CONF, $_CONF_DQ;
 
     USES_dailyquote_class_quote();
- 
+
     $retval = '';
 
     $Q = dqQuote::getQuote();
@@ -649,13 +646,13 @@ function phpblock_dailyquote_random()
 *
 *   @return array    Returns array of useful moderation values
 */
-function plugin_moderationvalues_dailyquote() 
+function plugin_moderationvalues_dailyquote()
 {
     global $_TABLES;
 
     return array(
-        'id', 
-        $_TABLES['dailyquote_quotes'], 
+        'id',
+        $_TABLES['dailyquote_quotes'],
         'id, quote, quoted, title, source, sourcedate, dt, uid',
         $_TABLES['dailyquote_submission']);
 }
@@ -669,14 +666,14 @@ function plugin_moderationvalues_dailyquote()
 *
 *   @return plugin  Plugin class containing submission data
 */
-function plugin_itemlist_dailyquote() 
+function plugin_itemlist_dailyquote()
 {
     global $_TABLES, $LANG_DQ, $_CONF_DQ;
 
     if (plugin_ismoderator_dailyquote()) {
         $plugin = new Plugin();
         $plugin->submissionlabel = $_CONF_DQ['pi_display_name'];
-        $plugin->getsubmissionssql = 
+        $plugin->getsubmissionssql =
                 "SELECT id, quoted, title, source, uid
                 FROM {$_TABLES['dailyquote_submission']}";
         $plugin->addSubmissionHeading($LANG_DQ['quoted']);
@@ -696,7 +693,7 @@ function plugin_itemlist_dailyquote()
 *
 *   @return        boolean       Returns true if moderator
 */
-function plugin_ismoderator_dailyquote() 
+function plugin_ismoderator_dailyquote()
 {
     return SEC_hasRights('dailyquote.admin');
 }
@@ -746,7 +743,7 @@ function plugin_moderationdelete_dailyquote($id)
 *
 *   @return       string       The HTML form
 */
-function plugin_submit_dailyquote() 
+function plugin_submit_dailyquote()
 {
     global  $LANG12, $_CONF, $_CONF_DQ, $_USER, $LANG_DQ;
 
@@ -764,7 +761,7 @@ function plugin_submit_dailyquote()
         // user has regular access and queue is being used
         USES_dailyquote_class_quote();
         $Q = new dqQuote('', 'submission');  // Send to the submission table
-        $retval = $Q->Edit('submit', $A);  
+        $retval = $Q->Edit('submit', $A);
     } else {
         COM_errorLog("Someone has tried to illegally access the dailyquote submission page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
         COM_404();
@@ -905,12 +902,36 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         break;
     case 'parse':
         $HTML = '';
+        $tag = htmlentities($autotag['tagstr'], NULL, 'utf-8');
+        $tag = str_replace('&nbsp;', ' ', $tag);
+        $parms = explode(' ', $tag);
+        // Extra test to see if autotag was entered with a space
+        // after the module name
+        if (substr($parms[0], -1) == ':') {
+            $startpos = strlen($parms[0]) + strlen($parms[1]) + 2;
+            $label = str_replace(']', '', substr($tag, $startpos));
+            $tagid = $parms[1];
+        } else {
+            $label = str_replace(']', '', substr($tag, strlen($parms[0]) + 1));
+            $parms = explode(':', $parms[0]);
+            if (count($parms) > 2) {
+                // whoops, there was a ':' in the tag id ...
+                array_shift($parms);
+                $tagid = implode(':', $parms);
+            } else {
+                $tagid = $parms[1];
+            }
+        }
+        $autotag['parm1'] = str_replace(']','',$tagid);
+        $autotag['parm2'] = $label;
+
         $option = COM_applyFilter($autotag['parm1']);
         $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('block', 'autotag.thtml');
 
         $cat = 0;
         $incl_src = '';
+        $qid = '';
         if (!empty($autotag['parm2'])) {
             $parm2 = explode(' ', $autotag['parm2']);
             foreach ($parm2 as $parm) {
@@ -924,6 +945,9 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
                 case 'source':
                     $incl_src = true;
                     break;
+                default:
+                    $qid = $kv[0];
+                    break;
                 }
             }
         }
@@ -936,14 +960,14 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
             break;
 
         case 'quote':
-            $qid = COM_sanitizeID($autotag['parm2']);
+            $qid = COM_sanitizeID($qid);
             if ($qid != '') {
                 $quote = dqQuote::getQuote($qid);
             }
             break;
 
         } // switch ($op)
- 
+
         if ($quote) {
             $T->set_var(array(
                 'quote'     => $quote->quote,
@@ -1026,7 +1050,7 @@ function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
 function plugin_upgrade_dailyquote()
 {
     global $_CONF_DQ, $_TABLES;
-    
+
     // Get the current version, compare to the version in the plugin code
     $current_ver = DB_getItem($_TABLES['plugins'], 'pi_version',
         "pi_name = '{$_CONF_DQ['pi_name']}'");
@@ -1048,14 +1072,11 @@ function plugin_upgrade_dailyquote()
     }
 
     // now update the current version number.
-    $sql = "UPDATE
-        {$_TABLES['plugins']}
-    SET
-        pi_version = '{$_CONF_DQ['pi_version']}',
-        pi_gl_version = '{$_CONF_DQ['gl_version']}',
-        pi_homepage = '{$_CONF_DQ['pi_url']}'
-    WHERE
-        pi_name = '{$_CONF_DQ['pi_name']}';";
+    $sql = "UPDATE {$_TABLES['plugins']} SET
+                pi_version = '{$_CONF_DQ['pi_version']}',
+                pi_gl_version = '{$_CONF_DQ['gl_version']}',
+                pi_homepage = '{$_CONF_DQ['pi_url']}'
+            WHERE pi_name = '{$_CONF_DQ['pi_name']}';";
     DB_query($sql);
     if (DB_error()) {
         COM_errorLog("Error updating the {$_CONF_DQ['pi_name']} plugin version",1);
@@ -1227,6 +1248,5 @@ function DQ_siteFooter()
     }
     return $retval;
 }
-
 
 ?>
