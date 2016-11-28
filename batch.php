@@ -16,7 +16,7 @@
 *   @return string  HTML for the form
 */
 function DQ_batch_form(){
-    global $_TABLES, $_CONF, $_USER, $LANG_DQ;
+    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
 
     $retval = '';
 
@@ -41,7 +41,15 @@ function DQ_batch_form(){
         }
     }
 
-    $T->set_file('page', 'batchaddform.thtml');
+    if ($_CONF_DQ['_is_uikit']) {
+        $tpl = 'batchaddform.uikit.thtml';
+    } else {
+        $tpl = 'batchaddform.thtml';
+    }
+    $T->set_file(array(
+        'page' => $tpl,
+        'footer' => 'batchadd_sample.thtml',
+    ) );
     $T->set_var(array(
             'site_url'  => $_CONF['site_url'],
             'action_url' => DQ_ADMIN_URL .'/index.php',
@@ -53,6 +61,7 @@ function DQ_batch_form(){
 
     $T->set_file('page', 'addformfooter.thtml');
     $T->parse('output','page');
+    $T->parse('output', 'footer');
     $retval .= $T->finish($T->get_var('output'));
 
     return $retval;
@@ -63,7 +72,7 @@ function DQ_batch_form(){
 *   Inserts a batch of quotes into the database
 */
 function DQ_process_batch(){
-    global $_TABLES, $_CONF, $_USER, $LANG_DQ;
+    global $_TABLES, $_CONF, $LANG_DQ;
 
     $verbose_import = 1;
 

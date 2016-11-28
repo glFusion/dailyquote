@@ -50,27 +50,4 @@
   </tr>
 </table>
 </form>
-
-<h2>{$LANG_DQ['egtitle']}</h2>
-<center>
-  <p>
-    <pre style="width: 600px; border: solid 1px; background-color: #FFFFFF; color: #000000; padding: 5px; overflow: auto;">
-A bad cause will ever be supported by bad means and bad men.\tThomas Paine\t\tThe American Crisis\t1776
-A common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools.\tDouglas Adams
-It will go worse for the man who stands near the fence knowing where the fence is than for the man who stands on the fence not knowing where the fence is.
-A democracy is a state which recognises the subjecting of the minority to the majority.\tVladimir Ilyich Lenin\tDemocracy
-A fear of weapons is a sign of retarded sexual and emotional maturity.\tSigmund Freud\tFreud
-    </pre>
-  </p>
-</center>
-<p>
-  <ul>
-    <li>{$LANG_DQ['line0']}</li>
-    <li>{$LANG_DQ['tabs']}</li>
-    <li>{$LANG_DQ['line2']}</li>
-    <li>{$LANG_DQ['line3']}</li>
-    <li>{$LANG_DQ['line1']}</li>
-    <li>{$LANG_DQ['line5']}</li>
-  </ul>
-</p>
 {# end {templatelocation} #}
