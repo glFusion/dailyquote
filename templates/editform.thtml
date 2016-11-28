@@ -51,7 +51,6 @@
     <input type="submit" name="delquote" value="{$LANG_ADMIN['delete']}" 
         onclick="return confirm('{$LANG_ADVT['confirm_delitem']}');" />
 {!endif}
-    {submission_option}
   </p>
 </form>
 {# end {templatelocation} #}
