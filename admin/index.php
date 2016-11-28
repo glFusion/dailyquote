@@ -156,8 +156,8 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
     case 'title':
     case 'quote':
         $max_len = 40;
-        $ellipses = strlen($A['quote']) > $max_len ? ' ...' : '';
-        $retval = substr(stripslashes($A['quote']), 0, $max_len) . $ellipses;
+        $ellipses = strlen($fieldvalue) > $max_len ? ' ...' : '';
+        $retval = substr(stripslashes($fieldvalue), 0, $max_len) . $ellipses;
         break;
 
     case 'dt';
