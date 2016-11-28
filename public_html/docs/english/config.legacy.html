@@ -34,15 +34,15 @@ for display in blocks. The administrator can control publication by using the su
     </tr>
 
     <tr class="row1">
-      <td class="col0 leftalign"><a name="desc_quoteperpage"></a>Quotes per page to display</td>
+      <td class="col0 leftalign"><a name="desc_indexdisplim"></a>Quotes per page to display</td>
       <td class="col1 leftalign">The number of quotes to display per page in the main plugin.</td>
     </tr>
     <tr class="row2">
-      <td class="col0 leftalign"><a name="desc_searchlimit"></a>Max search results to return</td>
+      <td class="col0 leftalign"><a name="desc_searchdisplim"></a>Max search results to return</td>
       <td class="col1 leftalign">Maximum quotations to be returned by the glFusion search facility.</td>
     </tr>
     <tr class="row3">
-      <td class="col0 leftalign"><a name="desc_submission"></a>Use submission queue?</td>
+      <td class="col0 leftalign"><a name="desc_queue"></a>Use submission queue?</td>
       <td class="col1 leftalign">Set this to "True" to use the glFusion submission queue to moderate submissions.  If this is set to "False" then user submissions will be immediately published.</td>
     </tr>
     <tr class="row4">
@@ -61,6 +61,11 @@ for display in blocks. The administrator can control publication by using the su
     </tr>
 
     <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_loginadd"></a>Allow logged-in users to submit quotes?</td>
+      <td class="col1 leftalign">If this is "Yes", then site users will be able to submit quotations, subject to the Submission Queue setting above.</td>
+    </tr>
+
+    <tr class="row4">
       <td class="col0 leftalign"><a name="desc_google_link"></a>Add Google links to quotes?</td>
       <td class="col1 leftalign">Set this to "Yes" to have links to Google created for quotations.  This allows quick searching for more inforamtion related to the quote.<p />
 Setting this to "No" prevents Google links from being added.</td>
@@ -69,6 +74,16 @@ Setting this to "No" prevents Google links from being added.</td>
       <td class="col0 leftalign"><a name="desc_google_url"></a>Base link for Google searches</td>
       <td class="col1 leftalign">The text in this field will be used to construct a Google search link by replacing the first "%s" with the language, and the second "%s" with the search string.  The default value is <br /><code>http://www.google.com/search?hl=%s&num=20&q=%s</code>, which will search Google and return 20 results.<p />
     Leave this string empty to disable link creation.</td>
+    </tr>
+
+    <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_email_admin"></a>>Email admin upon quote submission?</td>
+      <td class="col1 leftalign">Select &quot;Yes&quot; to have an email sent to the site administrator when a quote is submitted.</td>
+    </tr>
+
+    <tr class="row4">
+      <td class="col0 leftalign"><a name="desc_displayblocks">Display glFusion Blocks</td>
+      <td class="col1 leftalign">Select which glFusion blocks will be displayed on the plugin home page.</td>
     </tr>
 
     <tr>

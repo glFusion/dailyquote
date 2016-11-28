@@ -1020,6 +1020,7 @@ function plugin_enablestatechange_dailyquote($enabled)
 /**
 *   Get the URL to the configuration help file
 *
+*   @uses   DQ_getDocURL()
 *   @param  string  $doclang    Document language
 *   @return string              URL to document
 */
@@ -1027,18 +1028,15 @@ function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
 {
     global $_CONF, $_CONF_DQ;
 
-    $doc_path = $_CONF['path_html'] . '/' . $_CONF_DQ['pi_name'] . '/docs/';
-    if (file_exists("{$doc_path}config_{$doclang}.thtml")) {
-        $file  = "config_{$doclang}.thtml";
-    } else {
-        $file = 'config_english.html';
-    }
+    $doc_url = DQ_getDocURL('config', $doclang);
+    if (empty($doc_url))
+        return false;
 
     if (!empty($option)) {
         $file .= '#desc_' . $option;
     }
 
-    return array(DQ_URL . '/docs/' . $file, 0);
+    return array($doc_url . $file, 0);
 }
 
 
@@ -1247,6 +1245,45 @@ function DQ_siteFooter()
         break;
     }
     return $retval;
+}
+
+
+/**
+*   Get the link to a documentation file.
+*   Returns the URL to the file, or to the directory if no file requested.
+*
+*   @see    plugin_getconfigelementhelp_dailyquote()
+*   @param  string  $file       HTML file
+*   @param  string  $doclang    Documentation language
+*   @return string              URL to document directory or file
+*/
+function DQ_getDocURL($file='', $doclang='english')
+{
+    global $_CONF, $_CONF_DQ;
+
+    $doc_path = $_CONF['path_html'] . $_CONF_DQ['pi_name'] . 
+                "/docs/$doclang/";
+    $doc_url = '';
+
+    if ($file != '') {
+        if (!$_CONF_DQ['_is_uikit']) $file .= '.legacy';
+        $file .= '.html';
+        if (!file_exists($doc_path . $file)) {
+            $doclang = 'english';
+        }
+        $doc_url = DQ_URL . "/docs/$doclang/$file";
+         if (!is_file($doc_path . $file)) {
+            $doclang = 'english';
+        }
+        $doc_url = DQ_URL . "/docs/$doclang/$file";
+    } else {
+        if (!is_dir($doc_path)) {
+            $doclang = 'english';
+        }
+        $doc_url = DQ_URL . "/docs/$doclang/";
+    }
+
+    return $doc_url;
 }
 
 ?>
