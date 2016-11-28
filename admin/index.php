@@ -281,7 +281,7 @@ case 'delquote':
     break;
 
 case 'delitem':
-//case 'delMultiQuote':
+    // Handle multiple quote deletion
     if (is_array($_POST['delitem'])) {
         foreach ($_POST['delitem'] as $item) {
             dqQuote::Delete($item);
@@ -296,27 +296,6 @@ case 'delcat':
     $page = 'categories';
     break;
  
-/*case 'delete':
-    switch ($actionvar) {
-    case 'dailyquote':
-    case 'quote':
-        dqQuote::Delete($item_id);
-        break;
-    case 'submission':
-        if ($item_id != '') {
-            DB_delete($_TABLES['dailyquote_submission'], 'id', $item_id);
-        }
-        $page = 'moderation';
-        break;
-    case 'category':
-        USES_dailyquote_class_category();
-        Category::Delete($_REQUEST['id']);
-        echo COM_refresh(DQ_ADMIN_URL . '/index.php?page=categories');
-        exit;
-        break;
-    }
-*/
-
 case 'processbatch':
     USES_dailyquote_batch();
     $content = DQ_process_batch();
