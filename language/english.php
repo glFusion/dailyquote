@@ -121,7 +121,7 @@ $LANG_DQ= array(
 'category'          => 'Category',
 'email_subject'     => 'New Daily Quote Notification',
 'confirm_delitem'   => 'Are you sure you want to delete this item?',
-
+'err_saving_cat'    => 'Error saving category',
 );
 
 

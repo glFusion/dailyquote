@@ -18,21 +18,21 @@ class dqCategory
 {
     /** Category ID
     *   @var integer */
-    var $id;
+    public $id;
 
     /** Category Name
     *   @var string */
-    var $name;
+    public $name;
 
     /** Status.  1=enabled, 0=disabled
     *   @var boolean */
-    var $enabled;
+    public $enabled;
 
  
     /**
     *   Constructor
     *
-    *   @param string $bid Category ID to retrieve, blank for empty class
+    *   @param  string  $id     Category ID to retrieve, blank for new record
     */
     public function __construct($id=0)
     {
@@ -56,9 +56,14 @@ class dqCategory
     {
         global $_TABLES;
 
-        $A = DB_fetchArray(DB_query("SELECT * FROM {$_TABLES['dailyquote_cat']}
-                WHERE id='".DB_escapeString($id)."'"));
-        $this->setVars($A);
+        $res = DB_query("SELECT * FROM {$_TABLES['dailyquote_cat']}
+                WHERE id='".(int)$id."'");
+        if ($res) {
+            $A = DB_fetchArray($res, false);
+            $this->setVars($A);
+            return true;
+        }
+        return false;
     }
 
 
@@ -83,26 +88,16 @@ class dqCategory
     *   Update the 'enabled' value for a category.
     *
     *   @param  integer $newval     New value to set (1 or 0)
-    *   @param  string  $bid        Optional ad ID.  Current object if blank
+    *   @param  string  $id         Category ID.
     */
-    public function toggleEnabled($newval, $id='')
+    public static function toggleEnabled($newval, $id)
     {
         global $_TABLES;
-
-        if ($id == '') {
-            if (is_object($this)) {
-                $id = $this->id;
-                if ($this->Access() < 3)
-                    return;
-            } else {
-                return;
-            }
-        }
 
         $newval = $newval == 0 ? 0 : 1;
         DB_change($_TABLES['dailyquote_cat'],
                 'enabled', $newval,
-                'id', DB_escapeString(trim($id)));
+                'id', (int)$id);
     }
 
 
@@ -115,7 +110,7 @@ class dqCategory
     {
         global $_TABLES;
 
-        $id = (int)$id);
+        $id = (int)$id;
 
         // Can't delete category 1
         if ($id == 1) return;
@@ -155,14 +150,18 @@ class dqCategory
                         enabled = {$this->enabled}
                     WHERE id = {$this->id}";
         }
-        DB_query($sql);
-
-        return '';
+        $res = DB_query($sql);
+        if (DB_error()) {
+            return $LANG_DQ['err_saving_cat'];
+        } else {
+            return '';
+        }
     }
 
 
     /**
     *   Administrator menu for categories
+    *
     *   @return string      HTML for menu block
     */
     public function AdminMenu()
@@ -174,7 +173,7 @@ class dqCategory
         $menu_arr = array (
             array('url' => $_CONF['site_admin_url'],
                     'text' => $LANG_ADMIN['admin_home']),
-            array('url' => DQ_ADMIN_URL . '/index.php?edit=category',
+            array('url' => DQ_ADMIN_URL . '/index.php?editcat=x',
                     'text' => 'New Category'),
             array('url' => DQ_ADMIN_URL,
                   'text' => $LANG_DQ['user_menu2']),
@@ -246,16 +245,12 @@ class dqCategory
         $T->set_var(array(
             'name'      => $this->name,
             'id'        => $this->id,
-            'chk'       => ($this->enabled == 1 || $this->id == '') ? 
-                            ' checked ' : '',
+            'chk'       => ($this->enabled == 1 || $this->id == 0) ? 
+                            'checked="checked"' : '',
             'cancel_url' => DQ_ADMIN_URL . '/index.php?page=categories',
+            'show_delbtn' => $this->id > 1 ? 'true' : '',
         ));
-        if ($this->id > 1) {
-            $T->set_var('show_delbtn', 'true');
-        }
-
         $T->parse('output','page');
-
         $retval .= $T->finish($T->get_var('output'));
         return $retval;
     }
@@ -265,6 +260,7 @@ class dqCategory
 
 /**
 *   Display a single field in the category admin list
+*
 *   @param  string  $fieldname  Name of field
 *   @param  mixed   $fieldvalue Value of field
 *   @param  array   $A          Array of all fields and values
@@ -281,12 +277,12 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
     case 'edit':
         if ($_CONF_DQ['_is_uikit']) {
             $retval .= COM_createLink('',
-                DQ_ADMIN_URL . "/index.php?edit=category&amp;id={$A['id']}",
+                DQ_ADMIN_URL . "/index.php?editcat=x&amp;id={$A['id']}",
                 array('class' => 'uk-icon uk-icon-edit')
             );
         } else {
             $retval .= COM_createLink($icon_arr['edit'],
-                DQ_ADMIN_URL . "/index.php?edit=category&amp;id={$A['id']}"
+                DQ_ADMIN_URL . "/index.php?editcat=x&amp;id={$A['id']}"
             );
         }
         break;
@@ -334,6 +330,5 @@ function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
     return $retval;
 }
-
 
 ?>
