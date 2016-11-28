@@ -16,8 +16,7 @@
             alt="{$LANG_DQ['clk_help']}" /></a>
     </label>
     <div class="uk-form-controls">
-      <input required type="text" id="title" name="title" value="{title}" size="64" />
-      <i class="uk-icon uk-icon-warning pp-icon-warning" data-uk-tooltip title="{$LANG_DQ['required']}"></i>
+      <input type="text" id="title" name="title" value="{title}" size="64" />
     </div>
   </div>
 
@@ -48,7 +47,7 @@
             alt="{$LANG_DQ['clk_help']}" /></a>
     </label>
     <div class="uk-form-controls">
-      <input type="text" id="source" name="source" value="{source}" />
+      <input type="text" id="source" name="source" value="{source}" size="64"/>
     </div>
   </div>
 
