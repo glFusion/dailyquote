@@ -1,11 +1,12 @@
 <?php
 /**
 *   Batch add quotes to the database.  Similar to glFusion's user import.
+*
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2010 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.1.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @version    0.2.0
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -26,16 +27,16 @@ function DQ_batch_form(){
     $retval .= $T->finish($T->get_var('output'));
 
     //retrieve categories from db if any and display
-    $result = DB_query("SELECT id, name 
-                        FROM {$_TABLES['dailyquote_cat']} 
-                        WHERE enabled='1' 
+    $result = DB_query("SELECT id, name
+                        FROM {$_TABLES['dailyquote_cat']}
+                        WHERE enabled='1'
                         ORDER BY name");
     $catlist = '';
     $chk = 'checked="checked"';
     if ($result) {
         while ($row = DB_fetchArray($result, false)) {
             $catlist .= '<input type="checkbox" name="cat[]" value="'.
-                        $row['id'] . '" ' . $chk . '>&nbsp;' . 
+                        $row['id'] . '" ' . $chk . '>&nbsp;' .
                         $row['name']. '&nbsp;';
             $chk = '';
         }
@@ -51,16 +52,12 @@ function DQ_batch_form(){
         'footer' => 'batchadd_sample.thtml',
     ) );
     $T->set_var(array(
-            'site_url'  => $_CONF['site_url'],
-            'action_url' => DQ_ADMIN_URL .'/index.php',
-            'mode'      => 'processbatch',
-            'catlist'   => $catlist,
-    ));
+        'action_url' => DQ_ADMIN_URL .'/index.php',
+        'catlist'   => $catlist,
+    ) );
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
 
-    $T->set_file('page', 'addformfooter.thtml');
-    $T->parse('output','page');
     $T->parse('output', 'footer');
     $retval .= $T->finish($T->get_var('output'));
 
@@ -105,17 +102,36 @@ function DQ_process_batch(){
         return $LANG_DQ['absentfile'];
     }
 
+    // Get categories into a usable array
+    $cats = array();
+    foreach ($_POST['cat'] as $key=>$val) {
+        $cats[$val] = '';
+    }
+
     // Following variables track import processing statistics
     $successes = 0;
     $failures = 0;
     while ($batchline = fgets($handle,4096)) {
+        // Clear fields in case of missing trailing values
+        $quote = '';
+        $quoted = '';
+        $title = '';
+        $source = '';
+        $sourcedate = '';
+
         $singleline = rtrim($batchline);
-        list ($quote, $quoted, $title, $src, $srcdate) = 
+        list ($quote, $quoted, $title, $source, $sourcedate) =
                 explode("\t", $singleline);
 
+        // Fill empty fields with form values, if supplied
+        foreach (array('title', 'source', 'sourcedate') as $elem) {
+            if (empty($$elem) && !empty($_POST[$elem]))
+                $$elem= $_POST[$elem];
+        }
+
         if ($verbose_import) {
-            $msg = "<br><b>Working on quote=$quote, quoted=$quoted, " . 
-                    "category=$cat, title=$title, source=$source, " . 
+            $msg = "<br><b>Working on quote=$quote, quoted=$quoted, " .
+                    "category=$cat, title=$title, source=$source, " .
                     "and sourcedate=$sourcedate</b><br>\n";
             $retval .= $msg;
             COM_errorLog($msg, 1);
@@ -132,13 +148,13 @@ function DQ_process_batch(){
             $Q = new dqQuote();
             // Convert to hash for $Q->Save() function
             $A = array(
-                'categories' => $_POST['cat'],
                 'quote' => $quote,
                 'quoted' => $quoted,
                 'title' => $title,
-                'source' => $src,
-                'sourcedate' => $srcdate,
+                'source' => $source,
+                'sourcedate' => $sourcedate,
                 'enabled' => 1,
+                'categories' => $cats,
             );
             $message = $Q->Save($A);
             if ($message == '') {
@@ -165,5 +181,4 @@ function DQ_process_batch(){
     return $retval;
 }
 
- 
 ?>

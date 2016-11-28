@@ -435,7 +435,7 @@ class dqQuote
 
         // Delete all lookup records for this quote to make sure we
         // get rid of unused categories.
-        DB_delete($_TABLES['dailyquote_quoteXcat'], 'qid', $A['id']);
+        DB_delete($_TABLES['dailyquote_quoteXcat'], 'qid', $this->id);
 
         // Now, add records to the lookup table to link the categories
         // to the quote.  Only if bypassing the submission queue; if
