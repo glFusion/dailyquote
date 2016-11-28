@@ -258,11 +258,7 @@ class dqQuote
                 $access = $_CONF_DQ['loginadd'] == 1 ? 3 : 0;
             } 
         } else {
-            if (COM_isAnonUser()) {
-                $access = $_CONF_DQ['anonview'] == 1 ? 2 : 0;
-            } else {
-                $access = 2;       // Logged-in can always view
-            }
+            $access = 2;
         }
 
         return $access;

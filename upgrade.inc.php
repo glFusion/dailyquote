@@ -3,11 +3,11 @@
 *   Upgrade routines for the Dailyquote plugin
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
-*   @package    ban
-*   @version    0.1.0
+*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+*   @package    dailyquote
+*   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
+*               GNU Public License v2 or later
 *   @filesource
 */
 
@@ -28,10 +28,10 @@ function DQ_do_upgrade($current_ver)
     require_once DQ_PI_PATH . '/install_defaults.php';
 
     $error = 0;
+    $c = config::get_instance();
 
     if ($current_ver < '0.1.4') {
         // upgrade to 0.1.4
-        $c = config::get_instance();
         if ($c->group_exists($_CONF_DQ['pi_name'])) {
             $c->add('displayblocks', $_DQ_DEFAULT['displayblocks'], 'select',
                 0, 0, 13, 170, true, $_CONF_DQ['pi_name']);
@@ -43,9 +43,13 @@ function DQ_do_upgrade($current_ver)
             return $error;
     }
 
+    if ($current_ver < '0.2.0') {
+        if ($c->group_exists($_CONF_DQ['pi_name'])) {
+            $c->del('anonview', $_CONF_DQ['pi_name']);
+        }
+    }
+        
     return $error;
-
 }
-
 
 ?>

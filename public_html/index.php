@@ -281,10 +281,7 @@ if (isset($_GET['msg'])){
 // Viewing is assumend for logged in users.
 $access = 2;
 if (COM_isAnonUser()) {
-    if ($_CONF_DQ['anonview'] == 0) {
-        echo COM_refresh($_CONF['site_url']);
-        exit;
-    } elseif ($_CONF_DQ['anonadd'] == 1) {
+    if ($_CONF_DQ['anonadd'] == 1) {
         $access = 3;
     }
 } elseif ($_CONF_DQ['loginadd'] == 1) {

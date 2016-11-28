@@ -29,7 +29,6 @@ $_DQ_DEFAULT = array(
     'searchdisplim' => 50,    // limit search results
     'queue' => 1,             // use submission queue? 1=yes, 0=no
     'anonadd' => 0,           // anon user can add? 1=yes, 0=no
-    'anonview' => 1,          // anon user can view?
     'loginadd' => 1,          // logged-in user can add quote?
     'cb_enable' => 0,         // centerblock enabled?
     'cb_pos' => 2,            // centerblock position (2=top)
@@ -76,8 +75,6 @@ function plugin_initconfig_dailyquote($group_id = 0)
                 0, 0, 0, 30, true, $_CONF_DQ['pi_name']);
         $c->add('anonadd', $_DQ_DEFAULT['anonadd'], 'select',
                 0, 0, 0, 40, true, $_CONF_DQ['pi_name']);
-        $c->add('anonview', $_DQ_DEFAULT['anonview'], 'select',
-                0, 0, 0, 50, true, $_CONF_DQ['pi_name']);
         $c->add('loginadd', $_DQ_DEFAULT['loginadd'], 'select',
                 0, 0, 0, 60, true, $_CONF_DQ['pi_name']);
         $c->add('google_link', $_DQ_DEFAULT['google_link'], 'select',

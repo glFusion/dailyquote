@@ -165,7 +165,6 @@ $LANG_confignames['dailyquote'] = array(
     'searchdisplim' => 'Limiteer zoekrestultaten tot',
     'queue'         => 'Inzendingen van Gebruikers eerst Goedkeuren?',
     'anonadd'       => 'Anonieme gebruikers kunnen quotes toevoegen?',
-    'anonview'      => 'Anonieme gebruikers kunnen bekijken?',
     'loginadd'      => 'Ingelogde gebruikers kunnen quotes toevoegen?',
     'loginaddcat'   => 'Ingelogde gebruikers kunnen Categorie&euml;n toevoegen?',
     'loginbatch'    => 'Ingelogde gebruikers kunnen in batch quotes toevoegen?',

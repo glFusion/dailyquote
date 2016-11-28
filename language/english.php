@@ -170,7 +170,6 @@ $LANG_confignames['dailyquote'] = array(
     'searchdisplim' => 'Limit search results to',
     'queue' => 'Use submission queue?',
     'anonadd' => 'Allow anonymous users to add quotes?',
-    'anonview' => 'Allow anonymous users to view quotes?',
     'loginadd' => 'Allow logged-in users to add quotes?',
     'loginaddcat' => 'Allow logged-in users to add categories?',
     'loginbatch' => 'Allow logged-in users to batch-add quotes?',

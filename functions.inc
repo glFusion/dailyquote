@@ -71,14 +71,9 @@ function plugin_getmenuitems_dailyquote()
 {
     global $_CONF, $_CONF_DQ;
 
-    $menuitems = array();
-
-    // Check user has rights to view this plugin, if so, do it.
-    if ($_CONF_DQ['anonview'] == '1' || !COM_isAnonUser()) {
-        $menuitems[$_CONF_DQ['pi_display_name']] =
-            DQ_URL . '/index.php';
-    }
-
+    $menuitems = array(
+        $_CONF_DQ['pi_display_name'] => DQ_URL . '/index.php',
+    );
     return $menuitems;
 }
 
@@ -265,11 +260,6 @@ function plugin_dopluginsearch_dailyquote(
 {
     global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
 
-    // Check user has rights to view this results, if so, do it.
-    if ($_CONF_DQ['anonview'] != 1  && COM_isAnonUser()) {
-        return '';
-    }
-
     $htmlquery = urlencode($query);
     $query = trim(DB_escapeString(htmlspecialchars($query)));
 
@@ -317,8 +307,7 @@ function plugin_whatsnewsupported_dailyquote()
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
 
-    if ($_CONF_DQ['whatsnew'] == '0' ||
-            ($_CONF_DQ['anonview'] == '0') && COM_isAnonUser()) {
+    if ($_CONF_DQ['whatsnew'] == '0') {
         return false;
     } else {
         return array(
