@@ -1,0 +1,4 @@
+{# begin {templatelocation} #}
+<span class="atag quote">{quote}</span>
+{!if quoted} <span class="atag quoteby">({quoted})</span>{!endif}
+{# end {templatelocation} #}

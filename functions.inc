@@ -915,12 +915,11 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         $autotag['parm2'] = $label;
 
         $option = COM_applyFilter($autotag['parm1']);
-        $T = new Template(DQ_PI_PATH . '/templates');
-        $T->set_file('block', 'autotag.thtml');
 
         $cat = 0;
         $incl_src = '';
         $qid = '';
+        $template = 'default';
         if (!empty($autotag['parm2'])) {
             $parm2 = explode(' ', $autotag['parm2']);
             foreach ($parm2 as $parm) {
@@ -933,6 +932,11 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
                     break;
                 case 'source':
                     $incl_src = true;
+                    break;
+                case 'template':
+                    if (isset($kv[1]) && !empty($kv[1])) {
+                        $template = $kv[1];
+                    }
                     break;
                 default:
                     $qid = $kv[0];
@@ -958,19 +962,25 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         } // switch ($op)
 
         if ($quote) {
+            if (!is_file(DQ_PI_PATH . '/templates/autotags/'.$template.'.thtml')) {
+                // Revert back to default template if an invalid one is provided.
+                $template = 'default';
+            }
+            $T = new Template(DQ_PI_PATH . '/templates/autotags');
+            $T->set_file('block', $template . '.thtml');
             $T->set_var(array(
                 'quote'     => $quote->quote,
                 'quoted'    => $quote->quoted,
-                'source_url' => $incl_src ? $quote->source : '',
+                'source'    => $incl_src ? $quote->source : '',
                 'sourcedate' => $quote->sourcedate,
                 'qid'       => $quote->id,
             ), false, $nocache );
             $T->parse('output','block');
             $HTML = $T->finish($T->get_var('output'));
-            $retval = str_replace($autotag['tagstr'], $HTML, $content);
         } else {
-            $retval = $content;
+            $HTML = '';
         }
+        $retval = str_replace($autotag['tagstr'], $HTML, $content);
         break;
 
     default:
