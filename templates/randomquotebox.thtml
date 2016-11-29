@@ -1,9 +1,7 @@
 {# begin {templatelocation} #}
-<tr>
-<td>
 <blockquote>
 {!if title}
-<span style="text-align: left; font-weight: bold; text-decoration: underline;">
+<span class="dq_quotelist_quote dq_title">
   {title}
 </span>
 {!endif}
@@ -12,8 +10,4 @@
 </p>
 </blockquote>
 <p></p>
-<!--<p style="text-align: right; font-size: 8pt;">{subm_by}{dispcontr}{datecontr}
-{cat}{dispcat}</p>-->
-</td>
-</tr>
 {# end {templatelocation} #}

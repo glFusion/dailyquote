@@ -21,10 +21,7 @@ function DQ_batch_form(){
 
     $retval = '';
 
-    $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-    $T->set_file('page', 'addformheader.thtml');
-    $T->parse('output','page');
-    $retval .= $T->finish($T->get_var('output'));
+    $T = new Template(DQ_PI_PATH . '/templates');
 
     //retrieve categories from db if any and display
     $result = DB_query("SELECT id, name
