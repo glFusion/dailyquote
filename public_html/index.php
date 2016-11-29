@@ -111,8 +111,6 @@ function DQ_listQuotes($sort, $dir, $page)
 
     //  Now get each quote and display it
     while ($row = DB_fetchArray($result)) {
-        //$T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
-        //$T->set_file('page', 'singlequote.thtml');
         $T->set_block('page', 'QuoteRow', 'qRow');
 
         $catres = DB_query("SELECT 

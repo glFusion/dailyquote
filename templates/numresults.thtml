@@ -1,9 +1,0 @@
-{# begin {templatelocation} #}
-				<tr>
-					<td>
-						<p style="text-align: left; font-weight: bold; color: red;">{numresultstxt}:&nbsp;&nbsp;{numresults}</p>
-						<h2>{cathead}</h2>
-						<!-- <hr width="45%"> -->
-					</td>
-				</tr>
-{# end {templatelocation} #}

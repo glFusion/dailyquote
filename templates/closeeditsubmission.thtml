@@ -1,8 +1,0 @@
-{# begin {templatelocation} #}
-                    </td>
-                </tr>
-            </table>
-                    <p>{catreadme}</p>
-                    <p align="center"><input type="submit" name="mode" value="{$LANG12['8']}" /></p>
-            </form>
-{# end {templatelocation} #}
