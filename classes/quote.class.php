@@ -284,7 +284,11 @@ class dqQuote
 
 
     /**
-    *   Displays the add form for single quotes.
+    *   Displays the quote editing form
+    *
+    *   @param  string  $mode   Editing mode (edit, submission, etc)
+    *   @param  array   $A      Provided form values, e.g. from previous $_POST
+    *   @return string          HTML for the form.
     */
     public function Edit($mode='edit', $A=array())
     {
@@ -320,7 +324,6 @@ class dqQuote
             $hidden_vars= '<input type="hidden" name="type" value="dailyquote" />'
                 .'<input type="hidden" name="mode" value="' . $LANG12[8].'" />';
             $cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php' : $_CONF['site_url'];
-            $action_url = $_CONF['site_url'] . '/submit.php';
             break;
 
         case 'moderate':
@@ -516,7 +519,6 @@ class dqQuote
 
         $result = DB_query($sql);
         if (!$result || DB_numRows($result) == 0) {
-            COM_errorLog("An error occured while retrieving your quote",1);
             return NULL; 
         }
 
