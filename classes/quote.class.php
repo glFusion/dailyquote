@@ -319,7 +319,6 @@ class dqQuote
 
         case 'submit':
         case $LANG12[8]:
-            // Submission through submit.php
             $saveoption = $LANG_ADMIN['save'];      // Save
             $hidden_vars= '<input type="hidden" name="type" value="dailyquote" />'
                 .'<input type="hidden" name="mode" value="' . $LANG12[8].'" />';
