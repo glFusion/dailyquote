@@ -1,10 +1,11 @@
-A new quotation has been submitted to your site.
+{$LANG_DQ['email_msg1']}
 
-Title:  {title}
+{$LANG_DQ['title']}: {title}
 
-Quote:  {quote}
+{$LANG_DQ['quote']}: {quote}
 
-By:     {quoted}
+{$LANG_DQ['quoted']}: {quoted}
 
-Submitted by {subm_by}
+{$LANG_DQ['subm_by']}: {subm_by}
 
+{site_url}

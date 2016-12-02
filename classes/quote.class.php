@@ -468,19 +468,43 @@ class dqQuote
     */
     public function SaveSubmission($A)
     {
-        global $_CONF_DQ, $LANG_DQ, $_USER;
+        global $_CONF_DQ, $LANG_DQ, $_USER, $_CONF;
 
-        if (SEC_hasRights('dailyquote.submit') || $_CONF_DQ['queue'] == 0) {
+        if (SEC_hasRights('dailyquote.submit')) {
+            $this->setTable('quotes');
+            $email_admin = 0;
+        } elseif ($_CONF_DQ['queue'] == 0) {
             // user has submit right or submission queue is not being used
             $this->setTable('quotes');
-        } elseif ( (COM_isAnonUser() && $_CONF_DQ['anonadd'] == 1) ||
-            ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1) ) {
+            $email_admin = $_CONF_DQ['email_admin'] == 2 ? 1 : 0;
+        } elseif ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1) {
             // user must go through the submission queue
             $this->setTable('submission');
+            $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
         }  else {
             return $LANG_DQ['access_denied'];
         }
-        return $this->Save($A);
+        $msg = $this->Save($A);
+
+        if ($msg == '') {
+            // Send notification, if configured
+            if ($email_admin == 1) {
+                $T = new Template(DQ_PI_PATH . '/templates');
+                $T->set_file('msg', 'email_admin.thtml');
+                $T->set_var(array(
+                    'title'     => $A['title'],
+                    'quote'     => $A['quote'],
+                    'quoted'    => $A['quoted'],
+                    'subm_by'   => COM_getDisplayName($_USER['uid']),
+                ) );
+                $T->parse('output','msg');
+                COM_mail($_CONF['site_mail'],
+                    $LANG_DQ['email_subject'],
+                    $T->finish($T->get_var('output'))
+                );
+            }
+        }
+        return $msg;
     }
 
 
