@@ -21,7 +21,7 @@
     <label class="uk-form-label" for="quote">{$LANG_DQ['quotation']}:</label>
     <div class="uk-form-controls">
       <textarea required cols="65" rows="3" id="title" name="quote">{quote}</textarea> 
-      <i class="uk-icon uk-icon-warning pp-icon-warning" data-uk-tooltip title="{$LANG_DQ['required']}"></i>
+      <i class="uk-icon uk-icon-warning dq-icon-danger" data-uk-tooltip title="{$LANG_DQ['required']}"></i>
     </div>
   </div>
 

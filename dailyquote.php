@@ -30,14 +30,4 @@ $_CONF_DQ['gl_version'] = '1.4.0';
 $_CONF_DQ['pi_url'] = 'http://www.leegarner.com';
 $_CONF_DQ['pi_display_name'] = 'Daily Quotes';
 
-
-// Temporary storage for items yet to be moved to the configuration system
-// String length for quoted personalities in WhatsNewBlock
-$_CONF_DQ['whatsnewnamelength'] = 20;
-
-//directory to use for batch import and backup storage
-//do not change!  at least until I've made this var available to all scripts using the dir.
-
-$_CONF_DQ['google_url'] = 'http://www.google.com/search?hl=%s&q=%s';
-
 ?>
