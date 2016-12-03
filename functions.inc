@@ -850,7 +850,7 @@ function plugin_savesubmission_dailyquote($A)
         $display = COM_siteHeader();
         $display .= "<span class=alert><ul>$errmsg</ul></span\n";
         $Q->id = '';
-        $display .= $Q->Edit();
+        $display .= $Q->Edit('submit', $_POST);
         $display .= COM_siteFooter();
         return $display;
     }
