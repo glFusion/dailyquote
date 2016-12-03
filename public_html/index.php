@@ -126,15 +126,9 @@ function DQ_listQuotes($sort, $dir, $page)
                     DQ_URL . '?cat=' . $cats['catid']);
         }
         $catlist = join(',' , $catnames);
- 
-        if (!empty($row['source'])){
-            $T->set_var('source', '&nbsp;--&nbsp;' . htmlspecialchars($row['source']));
-        }
-        if (!empty($row['sourcedate'])){
-            $T->set_var('sourcedate', '&nbsp;&nbsp;(' . 
-                htmlspecialchars($row['sourcedate']) . ')');
-        }
 
+        $source = empty($row['source']) ? '' : '&nbsp;--&nbsp;' . htmlspecialchars($row['source']);
+        $sourcedate = empty($row['sourcedate']) ? '' : '&nbsp;&nbsp;(' . htmlspecialchars($row['sourcedate']) . ')';
         $contr = DB_query("SELECT uid, username 
                             FROM {$_TABLES['users']} 
                             WHERE uid={$row['uid']}");
@@ -152,6 +146,8 @@ function DQ_listQuotes($sort, $dir, $page)
             'quoted'        => dqQuote::GoogleLink($row['quoted']),
             'catname'       => $catlist,
             'contr'         => $username,
+            'source'        => $source,
+            'sourcedate'    => $sourcedate,
             'datecontr'     => $dt->format($_CONF['shortdate'], true),
         ) );
 
