@@ -119,7 +119,10 @@ $LANG_DQ = array(
 'contributor'        => 'Inzender',
 'category'           => 'Categorie',
 'email_subject'      => 'Nieuwe Dagelijkse Quote Notificatie',
+'email_msg1'        => 'A new quotation has been submitted to your site.',
+'email_msg2'        => 'Please visit <a href="' . $_CONF['site_url'] . '/moderation.php">' . $_CONF['site_url'] . '/moderation.php</a> to approve or reject.';
 'confirm_delitem'    => 'Weet je zeker dat je dit item wilt verwijderen?',
+'err_saving_cat'    => 'Error saving category',
 );
 
 // GL Interface Messages

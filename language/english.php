@@ -120,6 +120,8 @@ $LANG_DQ= array(
 'contributor'       => 'Contributor',
 'category'          => 'Category',
 'email_subject'     => 'New Daily Quote Notification',
+'email_msg1'        => 'A new quotation has been submitted to your site.',
+'email_msg2'        => 'Please visit <a href="' . $_CONF['site_url'] . '/moderation.php">' . $_CONF['site_url'] . '/moderation.php</a> to approve or reject.';
 'confirm_delitem'   => 'Are you sure you want to delete this item?',
 'err_saving_cat'    => 'Error saving category',
 );
