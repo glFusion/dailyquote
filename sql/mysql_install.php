@@ -11,6 +11,8 @@
 *   @filesource
 */
 
+global $_TABLES;
+
 $_SQL = array();
 
 $quote_table_creation = "id VARCHAR(40) NOT NULL PRIMARY KEY,
@@ -57,7 +59,7 @@ $_SQL['dq_cat_data'] =
     "INSERT INTO {$_TABLES['dailyquote_cat']} (name, enabled)
         VALUES ('{$LANG_DQ['misc']}', '1');";
 
-$SQL_UPGRADE=array(
+$_SQL_UPGRADE = array(
     '0.2.0' => array(
         "ALTER TABLE {$_TABLES['dailyquote_submission']}
             ADD `enabled` tinyint(1) default 1",
