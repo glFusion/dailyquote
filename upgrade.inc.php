@@ -32,7 +32,7 @@ function DQ_do_upgrade()
         "pi_name = '{$_CONF_DQ['pi_name']}'");
     if (empty($current_ver)) {
         COM_errorLog("Error getting the {$_CONF_DQ['pi_name']} plugin version",1);
-        return '03';
+        return false;
     }
 
     require_once DQ_PI_PATH . '/install_defaults.php';
@@ -46,19 +46,17 @@ function DQ_do_upgrade()
             $c->add('displayblocks', $_DQ_DEFAULT['displayblocks'], 'select',
                 0, 0, 13, 170, true, $_CONF_DQ['pi_name']);
         } else {
-            $error = 1;
+            return false;
         }
-
-        if ($error)
-            return $error;
     }
 
     if ($current_ver < '0.2.0') {
         if ($c->group_exists($_CONF_DQ['pi_name'])) {
             $c->del('anonview', $_CONF_DQ['pi_name']);
         }
-        $errror = DQ_do_upgrade_sql('0.2.0', $sql);
-        if ($error) return $error;
+        if (!DQ_do_upgrade_sql('0.2.0', $sql)) {
+            return false;
+        }
     }
 
     // now update the current version number.
@@ -70,11 +68,11 @@ function DQ_do_upgrade()
     DB_query($sql);
     if (DB_error()) {
         COM_errorLog("Error updating the {$_CONF_DQ['pi_name']} plugin version",1);
-        $error = 1;
+        return false;
     }
 
     COM_errorLog("Succesfully updated the {$_CONF_DQ['pi_name']} plugin!",1);
-    return $error;      // == 0 at this point
+    return true;
 }
 
 
@@ -99,11 +97,11 @@ function DQ_do_upgrade_sql($version)
         DB_query($sql, '1');
         if (DB_error()) {
             COM_errorLog("SQL Error during {$_CONF_DQ['pi_name']} plugin update",1);
-            return 1;
+            return false;
             break;
         }
     }
-    return 0;
+    return true;
 }
 
 ?>
