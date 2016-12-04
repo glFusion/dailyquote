@@ -54,6 +54,7 @@ class dqQuote
         $this->id = $id;
         $this->isNew = true;
         $this->uid = $_USER['uid'];
+        $this->enabled = 1;
 
         // Set the table name here in case a quote is being read
         $this->setTable($table);
