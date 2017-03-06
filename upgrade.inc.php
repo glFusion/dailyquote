@@ -40,35 +40,24 @@ function DQ_do_upgrade()
     $error = 0;
     $c = config::get_instance();
 
-    if ($current_ver < '0.1.4') {
-        // upgrade to 0.1.4
+    if (!COM_checkVersion($current_ver, '0.1.4')) {
+        $current_ver = '0.1.4';
         if ($c->group_exists($_CONF_DQ['pi_name'])) {
             $c->add('displayblocks', $_DQ_DEFAULT['displayblocks'], 'select',
                 0, 0, 13, 170, true, $_CONF_DQ['pi_name']);
         } else {
             return false;
         }
+        if (!DQ_do_set_version($current_ver)) return false;
     }
 
-    if ($current_ver < '0.2.0') {
+    if (!COM_checkVersion($current_ver, '0.2.0')) {
+        $current_ver = '0.2.0';
         if ($c->group_exists($_CONF_DQ['pi_name'])) {
             $c->del('anonview', $_CONF_DQ['pi_name']);
         }
-        if (!DQ_do_upgrade_sql('0.2.0', $sql)) {
-            return false;
-        }
-    }
-
-    // now update the current version number.
-    $sql = "UPDATE {$_TABLES['plugins']} SET
-                pi_version = '{$_CONF_DQ['pi_version']}',
-                pi_gl_version = '{$_CONF_DQ['gl_version']}',
-                pi_homepage = '{$_CONF_DQ['pi_url']}'
-            WHERE pi_name = '{$_CONF_DQ['pi_name']}';";
-    DB_query($sql);
-    if (DB_error()) {
-        COM_errorLog("Error updating the {$_CONF_DQ['pi_name']} plugin version",1);
-        return false;
+        if (!DQ_do_upgrade_sql($current_ver)) return false;
+        if (!DQ_do_set_version($current_ver)) return false;
     }
 
     COM_errorLog("Succesfully updated the {$_CONF_DQ['pi_name']} plugin!",1);
@@ -80,7 +69,7 @@ function DQ_do_upgrade()
 *   Actually perform any sql updates
 *
 *   @param  array   $sql        Array of SQL statement(s) to execute
-*   @return integer             0 for success, 1 for error
+*   @return boolean         True on success, False on failure
 */
 function DQ_do_upgrade_sql($version)
 {
@@ -98,10 +87,38 @@ function DQ_do_upgrade_sql($version)
         if (DB_error()) {
             COM_errorLog("SQL Error during {$_CONF_DQ['pi_name']} plugin update",1);
             return false;
-            break;
         }
     }
     return true;
+}
+
+
+/**
+*   Update the plugin version number in the database.
+*   Called at each version upgrade to keep up to date with
+*   successful upgrades.
+*
+*   @param  string  $ver    New version to set
+*   @return boolean         True on success, False on failure
+*/
+function DQ_do_set_version($ver)
+{
+    global $_TABLES, $_CONF_DQ;
+
+    // now update the current version number.
+    $sql = "UPDATE {$_TABLES['plugins']} SET
+            pi_version = '{$_CONF_DQ['pi_version']}',
+            pi_gl_version = '{$_CONF_DQ['gl_version']}',
+            pi_homepage = '{$_CONF_DQ['pi_url']}'
+        WHERE pi_name = '{$_CONF_DQ['pi_name']}'";
+
+    $res = DB_query($sql, 1);
+    if (DB_error()) {
+        COM_errorLog("Error updating the {$_CONF_DQ['pi_display_name']} Plugin version",1);
+        return false;
+    } else {
+        return true;
+    }
 }
 
 ?>
