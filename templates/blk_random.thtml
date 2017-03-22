@@ -11,7 +11,6 @@
   {!if sourcedate}
     <span class="dq_source">({sourcedate})</span>
   {!endif}
-  </div>
 </div>
 {!endif}
 {# end {templatelocation} #}
