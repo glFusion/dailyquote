@@ -145,7 +145,7 @@ function plugin_showstats_dailyquote($showsitestats)
 
         while ($A = DB_fetchArray($result)) {
             $T->set_var('item_url',
-                        "{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/search.php?stat=" . $A['quoted']);
+                        "{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/index.php?quoted=" . $A['quoted']);
             $T->set_var('item_text', $A['quoted']);
             $T->set_var('item_stat', $A['COUNT(*)']);
             $T->parse('stat_row','statrow',true);
@@ -444,7 +444,7 @@ function DQ_catlink($catid, $catname)
 {
     global $_CONF, $_TABLES, $_CONF_DQ;
 
-    $retval = "<a href=\"{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/search.php?cat=$catid\">$catname</a>";
+    $retval = "<a href=\"{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/index.php?cat=$catid\">$catname</a>";
     return $retval;
 }
 
@@ -570,7 +570,7 @@ function phpblock_dailyquote_dqmenu()
     }
 
     //link to the search form
-    $href = COM_createLink($LANG_DQ['searchlink'], DQ_URL . '/search.php');
+    $href = COM_createLink($LANG_DQ['searchlink'], DQ_URL . '/index.php?quoted=');
     $content .= $href . "<br />\n";
 
     // Link to the submission form

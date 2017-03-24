@@ -29,6 +29,7 @@ function DQ_listQuotes($sort, $dir, $page)
         $LANG_ADMIN;
 
     $catid = isset($_REQUEST['cat']) ? (int)$_REQUEST['cat'] : 0;
+    $author = isset($_REQUEST['quoted']) ? DB_escapeString($_REQUEST['quoted']) : '';
     if ($dir != 'ASC') $dir = 'DESC';
     if ($page < 1) $page = 1;
 
@@ -45,7 +46,9 @@ function DQ_listQuotes($sort, $dir, $page)
     if ($catid > 0) {
         $sql .= " AND x.cid = $catid ";
     }
-
+    if ($author != '') {
+        $sql .= " AND quoted = '$author'";
+    }
     // Just get the total possible entries, to calculage page navigation
     $result = DB_query($sql);
     $numquotes = DB_numRows($result);
