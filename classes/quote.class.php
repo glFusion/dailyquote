@@ -147,8 +147,7 @@ class dqQuote
         // Reset the categories for this quote
         $this->categories = array();
 
-        $sql = "SELECT * 
-                FROM {$this->table}
+        $sql = "SELECT * FROM {$this->table}
                 WHERE id = '{$this->id}'";
         $res = DB_query($sql);
         if (!$res|| DB_numRows($res) != 1) {
@@ -531,7 +530,7 @@ class dqQuote
                 LEFT JOIN {$_TABLES['dailyquote_cat']} c
                     ON x.cid = c.id ";
         }
-        $sql .= " WHERE 1=1 ";
+        $sql .= " WHERE enabled=1 ";
         if ($qid == '') {
             if ($cid > 0) {
                 $sql .= " AND c.id = '$cid' ";
@@ -541,7 +540,11 @@ class dqQuote
             $sql .= " AND q.id='" . DB_escapeString($qid). "'";
         }
 
-        $result = DB_query($sql);
+        $result = DB_query($sql, 1);
+        if (DB_error()) {
+            COM_errorLog("dqQuote::getQuote() error: $sql");
+            return NULL;
+        }
         if (!$result || DB_numRows($result) == 0) {
             return NULL; 
         }
@@ -592,8 +595,6 @@ class dqQuote
         return COM_checkWords($str);
     }
 
-
 }   // class dqQuote
-
 
 ?>
