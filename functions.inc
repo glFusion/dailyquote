@@ -267,7 +267,7 @@ function plugin_dopluginsearch_dailyquote(
     $sql = "SELECT
             q.id as id, q.quote as description,
             q.title as title, q.uid as uid,
-            q.dt as date,
+            q.dt as date, 0 as hits,
             CONCAT('/{$_CONF_DQ['pi_name']}/index.php?qid=',q.id,'&query=$htmlquery') as url
         FROM
             {$_TABLES['dailyquote_quotes']} q
