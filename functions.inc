@@ -401,6 +401,8 @@ function plugin_autouninstall_dailyquote()
         'features'  => array($_CONF_DQ['pi_name'] . '.add',
                             $_CONF_DQ['pi_name'] . '.edit',
                             $_CONF_DQ['pi_name'] . '.view',
+                            $_CONF_DQ['pi_name'] . '.submit',
+                            $_CONF_DQ['pi_name'] . '.admin',
                         ),
         'php_blocks' => array('phpblock_' . $_CONF_DQ['pi_name'] . '_dqmenu',
                             'phpblock_' . $_CONF_DQ['pi_name'] . '_random',
