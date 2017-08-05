@@ -123,6 +123,7 @@ $LANG_DQ = array(
 'email_msg2'        => 'Please visit <a href="' . $_CONF['site_url'] . '/moderation.php">' . $_CONF['site_url'] . '/moderation.php</a> to approve or reject.',
 'confirm_delitem'    => 'Weet je zeker dat je dit item wilt verwijderen?',
 'err_saving_cat'    => 'Error saving category',
+'untitled'          => 'Untitled',
 );
 
 // GL Interface Messages

@@ -1048,7 +1048,7 @@ function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
 */
 function plugin_upgrade_dailyquote()
 {
-    require_once dirname(__FILE__) . '/upgrade.inc.php';
+    require_once __DIR__ . '/upgrade.inc.php';
     return DQ_do_upgrade();
 }
 
@@ -1104,6 +1104,127 @@ function plugin_getheadercss_dailyquote()
     }
 
     return $styles;
+}
+
+
+/**
+*   Provides the getItemInfo function for daily quotes
+*
+*   @param  string  $id         Product ID
+*   @param  string  $fields     Comma-separated list of fields to return
+*   @param  integer $uid        User ID
+*   @param  array   $options    Not used
+*   @return array           Array of product information
+*/
+function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
+{
+    global $_TABLES, $_CONF, $LANG_DQ;
+
+    $properties = explode(',', $what);
+    $fields = array();
+    $retval = array();
+    $buildingSearchIndex = false;
+    foreach ($properties as $p) {
+        switch ($p) {
+        case 'search_index':
+            $buildingSearchIndex = true;
+            break;
+        case 'id':
+            $fields[] = 'id';
+            break;
+        case 'title':
+            $fields[] = 'title';
+            break;
+        case 'content':
+        case 'description':
+            $fields[] = 'quote';
+            break;
+        case 'searchidx':
+            $fields[] = 'title';
+            $fields[] = 'quote';
+            break;
+        case 'author':
+            $fields[] = 'uid';
+            break;
+        case 'date':
+            $fields[] = 'dt';
+            break;
+        }
+    }
+    if (count($fields) == 0) {
+        return $retval;
+    }
+    $fields = array_unique($fields);
+    $fields = implode(',', $fields);
+    $retval = array();
+    $sql = "SELECT $fields
+            FROM {$_TABLES['dailyquote_quotes']} ";
+    if ($id == '*') {
+        $where = ' WHERE enabled = 1 ';
+    } else {
+        $where = " WHERE (id = '" . DB_escapeString($id) . "')";
+    }
+    //echo $sql;die;
+    $res = DB_query($sql . $where);
+    while ($A = DB_fetchArray($res, false)) {
+        foreach ($properties as $p) {
+            switch ($p) {
+            case 'id':
+                $props[$p] = $A['id'];
+                break;
+            case 'excerpt':
+            case 'description':
+            case 'content':
+                $props[$p] = $A['quote'];
+                break;
+            case 'title':
+                $props[$p] = empty($A['title']) ? $LANG_DQ['untitled'] : $A['title'];
+                break;
+            case 'author':
+                $props[$p] = $A['uid'];
+                break;
+            case 'date':
+                $props[$p] = $A['dt'];
+                break;
+            case 'searchidx':
+                $props[$p] = $A['title'] . ' ' . $A['quote'];
+                break;
+            case 'url':
+                $props[$p] = DQ_URL . '/index.php?id=' . urlencode($A['id']);
+                break;
+            default:
+                $props[$p] = isset($A[$p]) ? $A[$p] : NULL;
+                break;
+            }
+        }
+        $mapped = array();
+        foreach ($props as $key => $value) {
+            if ($id == '*') {
+                if ($value != '') {
+                    $mapped[$key] = $value;
+                }
+            } else {
+                $mapped[$key] = $value;
+            }
+        }
+
+        if ($id == '*') {
+            $retval[] = $mapped;
+        } else {
+            $retval = $mapped;
+            break;
+        }
+    }
+
+    if (($id != '*') && (count($retval) == 1)) {
+        $tRet = array_values($retval);
+        $retval = $tRet[0];
+    }
+    if ($retval === '' || (is_array($retval) && count($retval) == 0)) {
+        return NULL;
+    } else {
+        return $retval;
+    }
 }
 
 

@@ -3,8 +3,8 @@
     <name>Daily Quotes</name>
     <description>Show random quotes on the site.</description>
     <version>0.2.0</version>
-    <glfusionversion>1.4.0</glfusionversion>
-    <phpversion>5.3.0</phpversion>
+    <glfusionversion>1.6.0</glfusionversion>
+    <phpversion>5.6.0</phpversion>
     <requires>lglib</requires>
     <url>http://www.leegarner.com</url>
     <maintainer>Lee Garner</maintainer>

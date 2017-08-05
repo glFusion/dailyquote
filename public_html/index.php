@@ -28,6 +28,7 @@ function DQ_listQuotes($sort, $dir, $page)
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
         $LANG_ADMIN;
 
+    $q_id = isset($_REQUEST['id']) ? DB_escapeString($_REQUEST['id']) : '';
     $catid = isset($_REQUEST['cat']) ? (int)$_REQUEST['cat'] : 0;
     $author = isset($_REQUEST['quoted']) ? DB_escapeString($_REQUEST['quoted']) : '';
     if ($dir != 'ASC') $dir = 'DESC';
@@ -43,6 +44,9 @@ function DQ_listQuotes($sort, $dir, $page)
                 ON x.cid = c.id
             WHERE q.enabled = '1' 
             AND (c.enabled = '1' OR c.enabled IS NULL) ";
+    if ($q_id != '') {
+        $sql .= " AND q.id = '$q_id' ";
+    }
     if ($catid > 0) {
         $sql .= " AND x.cid = $catid ";
     }
@@ -113,7 +117,7 @@ function DQ_listQuotes($sort, $dir, $page)
             COM_printPageNavigation($baseurl, $page, $numpages));
 
     //  Now get each quote and display it
-    while ($row = DB_fetchArray($result)) {
+    while ($row = DB_fetchArray($result, false)) {
         $T->set_block('page', 'QuoteRow', 'qRow');
 
         $catres = DB_query("SELECT 
@@ -143,9 +147,16 @@ function DQ_listQuotes($sort, $dir, $page)
         }
 
         $dt = new Date($row['dt'], $_CONF['timezone']);
+        if (isset($_REQUEST['query'])) {
+            $title = COM_highlightQuery($row['title'], $_REQUEST['query']);
+            $quote = COM_highlightQuery($row['quote'], $_REQUEST['query']);
+        } else {
+            $title = $row['title'];
+            $quote - $row['quote'];
+        }
         $T->set_var(array(
-            'title'         => htmlspecialchars($row['title']),
-            'quote'         => htmlspecialchars($row['quote']),
+            'title'         => $title,
+            'quote'         => $quote,
             'quoted'        => dqQuote::GoogleLink($row['quoted']),
             'catname'       => $catlist,
             'contr'         => $username,
