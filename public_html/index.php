@@ -85,7 +85,8 @@ function DQ_listQuotes($sort, $dir, $page)
 
     // Display quotes if any to display
     $T = new Template(DQ_PI_PATH . '/templates');
-    $T->set_file('page', 'dispquotes.thtml');
+    $tpl = $_CONF_DQ['_is_uikit'] ? 'dispquotes.uikit.thtml' : 'dispquotes.thtml';
+    $T->set_file('page', $tpl);
 
     // Set up sorting options
     $sortby_opts = array(
@@ -152,7 +153,7 @@ function DQ_listQuotes($sort, $dir, $page)
             $quote = COM_highlightQuery($row['quote'], $_REQUEST['query']);
         } else {
             $title = $row['title'];
-            $quote - $row['quote'];
+            $quote = $row['quote'];
         }
         $T->set_var(array(
             'title'         => $title,

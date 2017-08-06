@@ -26,19 +26,21 @@ if (!isset($_CONF_DQ['quoteperpage'])) {
 }
 
 /** Additional config items and table definitions are added here */
-require_once $_CONF['path'] . '/plugins/dailyquote/dailyquote.php';
-if (file_exists($_CONF['path'] . '/plugins/dailyquote/config.php')) {
+require_once __DIR__ . '/dailyquote.php';
+if (file_exists(__DIR__ . '/config.php')) {
     /** Include local configuration overrides */
-    include_once $_CONF['path'] . '/plugins/dailyquote/config.php';
+    include_once __DIR__ . '/config.php';
 }
 
-define('DQ_PI_PATH',
-    $_CONF['path'].'plugins/'.$_CONF_DQ['pi_name']);
+// Mark whether this is a uikit theme. Save to global conf var
+// so it's available where needed.
+$_CONF_DQ['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
+
+define('DQ_PI_PATH', __DIR__);
 define('DQ_ADMIN_URL',
     $_CONF['site_url'].'/admin/plugins/'.$_CONF_DQ['pi_name']);
 define('DQ_URL',
     $_CONF['site_url'].'/'.$_CONF_DQ['pi_name']);
-$_CONF_DQ['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
 
 
 /**

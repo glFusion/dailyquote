@@ -1,0 +1,43 @@
+{# begin {templatelocation} #}
+<div class="dq_quotelist">
+  <div>
+    <form  action="{pi_url}/index.php" method="get" class="uk-form uk-form-horizontal">
+      <label for="sort">{$LANG_DQ['sortby']}:&nbsp;&nbsp;</label>
+      <select name="sort">
+        {sortby_opts}
+      </select>
+      <select name="dir">
+        <option value="ASC" {asc_sel}>{$LANG_DQ['ascending']}</option>
+        <option value="DESC" {desc_sel}>{$LANG_DQ['descending']}</option>
+      </select>
+      <button name="submit" type="submit" class="uk-button uk-button-primary" style="float:inherit;">
+        {$LANG_DQ['sort']}
+      </button>
+    </form>
+  </div>
+
+  <div>
+    {google_paging}
+  </div>
+
+  <!-- BEGIN QuoteRow -->
+  <div class="dq_quotelist_quote">
+{!if title}
+    <p class="dq_title">{title}</p>
+{!endif}
+    <p>&quot;{quote}&quot;</p>
+    <p class="dq_quotelist_attrib">{quoted}{source}{sourcedate}</p>
+    <p class="dq_submitter">{editlink} {$LANG_DQ['subm_by']}:&nbsp;{contr}&nbsp;/&nbsp;{datecontr}
+{!if catname}
+      &nbsp;&nbsp;:&nbsp;<span class="dq_catname">{catname}</span>
+{!endif}
+    </p>
+    <hr />
+  </div>
+  <!-- END QuoteRow -->
+
+  <div>
+    {google_paging}
+  </div>
+</div>
+{# end {templatelocation} #}
