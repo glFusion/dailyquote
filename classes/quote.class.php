@@ -233,6 +233,10 @@ class dqQuote
 
         DB_delete($_TABLES['dailyquote_quoteXcat'],
             'qid', $id);
+
+        if ($table == 'quotes') {
+            PLG_itemDeleted($id, 'dailyquote');
+        }
     }
 
 
@@ -453,6 +457,9 @@ class dqQuote
                     '{$this->id}', $key
                 )";
             DB_query($sql);
+        }
+        if ($this->table_id == 'quotes') {
+            PLG_itemSaved($this->id, 'dailyquote');
         }
         return '';
     }

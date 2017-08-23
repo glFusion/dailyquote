@@ -1146,6 +1146,7 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
             $fields[] = 'quote';
             break;
         case 'author':
+        case 'author_name':
             $fields[] = 'uid';
             break;
         case 'date':
@@ -1184,6 +1185,9 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
                 break;
             case 'author':
                 $props[$p] = $A['uid'];
+                break;
+            case 'author_name':
+                $props[$p] = COM_getDisplayName($A['uid']);
                 break;
             case 'date':
                 $props[$p] = $A['dt'];
