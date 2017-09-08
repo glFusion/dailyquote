@@ -1,5 +1,8 @@
 # glDailyQuote - Change Log
 
+## Version 0.2.1 - TBD
+- Use DailyQuote namespace and class autoloader
+
 ## Version 0.2.0 - 2016-11-28
 - Add uikit-based templates
 - Remove unused templates

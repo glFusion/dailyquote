@@ -53,15 +53,19 @@ if (!file_exists("$langpath/$langfile")) {
 }
 require_once "$langpath/$langfile";
 
-
-function USES_dailyquote_class_quote()
-{   require_once DQ_PI_PATH . '/classes/quote.class.php';   }
-
-function USES_dailyquote_class_category()
-{   require_once DQ_PI_PATH . '/classes/category.class.php';    }
-
 function USES_dailyquote_batch()
 {   require_once DQ_PI_PATH . '/batch.php'; }
+
+spl_autoload_register(function ($class)
+{
+    if (strpos($class, 'DailyQuote\\') === 0) {
+        $class = str_replace('DailyQuote\\', '', $class);
+        $path = __DIR__ . '/classes/' . $class . '.class.php';
+        if (file_exists($path)) {
+            include $path;
+        }
+    }
+});
 
 
 /**
@@ -475,10 +479,8 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
         return '';
     }
 
-    USES_dailyquote_class_quote();
-
     // Check access to view quotes
-    if (!dqQuote::hasAccess(2)) {
+    if (!DailyQuote\Quote::hasAccess(2)) {
         return '';
     }
 
@@ -517,7 +519,7 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
         return '';
     }
 
-    $Q = dqQuote::getQuote();
+    $Q = DailyQuote\Quote::getQuote();
     if (!$Q) {
         return '';
     }
@@ -610,11 +612,8 @@ function phpblock_dailyquote_random()
 {
     global $_CONF, $_CONF_DQ;
 
-    USES_dailyquote_class_quote();
-
     $retval = '';
-
-    $Q = dqQuote::getQuote();
+    $Q = DailyQuote\Quote::getQuote();
     if ($Q) {
         $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('page', 'blk_random.thtml');
@@ -746,14 +745,12 @@ function plugin_submit_dailyquote()
 
     if (SEC_hasRights('dailyquote.submit') || $_CONF_DQ['queue'] == 0) {
         // user has submit right or submission queue is not being used
-        USES_dailyquote_class_quote();
-        $Q = new dqQuote();
+        $Q = new DailyQuote\Quote();
         $retval = $Q->Edit('', $A);   // Directly edit prod table
     } elseif ( (COM_isAnonUser() && $_CONF_DQ['anonadd'] == 1) ||
             ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1) ) {
         // user has regular access and queue is being used
-        USES_dailyquote_class_quote();
-        $Q = new dqQuote('', 'submission');  // Send to the submission table
+        $Q = new DailyQuote\Quote('', 'submission');  // Send to the submission table
         $retval = $Q->Edit('submit', $A);
     } else {
         COM_errorLog("Someone has tried to illegally access the dailyquote submission page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
@@ -820,8 +817,7 @@ function plugin_savesubmission_dailyquote($A)
             $A['uid'] = $owner_id;
             $A['dt_add'] = time();
 
-            USES_dailyquote_class_quote();
-            $Q = new dqQuote();
+            $Q = new DailyQuote\Quote();
             if ($Q->SaveSubmission($A) != '') {
                 return false;       // Catastrophic failure
             }
@@ -886,8 +882,6 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
 {
     global $_CONF, $_TABLES, $_CONF_DQ;
 
-    USES_dailyquote_class_quote();
-
     $quote = '';
     switch ($op) {
     case 'tagname':
@@ -951,7 +945,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         $nocache = false;
         switch ($option) {
         case 'random':
-            $quote = dqQuote::getQuote('', $cat);
+            $quote = DailyQuote\Quote::getQuote('', $cat);
             // Don't cache random quote in template
             $nocache = true;
             break;
@@ -959,7 +953,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         case 'quote':
             $qid = COM_sanitizeID($qid);
             if ($qid != '') {
-                $quote = dqQuote::getQuote($qid);
+                $quote = DailyQuote\Quote::getQuote($qid);
             }
             break;
 
@@ -1248,8 +1242,7 @@ function DQ_random_quote($qid='', $cid='')
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
 
-    USES_dailyquote_class_quote();
-    $Q = dqQuote::getQuote($qid, $cid);
+    $Q = DailyQuote\Quote::getQuote($qid, $cid);
     if (!$Q) {
         return '';
     }

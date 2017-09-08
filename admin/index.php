@@ -3,7 +3,7 @@
 *   Administrative entry point for the DailyQuote plugin.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
 *   @version    0.2.0
 *   @license    http://opensource.org/licenses/gpl-2.0.php 
@@ -13,9 +13,7 @@
 
 /** Import core glFusion functions */
 require_once('../../../lib-common.php');
-
 USES_lib_admin();
-USES_dailyquote_class_quote();
 
 /**
 *   Create the administrators' menu.
@@ -247,14 +245,13 @@ case 'mode':
     break;
 
 case 'savecat':
-    USES_dailyquote_class_category();
-    $C = new dqCategory($_POST['id']);
+    $C = new DailyQuote\Category($_POST['id']);
     $C->Save($_POST);
     $page = 'categories';
     break;
 
 case 'savequote':
-    $Q = new dqQuote($item_id);
+    $Q = new DailyQuote\Quote($item_id);
     $message = $Q->Save($_POST, 'dailyquote_quotes');
     if (!empty($message)) {
         LGLIB_storeMessage($message);
@@ -264,7 +261,7 @@ case 'savequote':
 
 case 'savemoderation':
     // Save the quote to the prod table and delete from the queue
-    $Q = new dqQuote($item_id);
+    $Q = new DailyQuote\Quote($item_id);
     $message = $Q->Save($_POST, 'dailyquote_quotes');
     if (!empty($message)) {
         // Error saving
@@ -276,7 +273,7 @@ case 'savemoderation':
     break;
 
 case 'delquote':
-    dqQuote::Delete($item_id);
+    DailyQuote\Quote::Delete($item_id);
     COM_refresh(DQ_ADMIN_URL);
     break;
 
@@ -284,15 +281,14 @@ case 'delitem':
     // Handle multiple quote deletion
     if (is_array($_POST['delitem'])) {
         foreach ($_POST['delitem'] as $item) {
-            dqQuote::Delete($item);
+            DailyQuote\Quote::Delete($item);
         }
         $page = 'quotes';
     }
     break;
 
 case 'delcat':
-    USES_dailyquote_class_category();
-    dqCategory::Delete($item_id);
+    DailyQuote\Category::Delete($item_id);
     $page = 'categories';
     break;
  
@@ -311,20 +307,18 @@ switch ($page) {
 case 'edit':
     // "edit" is here so this will work with submit.php
 case 'editquote':
-    USES_dailyquote_class_quote();
-    $Q = new dqQuote($item_id);
+    $Q = new DailyQuote\Quote($item_id);
     $content .= $Q->Edit();
     break;
 
 case 'editcat':
-    USES_dailyquote_class_category();
-    $C = new dqCategory($item_id);
+    $C = new DailyQuote\Category($item_id);
     $content .= $C->EditForm();
     break;
 
 //case 'editsubmission':
 case 'moderate':
-    $Q = new dqQuote($item_id, 'submission');
+    $Q = new DailyQuote\Quote($item_id, 'submission');
     $Q->setTable('quotes');
     $Q->isNew = true;
     $content .= $Q->Edit($action);
@@ -335,8 +329,7 @@ case 'moderation':
     exit;
 
 case 'categories':
-    USES_dailyquote_class_category();
-    $content .= dqCategory::AdminList();
+    $content .= DailyQuote\Category::AdminList();
     break;
 
 case 'batchform':

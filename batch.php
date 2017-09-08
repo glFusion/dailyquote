@@ -72,7 +72,6 @@ function DQ_process_batch(){
 
     // First, upload the file
     USES_class_upload();
-    USES_dailyquote_class_quote();
 
     $upload = new upload();
     $upload->setPath($_CONF['path_data']. 'temp');
@@ -142,7 +141,7 @@ function DQ_process_batch(){
             }
             $failures++;
         } else {
-            $Q = new dqQuote();
+            $Q = new DailyQuote\Quote();
             // Convert to hash for $Q->Save() function
             $A = array(
                 'quote' => $quote,

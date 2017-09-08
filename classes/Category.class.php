@@ -9,12 +9,13 @@
 *               GNU Public License v2 or later
 *   @filesource
 */
+namespace DailyQuote;
 
 /**
 *   Define a class to deal with quote categories
 *   @package dailyquote
 */
-class dqCategory
+class Category
 {
     /** Category ID
     *   @var integer */
@@ -218,7 +219,7 @@ class dqCategory
             //'default_filter' => COM_getPermSql ()
         );
 
-        $retval .= ADMIN_list('dailyquote', 'DQ_cat_getListField', $header_arr,
+        $retval .= ADMIN_list('dailyquote', __NAMESPACE__ . 'cat_getListField', $header_arr,
                         $text_arr, $query_arr, $defsort_arr, '', '', '', $form_arr);
 
         return $retval;
@@ -236,7 +237,7 @@ class dqCategory
 
         $retval = '';
 
-        $T = new Template(DQ_PI_PATH . '/templates');
+        $T = new \Template(DQ_PI_PATH . '/templates');
         if ($_CONF_DQ['_is_uikit']) {
             $T->set_file('page', 'catform.uikit.thtml');
         } else {
@@ -255,7 +256,7 @@ class dqCategory
         return $retval;
     }
 
-}   // class dqCategory
+}   // class Category
 
 
 /**
@@ -267,7 +268,7 @@ class dqCategory
 *   @param  array   $icon_arr   Array of standard icons
 *   @return string              HTML to properly display field value
 */
-function DQ_cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
+function cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ;
 

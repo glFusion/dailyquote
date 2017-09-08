@@ -29,13 +29,11 @@ case 'toggleEnabled':
 
     switch ($_GET['type']) {
     case 'quote':
-        USES_dailyquote_class_quote();
-        dqQuote::toggleEnabled($newval, $id);
+        DailyQuote\Quote::toggleEnabled($newval, $id);
         break;
 
     case 'category':
-        USES_dailyquote_class_category();
-        dqCategory::toggleEnabled($newval, $id);
+        DailyQuote\Category::toggleEnabled($newval, $id);
         break;
 
      default:

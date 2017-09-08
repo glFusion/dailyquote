@@ -9,12 +9,13 @@
 *               GNU Public License v2 or later
 *   @filesource
 */
+namespace DailyQuote;
 
 /**
 *   Define a class to deal with quotes
 *   @package dailyquote
 */
-class dqQuote
+class Quote
 {
     /** Quote properties
     *   @var array */
@@ -336,7 +337,7 @@ class dqQuote
             break;
         }
 
-        $T = new Template(DQ_PI_PATH . '/templates');
+        $T = new \Template(DQ_PI_PATH . '/templates');
         if ($_SYSTEM['framework'] == 'uikit') {
             $T->set_file('page', 'editform.uikit.thtml');
         } else {
@@ -496,7 +497,7 @@ class dqQuote
         if ($msg == '') {
             // Send notification, if configured
             if ($email_admin == 1) {
-                $T = new Template(DQ_PI_PATH . '/templates');
+                $T = new \Template(DQ_PI_PATH . '/templates');
                 $T->set_file('msg', 'email_admin.thtml');
                 $T->set_var(array(
                     'title'     => $A['title'],
@@ -549,7 +550,7 @@ class dqQuote
 
         $result = DB_query($sql, 1);
         if (DB_error()) {
-            COM_errorLog("dqQuote::getQuote() error: $sql");
+            COM_errorLog("DailyQuote\\Quote::getQuote() error: $sql");
             return NULL;
         }
         if (!$result || DB_numRows($result) == 0) {
@@ -557,7 +558,7 @@ class dqQuote
         }
 
         $row = DB_fetchArray($result, false);
-        $Q = new dqQuote();
+        $Q = new self();
         $Q->setVars($row);
         return $Q;
     }
@@ -585,7 +586,7 @@ class dqQuote
          $gname = urlencode(trim($Quoted));
          $retval = '<a href="' .
              sprintf($_CONF_DQ['google_url'], $_CONF['iso_lang'], $gname) .
-                     '">' . $Quoted . '</a>';
+                     '" target="_blank" rel="nofollow">' . $Quoted . '</a>';
          return $retval;
     }
  
@@ -602,6 +603,6 @@ class dqQuote
         return COM_checkWords($str);
     }
 
-}   // class dqQuote
+}   // class Quote
 
 ?>

@@ -13,8 +13,6 @@
 /** Import core glFusion functions */
 require_once('../lib-common.php');
 
-USES_dailyquote_class_quote();
-
 /**
 *   Displays the quotes listing.
 *
@@ -158,7 +156,7 @@ function DQ_listQuotes($sort, $dir, $page)
         $T->set_var(array(
             'title'         => $title,
             'quote'         => $quote,
-            'quoted'        => dqQuote::GoogleLink($row['quoted']),
+            'quoted'        => DailyQuote\Quote::GoogleLink($row['quoted']),
             'catname'       => $catlist,
             'contr'         => $username,
             'source'        => $source,
@@ -313,8 +311,7 @@ case 'categories':
     break;
 
 case 'savesubmission':
-    USES_dailyquote_class_quote();
-    $Q = new dqQuote();
+    $Q = new DailyQuote\Quote();
     $message = $Q->SaveSubmission($_POST);
     if (empty($message)) $message = sprintf($LANG12[25], $_CONF_DQ['pi_name']);
     LGLIB_storeMessage($message);
