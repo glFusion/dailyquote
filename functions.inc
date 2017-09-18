@@ -2,9 +2,9 @@
 /**
 *   Common functions for the DailyQuote plugin
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
 *   @package    dailyquote
-*   @version    0.2.0
+*   @version    0.2.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -163,7 +163,6 @@ function plugin_showstats_dailyquote($showsitestats)
     }
     $retval .= COM_endBlock();
     return $retval;
-
 }
 
 
@@ -299,7 +298,6 @@ function plugin_dopluginsearch_dailyquote(
     list($sql, $ftsql) = $search->buildSearchSQL($keyType, $query, $columns, $sql);
     //echo $sql;
     $search->setSQL($sql);
-
     return $search;
 }
 
@@ -383,7 +381,6 @@ function plugin_getwhatsnew_dailyquote()
 function plugin_chkVersion_dailyquote()
 {
     global $_CONF_DQ;
-
     return $_CONF_DQ['pi_version'];
 }
 
@@ -415,7 +412,6 @@ function plugin_autouninstall_dailyquote()
                         ),
         'vars'      => array($_CONF_DQ['pi_name'] . '_gid')
     );
-
     return $out;
 }
 
@@ -531,22 +527,17 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
 
     $T = new Template(DQ_PI_PATH . '/templates');
     $T->set_file('page', 'centerblock.thtml');
-
     $T->set_var(array(
         'dispquote'     => $Q->quote,
         'dispquoted'    => $Q->quoted,
         'source'        => $Q->source,
         'title'         => $Q->title,
     ) );
-
     $T->parse('output','page');
-
     $retval .= $T->finish($T->get_var('output'));
-
     if ($where == 0) {
         $retval .= COM_siteFooter();
     }
-
     return $retval;
 }
 
@@ -599,7 +590,6 @@ function phpblock_dailyquote_dqmenu()
             DQ_ADMIN_URL . '/index.php?mode=categories');
         $content .= $href . "<br />\n";
     }
-
     return $content;
 }
 
@@ -865,7 +855,6 @@ function plugin_savesubmission_dailyquote($A)
 function plugin_geticon_dailyquote()
 {
     global $_CONF;
-
     return $_CONF['site_url'] . '/dailyquote/images/dailyquote.png';
 }
 
@@ -1000,16 +989,45 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
 */
 function plugin_enablestatechange_dailyquote($enabled)
 {
-    global $_TABLES;
+    global $_TABLES, $_PLUGINS;
 
     $enabled = $enabled == true ? 1 : 0;
-    if ($enabled == 1) return;  // Never automatically enable blocks
 
-    $blocks = array('dailyquote_random', 'dailyquote_dgmenu');
-    foreach ($blocks as $block) {
-        DB_query("UPDATE {$_TABLES['blocks']}
+    // If trying to enable the plugin but lgLib is not available,
+    // take no action and return
+    if ($enabled && !in_array('lglib', $_PLUGINS)) {
+        // Re-disable the plugin
+        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'dailyquote');
+        $enabled = 0;
+    }
+
+    if ($enabled == 0) {
+        $blocks = array('dailyquote_random', 'dailyquote_dgmenu');
+        foreach ($blocks as $block) {
+            DB_query("UPDATE {$_TABLES['blocks']}
                 SET is_enabled=$enabled
                 WHERE name='$block'");
+        }
+    }
+}
+
+
+/**
+*   Receives notification of another plugin's deletion.
+*   Disables this plugin if the lgLib plugin is disabled or removed.
+*
+*   @param  mixed   $id     Item ID
+*   @param  string  $type   Plugin Name
+*/
+function plugin_itemdeleted_dailyquote($id, $type)
+{
+    global $_TABLES;
+
+    if ($type == 'lglib' && $id == '*') {
+        // Disable blocks, etc.
+        plugin_enablestatechange_dailyquote(false);
+        // Disable this plugin
+        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'dailyquote');
     }
 }
 
@@ -1032,7 +1050,6 @@ function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
     if (!empty($option)) {
         $file .= '#desc_' . $option;
     }
-
     return array($doc_url . $file, 0);
 }
 
@@ -1098,7 +1115,6 @@ function plugin_getheadercss_dailyquote()
             $styles[] = $pi_css . $file;
         }
     }
-
     return $styles;
 }
 
@@ -1369,7 +1385,6 @@ function DQ_getDocURL($file='', $doclang='english')
         }
         $doc_url = DQ_URL . "/docs/$doclang/";
     }
-
     return $doc_url;
 }
 
