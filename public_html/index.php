@@ -116,6 +116,7 @@ function DQ_listQuotes($sort, $dir, $page)
             COM_printPageNavigation($baseurl, $page, $numpages));
 
     //  Now get each quote and display it
+    $count = 0;
     while ($row = DB_fetchArray($result, false)) {
         $T->set_block('page', 'QuoteRow', 'qRow');
 
@@ -162,6 +163,7 @@ function DQ_listQuotes($sort, $dir, $page)
             'source'        => $source,
             'sourcedate'    => $sourcedate,
             'datecontr'     => $dt->format($_CONF['shortdate'], true),
+            'adblock'       => PLG_displayAdBlock('dailyquote_list', ++$count),
         ) );
 
         if(SEC_hasRights('dailyquote.edit')) {

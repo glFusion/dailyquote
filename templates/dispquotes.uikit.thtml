@@ -32,6 +32,9 @@
       &nbsp;&nbsp;:&nbsp;<span class="dq_catname">{catname}</span>
 {!endif}
     </p>
+{!if adblock}
+    <p>{adblock}</p>
+{!endif}
     <hr />
   </div>
   <!-- END QuoteRow -->

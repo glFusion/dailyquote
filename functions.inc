@@ -417,6 +417,15 @@ function plugin_autouninstall_dailyquote()
 
 
 /**
+*   Return the template names that support ad blocks
+*/
+function plugin_supportadblock_dailyquote()
+{
+    return array('dailyquote_list');
+}
+
+
+/**
 *   Converts usernames to clickable links leading to user profiles.
 *
 *   @param  integer $uid        User ID
