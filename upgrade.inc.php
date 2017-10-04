@@ -26,17 +26,22 @@ require_once __DIR__ . "/sql/{$_DB_dbms}_install.php";
 */
 function DQ_do_upgrade()
 {
-    global $_CONF_DQ, $_TABLES;
+    global $_CONF_DQ, $_TABLES, $_PLUGIN_INFO;
 
-    $current_ver = DB_getItem($_TABLES['plugins'], 'pi_version',
-        "pi_name = '{$_CONF_DQ['pi_name']}'");
-    if (empty($current_ver)) {
-        COM_errorLog("Error getting the {$_CONF_DQ['pi_name']} plugin version",1);
+    if (isset($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
+        if (is_array($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
+            // glFusion > 1.6.5
+            $current_ver = $_PLUGIN_INFO[$_CONF_DQ['pi_name']]['pi_version'];
+        } else {
+            // legacy
+            $current_ver = $_PLUGIN_INFO[$_CONF_DQ['pi_name']];
+        }
+    } else {
         return false;
     }
+    $installed_ver = plugin_chkVersion_dailyquote();
 
-    require_once DQ_PI_PATH . '/install_defaults.php';
-
+    require_once __DIR__ . '/install_defaults.php';
     $error = 0;
     $c = config::get_instance();
 
@@ -60,6 +65,16 @@ function DQ_do_upgrade()
         if (!DQ_do_set_version($current_ver)) return false;
     }
 
+    // Final version update to catch updates that don't go through
+    // any of the update functions, e.g. code-only updates
+    if (!COM_checkVersion($current_ver, $installed_ver)) {
+        if (!DQ_do_set_version($installed_ver)) {
+            COM_errorLog($_CONF_DQ['pi_display_name'] .
+                    " Error performing final update $current_ver to $installed_ver");
+            return false;
+        }
+    }
+    CTL_clearCache($_CONF_DQ['pi_name']);
     COM_errorLog("Succesfully updated the {$_CONF_DQ['pi_name']} plugin!",1);
     return true;
 }
