@@ -1103,7 +1103,7 @@ function plugin_user_move_dailyquote($origUID, $destUID)
 */
 function plugin_getheadercss_dailyquote()
 {
-    global $_CONF_DQ;
+    global $_CONF, $_CONF_DQ;
 
     // When looking for CSS files, we'll check in this order:
     //  1. layout/plugin/custom
