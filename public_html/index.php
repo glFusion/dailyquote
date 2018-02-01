@@ -191,8 +191,7 @@ function DQ_listQuotes($sort, $dir, $page)
     }
 
     $T->parse('output','page');
-    $retval .= $T->finish($T->get_var('output'));
-    return $retval;
+    return $T->finish($T->get_var('output'));
 }
 
 
@@ -249,6 +248,8 @@ function DQ_listCategories()
     return $retval;
 }
 
+$action = '';
+$actionval = '';
 $expected = array(
     'savesubmission',
     'categories', 'quotes',
@@ -256,11 +257,11 @@ $expected = array(
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
-        $actionvar = $_POST[$provided];
+        $actionval = $_POST[$provided];
         break;
     } elseif (isset($_GET[$provided])) {
     	$action = $provided;
-        $actionvar = $_GET[$provided];
+        $actionval = $_GET[$provided];
         break;
     }
 }

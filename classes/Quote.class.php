@@ -187,7 +187,6 @@ class Quote
         $this->source = $A['source'];
         $this->sourcedate = $A['sourcedate'];
         $this->title = $A['title'];
-        $this->dt = $A['dt'];
         $this->enabled = (isset($A['enabled']) && $A['enabled'] == 1) ? 1 : 0;
         $this->uid = (int)$A['uid'];
     }
@@ -421,7 +420,7 @@ class Quote
         if ($this->isNew) {
             $sql1 = "INSERT INTO {$this->table} SET id = '" .
                     DB_escapeString($this->id) . "', 
-                    dt = " . time() . ', ';
+                    dt = UNIX_TIMESTAMP(), ";
             $sql3 = '';
         } else {
             $sql1 = "UPDATE {$this->table} SET ";
@@ -447,7 +446,7 @@ class Quote
         // Now, add records to the lookup table to link the categories
         // to the quote.  Only if bypassing the submission queue; if
         // the queue is used $catlist will be empty.
-        if (!is_array($A['categories']) || empty($A['categories'])) {
+        if (!isset($A['categories']) || !is_array($A['categories']) || empty($A['categories'])) {
             $A['categories'] = array(1 => 'Miscellaneous');
         }
         foreach($A['categories'] as $key => $dummy) {

@@ -6,10 +6,10 @@
 <div class="dq_random dq_quoted">
   {quoted}<br />
   {!if source}
-    <span class="dq_source">{source}&nbsp;</span>
+    <span class="dq_source">&nbsp;--&nbsp;{source}&nbsp;</span>
   {!endif}
   {!if sourcedate}
-    <span class="dq_source">({sourcedate})</span>
+    <span class="dq_source">&nbsp;&nbsp;({sourcedate})</span>
   {!endif}
 </div>
 {!endif}

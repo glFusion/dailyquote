@@ -1,6 +1,7 @@
 # glDailyQuote - Change Log
 
 ## Version 0.2.1 - TBD
+- E_ALL fixes
 - Use DailyQuote namespace and class autoloader
 
 ## Version 0.2.0 - 2016-11-28

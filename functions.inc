@@ -1274,34 +1274,22 @@ function DQ_random_quote($qid='', $cid='')
 
     $T = new Template($_CONF['path'] . 'plugins/' . $_CONF_DQ['pi_name'] . '/templates');
     $T->set_file('page', 'randomquotebox.thtml');
-    $T->set_var('site_url', $_CONF['site_url']);
-    $T->set_var('randomboxtitle', $LANG_DQ['randomboxtitle']);
-    if ($_CONF_DQ['phpblk_title'] == 1) {
-        $T->set_var('title', $Q->title);
-    } else {
-        $T->set_var('title', '');
-    }
-
-    $T->set_var('randomquote', $Q->quote);
-    $T->set_var('quoted', $Q->quoted);
-    if ($_CONF_DQ['phpblk_srcdate'] == 1) {
-        if (!empty($Q->source)) {
-            $dispsource = "&nbsp;--&nbsp;{$Q->source}";
-            $T->set_var('source', $dispource);
-        }
-        if (!empty($Sourcedate)) {
-            $dispsourcedate = "&nbsp;&nbsp;({$Q->sourcedate})";
-            $T->set_var('sourcedate', $dispsourcedate);
-        }
-    }
-    if (($_CONF_DQ['phpblock_contribdate'] == 1) && ($username != $LANG_DQ['anonymous'])) {
+    $T->set_var(array(
+        'site_url'  => $_CONF['site_url'],
+        'randomboxtitle' => $LANG_DQ['randomboxtitle'],
+        'title'     => $Q->title,
+        'randomquote' => $Q->quote,
+        'quoted'    => $Q->quoted,
+        'source'    => $Q->source,
+        'sourcedate' => $Q->sourcedate,
+    ) );
+    if ($Q->uid > 1) {
         $T->set_var('subm_by', $LANG_DQ['subm_by'] . ':&nbsp;');
-        $T->set_var('dispcontr', $username);
+        $T->set_var('dispcontr', COM_getDisplayName($Q->uid));
         $T->set_var('datecontr', '&nbsp;/&nbsp;' . $Q->date);
     }
     $T->parse('output','page');
-    $retval = $T->finish($T->get_var('output'));
-    return $retval;
+    return $T->finish($T->get_var('output'));
 }
 
 

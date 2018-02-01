@@ -104,12 +104,10 @@ function DQ_adminList()
         'query_fields' => array('title', 'quotes', 'quoted'),
         'default_filter' => 'WHERE 1=1'
     );
-
-    $retval .= ADMIN_list('dailyquote', 'DQ_admin_getListField', $header_arr,
+    $form_arr = array();
+    return ADMIN_list('dailyquote', 'DQ_admin_getListField', $header_arr,
                     $text_arr, $query_arr, $defsort_arr, '', '', 
                     $options, $form_arr);
-
-    return $retval;
 }
 
 
@@ -124,7 +122,7 @@ function DQ_adminList()
 */
 function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
-    global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ;
+    global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN;
 
     $retval = '';
 
