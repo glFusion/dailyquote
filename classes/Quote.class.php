@@ -277,7 +277,7 @@ class Quote
     *   @param  integer $level  Minimum access level required
     *   @return boolean     True if user has access >= level, false otherwise
     */
-    public function hasAccess($level=3, $isNew=false)
+    public static function hasAccess($level=3, $isNew=false)
     {
         if (self::Access($isNew) < $level) {
             return false;

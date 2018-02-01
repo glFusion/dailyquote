@@ -100,8 +100,10 @@ function DQ_process_batch(){
 
     // Get categories into a usable array
     $cats = array();
-    foreach ($_POST['cat'] as $key=>$val) {
-        $cats[$val] = '';
+    if (isset($_POST['cat']) && is_array($_POST['cat'])) {
+        foreach ($_POST['cat'] as $key=>$val) {
+            $cats[$val] = '';
+        }
     }
 
     // Following variables track import processing statistics
@@ -116,8 +118,12 @@ function DQ_process_batch(){
         $sourcedate = '';
 
         $singleline = rtrim($batchline);
-        list ($quote, $quoted, $title, $source, $sourcedate) =
-                explode("\t", $singleline);
+        $A = explode("\t", $singleline);
+        $quote = isset($A[0]) ? $A[0] : '';
+        $quoted = isset($A[1]) ? $A[1] : '';
+        $title = isset($A[2]) ? $A[2] : '';
+        $source = isset($A[3]) ? $A[3] : '';
+        $sourcedate = isset($A[4]) ? $A[4] : '';
 
         // Fill empty fields with form values, if supplied
         foreach (array('title', 'source', 'sourcedate') as $elem) {
@@ -127,7 +133,7 @@ function DQ_process_batch(){
 
         if ($verbose_import) {
             $msg = "<br><b>Working on quote=$quote, quoted=$quoted, " .
-                    "category=$cat, title=$title, source=$source, " .
+                    "title=$title, source=$source, " .
                     "and sourcedate=$sourcedate</b><br>\n";
             $retval .= $msg;
             COM_errorLog($msg, 1);
@@ -144,6 +150,7 @@ function DQ_process_batch(){
             $Q = new DailyQuote\Quote();
             // Convert to hash for $Q->Save() function
             $A = array(
+                'id' => COM_makeSid(),
                 'quote' => $quote,
                 'quoted' => $quoted,
                 'title' => $title,
@@ -151,6 +158,7 @@ function DQ_process_batch(){
                 'sourcedate' => $sourcedate,
                 'enabled' => 1,
                 'categories' => $cats,
+                'uid' => 1,
             );
             $message = $Q->Save($A);
             if ($message == '') {

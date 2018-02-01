@@ -188,12 +188,10 @@ class Category
     *
     *   @return string  HTML for list
     */
-    public function AdminList()
+    public static function AdminList()
     {
         global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
         global $_CONF_DQ, $LANG_DQ;
-
-        $retval = '';
 
         $header_arr = array(      # display 'text' and use table field 'field'
             array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
@@ -218,11 +216,9 @@ class Category
             'default_filter' => 'WHERE 1=1'
             //'default_filter' => COM_getPermSql ()
         );
-
-        $retval .= ADMIN_list('dailyquote', __NAMESPACE__ . 'cat_getListField', $header_arr,
+        $form_arr = array();
+        return ADMIN_list('dailyquote', __NAMESPACE__ . '\\cat_getListField', $header_arr,
                         $text_arr, $query_arr, $defsort_arr, '', '', '', $form_arr);
-
-        return $retval;
     }
 
 
@@ -248,7 +244,7 @@ class Category
             'id'        => $this->id,
             'chk'       => ($this->enabled == 1 || $this->id == 0) ? 
                             'checked="checked"' : '',
-            'cancel_url' => DQ_ADMIN_URL . '/index.php?page=categories',
+            'cancel_url' => DQ_ADMIN_URL . '/index.php?categories',
             'show_delbtn' => $this->id > 1 ? 'true' : '',
         ));
         $T->parse('output','page');
@@ -270,7 +266,7 @@ class Category
 */
 function cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
-    global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ;
+    global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN;
 
     $retval = '';
 
@@ -300,7 +296,7 @@ function cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
         if ($A['id'] > 1) {
             if ($_CONF_DQ['_is_uikit']) {
                 $retval = COM_createLink('',
-                    DQ_ADMIN_URL . '/index.php?delete=category&id=' . $A['id'],
+                    DQ_ADMIN_URL . '/index.php?delcat=x&id=' . $A['id'],
                     array(
                         'class' => 'uk-icon uk-icon-trash dq-icon-danger',
                         'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
