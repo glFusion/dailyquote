@@ -158,7 +158,7 @@ function DQ_process_batch(){
                 'sourcedate' => $sourcedate,
                 'enabled' => 1,
                 'categories' => $cats,
-                'uid' => 1,
+                'uid' => 0,
             );
             $message = $Q->Save($A);
             if ($message == '') {

@@ -51,6 +51,7 @@ function DQ_listQuotes($sort, $dir, $page)
     if ($author != '') {
         $sql .= " AND quoted = '$author'";
     }
+
     // Just get the total possible entries, to calculage page navigation
     $result = DB_query($sql);
     $numquotes = DB_numRows($result);
@@ -155,6 +156,7 @@ function DQ_listQuotes($sort, $dir, $page)
             $quote = $row['quote'];
         }
         $T->set_var(array(
+            'quote_id'      => $row['id'],
             'title'         => $title,
             'quote'         => $quote,
             'quoted'        => DailyQuote\Quote::GoogleLink($row['quoted']),
@@ -164,6 +166,7 @@ function DQ_listQuotes($sort, $dir, $page)
             'sourcedate'    => $sourcedate,
             'datecontr'     => $dt->format($_CONF['shortdate'], true),
             'adblock'       => PLG_displayAdBlock('dailyquote_list', ++$count),
+            'can_edit'      => SEC_hasRights('dailyquote.edit') ? true : false,
         ) );
 
         if(SEC_hasRights('dailyquote.edit')) {
@@ -189,7 +192,6 @@ function DQ_listQuotes($sort, $dir, $page)
         }
         $T->parse('qRow', 'QuoteRow', true);
     }
-
     $T->parse('output','page');
     return $T->finish($T->get_var('output'));
 }
