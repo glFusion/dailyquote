@@ -449,16 +449,20 @@ class Quote
         if (!isset($A['categories']) || !is_array($A['categories']) || empty($A['categories'])) {
             $A['categories'] = array(1 => 'Miscellaneous');
         }
+        $values = array();
         foreach($A['categories'] as $key => $dummy) {
             $key = (int)$key;
+            $values[] = "('{$this->id}', $key)";
+        }
+        if (!empty($values)) {
+            $value_str = implode(',', $values);
             $sql = "INSERT IGNORE INTO {$_TABLES['dailyquote_quoteXcat']}
                     (qid, cid)
-                VALUES (
-                    '{$this->id}', $key
-                )";
+                VALUES $value_str";
             DB_query($sql);
         }
         if ($this->table_id == 'quotes') {
+            Cache::clearCache();
             PLG_itemSaved($this->id, 'dailyquote');
         }
         return '';
