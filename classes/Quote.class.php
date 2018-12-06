@@ -1,53 +1,54 @@
 <?php
 /**
-*   Class to handle quotes
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to handle quotes.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.2.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace DailyQuote;
 
 /**
-*   Define a class to deal with quotes
-*   @package dailyquote
-*/
+ * Define a class to deal with quotes.
+ * @package dailyquote
+ */
 class Quote
 {
-    /** Quote properties
-    *   @var array */
-    var $properties = array();
+    /** Internal properties accessed via `__set()` and `__get()`.
+     * @var array */
+    private $properties = array();
 
-    /** Categories to which this quote belongs
-    *   @var array */
-    var $categories = array();
+    /** Categories to which this quote belongs.
+     * @var array */
+    private $categories = array();
 
     /** Is this a new submission?
-    *   @var boolean */
-    var $isNew;
+     * @var boolean */
+    private $isNew;
 
-    /** Flag to indicate current user is an admin
-    *   @var boolean */
-    var $isAdmin;
+    /** Flag to indicate current user is an admin.
+     *  @var boolean */
+    private $isAdmin;
 
-    /** Table to use, submission or production
-    *   @var string */
-    var $table;
+    /** Table to use, submission or production.
+     * @var string */
+    private $table;
 
-    /** Table ID indicator, used to check which table is in use
-    *   @var string */
-    var $table_id;
+    /** Table ID indicator, used to check which table is in use.
+     * @var string */
+    private $table_id;
 
 
     /**
-    *   Constructor.
-    *
-    *   @param  string  $id     Quote ID to retrieve, blank for empty object
-    *   @param  string  $table  Table ID, used for reading an existing quote
-    */
+     * Constructor.
+     *
+     * @param   string  $id     Quote ID to retrieve, blank for empty object
+     * @param   string  $table  Table ID, used for reading an existing quote
+     */
     public function __construct($id='', $table='quotes')
     {
         global $_USER;
@@ -69,11 +70,11 @@ class Quote
 
 
     /**
-    *   Set a value into the properties array
-    *
-    *   @param  string  $key    Key to set
-    *   @param  mixed   $value  Value to set for Key
-    */
+     * Set a value into the properties array.
+     *
+     * @param  string  $key    Key to set
+     * @param  mixed   $value  Value to set for Key
+     */
     public function __set($key, $value)
     {
         switch ($key) {
@@ -101,11 +102,11 @@ class Quote
 
 
     /**
-    *   Get a property value
-    *
-    *   @param  string  $key    Key to retrieve
-    *   @return mixed       Value for key or NULL if not found
-    */
+     * Get a property value.
+     *
+     * @param   string  $key    Key to retrieve
+     * @return  mixed       Value for key or NULL if not found
+     */
     public function __get($key)
     {
         if (isset($this->properties[$key])) {
@@ -117,10 +118,10 @@ class Quote
 
 
     /**
-    *   Set the table for later use
-    *
-    *   @param  string  $table  Table ID, e.g. 'quotes' or 'submission'
-    */
+     * Set the table for later use.
+     *
+     * @param   string  $table  Table ID, e.g. 'quotes' or 'submission'
+     */
     public function setTable($table = 'quotes')
     {
         global $_TABLES;
@@ -134,13 +135,13 @@ class Quote
         }
     }
 
-   
+
     /**
-    *   Read a quote record from the database.
-    *   If no quote ID is specified, a random quote is read.
-    *
-    *   @param  string  $qid    Optional quote ID to read
-    */
+     * Read a quote record from the database.
+     * If no quote ID is specified, a random quote is read.
+     *
+     * @param   string  $qid    Optional quote ID to read
+     */
     public function Read()
     {
         global $_TABLES;
@@ -171,11 +172,11 @@ class Quote
 
 
     /**
-    *   Set the variables from the supplied array.
-    *   The array may be from a form ($_POST) or database record.
-    *
-    *   @param  array   $A  Array of values
-    */
+     * Set the variables from the supplied array.
+     * The array may be from a form ($_POST) or database record.
+     *
+     * @param   array   $A  Array of values
+     */
     public function setVars($A)
     {
         if (!is_array($A))
@@ -193,13 +194,13 @@ class Quote
 
 
     /**
-    *   Update the 'enabled' value for a quote.
-    *   Only applies to the prod table
-    *
-    *   @param  integer $newval     New value to set (1 or 0)
-    *   @param  string  $bid        Optional ad ID.  Current object if blank
-    */
-    public static function toggleEnabled($newval, $id='')
+     * Update the 'enabled' value for a quote.
+     * Only applies to the prod table
+     *
+     * @param   integer $newval     New value to set (1 or 0)
+     * @param   string  $id         Quote ID
+     */
+    public static function toggleEnabled($newval, $id)
     {
         global $_TABLES;
 
@@ -211,13 +212,14 @@ class Quote
 
 
     /**
-    *   Delete a quote.
-    *   Deletes the supplied quote ID if not empty, otherwise
-    *   deletes the current object.
-    *
-    *   @param  string  $bid    Optional quote ID to delete
-    */
-    public static function Delete($id='', $table='quotes')
+     * Delete a quote.
+     * Deletes the supplied quote ID if not empty, otherwise
+     * deletes the current object.
+     *
+     * @param   string  $id     Quote ID to delete
+     * @param   string  $table  Table key from which to delete
+     */
+    public static function Delete($id, $table='quotes')
     {
         global $_TABLES;
 
@@ -241,11 +243,11 @@ class Quote
 
 
     /**
-    *   Returns the current user's access level to this quote.
-    *
-    *   @param  boolean $isNew  True to check new item access, false for existing
-    *   @return integer     User's access level (1 - 3)
-    */
+     * Returns the current user's access level to this quote.
+     *
+     * @param   boolean $isNew  True to check new item access, false for existing
+     * @return  integer     User's access level (1 - 3)
+     */
     public static function Access($isNew = false)
     {
         global $_USER, $_CONF_DQ;
@@ -260,7 +262,7 @@ class Quote
                 $access = $_CONF_DQ['anonadd'] == 1 ? 3 : 0;
             } else {
                 $access = $_CONF_DQ['loginadd'] == 1 ? 3 : 0;
-            } 
+            }
         } else {
             $access = 2;
         }
@@ -270,13 +272,13 @@ class Quote
 
 
     /**
-    *   Determines whether the current user has a given level of access
-    *   to this quote object.
-    *
-    *   @see    Access()
-    *   @param  integer $level  Minimum access level required
-    *   @return boolean     True if user has access >= level, false otherwise
-    */
+     * Determines whether the current user has a given level of access.
+     *
+     * @see     Access()
+     * @param   integer $level  Minimum access level required
+     * @param   boolean $isNew  True is this is a new submission
+     * @return  boolean     True if user has access >= level, false otherwise
+     */
     public static function hasAccess($level=3, $isNew=false)
     {
         if (self::Access($isNew) < $level) {
@@ -288,12 +290,12 @@ class Quote
 
 
     /**
-    *   Displays the quote editing form
-    *
-    *   @param  string  $mode   Editing mode (edit, submission, etc)
-    *   @param  array   $A      Provided form values, e.g. from previous $_POST
-    *   @return string          HTML for the form.
-    */
+     * Displays the quote editing form.
+     *
+     * @param   string  $mode   Editing mode (edit, submission, etc)
+     * @param   array   $A      Provided form values, e.g. from previous $_POST
+     * @return  string          HTML for the form.
+     */
     public function Edit($mode='edit', $A=array())
     {
         global $_TABLES, $_CONF, $_USER, $LANG_DQ, $LANG_ADMIN, $_CONF_DQ,
@@ -363,9 +365,9 @@ class Quote
         ) );
 
         //retrieve categories from db if any and display
-        if (!$result = DB_query("SELECT id, name 
-                            FROM {$_TABLES['dailyquote_cat']} 
-                            WHERE enabled='1' 
+        if (!$result = DB_query("SELECT id, name
+                            FROM {$_TABLES['dailyquote_cat']}
+                            WHERE enabled='1'
                             ORDER BY name")) {
             $errstatus = 1;
         } else {
@@ -374,7 +376,7 @@ class Quote
 
         // Display $colnum vertical columns of categories to check.
         // if you increase or decrease this number,
-        // then you'll need to adjust the cell width in the addcol and 
+        // then you'll need to adjust the cell width in the addcol and
         // addcatcol.thtml files
         $catinput = '';
         if ($numrows > 0) {
@@ -394,10 +396,10 @@ class Quote
 
 
     /**
-    *   Save the current quote object using the supplied values.
-    *
-    *   @param  array   $A  Array of values from $_POST or database
-    */
+     * Save the current quote object using the supplied values.
+     *
+     * @param   array   $A  Array of values from $_POST or database
+     */
     public function Save($A)
     {
         global $_CONF, $_TABLES, $_USER, $MESSAGE, $LANG_DQ, $_CONF_DQ;
@@ -419,7 +421,7 @@ class Quote
         // Determine if this is an INSERT or UPDATE
         if ($this->isNew) {
             $sql1 = "INSERT INTO {$this->table} SET id = '" .
-                    DB_escapeString($this->id) . "', 
+                    DB_escapeString($this->id) . "',
                     dt = UNIX_TIMESTAMP(), ";
             $sql3 = '';
         } else {
@@ -462,7 +464,7 @@ class Quote
             DB_query($sql);
         }
         if ($this->table_id == 'quotes') {
-            Cache::clearCache();
+            Cache::clear();
             PLG_itemSaved($this->id, 'dailyquote');
         }
         return '';
@@ -470,13 +472,13 @@ class Quote
 
 
     /**
-    *   Save a user submission
-    *   Verifies access and sets the correct table, then calls Save() to
-    *   save the submission
-    *
-    *   @param  array   $A      $_POST array of data
-    *   @return string      Error message or empty string on success
-    */
+     * Save a user submission.
+     * Verifies access and sets the correct table, then calls Save() to
+     * save the submission.
+     *
+     * @param   array   $A      $_POST array of data
+     * @return  string      Error message or empty string on success
+     */
     public function SaveSubmission($A)
     {
         global $_CONF_DQ, $LANG_DQ, $_USER, $_CONF;
@@ -520,12 +522,12 @@ class Quote
 
 
     /**
-    *   Retrieves a single quote.  If $id is empty, a random quote is selected.
-    *
-    *   @param  string  $qid    Optional quote specifier
-    *   @param  string  $cid    Optional category specifier
-    *   @return object          Quote object, NULL if error or not found
-    */
+     * Retrieves a single quote. If $id is empty, a random quote is selected.
+     *
+     * @param   string  $qid    Optional quote specifier
+     * @param   string  $cid    Optional category specifier
+     * @return  object          Quote object, NULL if error or not found
+     */
     public static function getQuote($qid='', $cid=0)
     {
         global $_TABLES;
@@ -557,7 +559,7 @@ class Quote
             return NULL;
         }
         if (!$result || DB_numRows($result) == 0) {
-            return NULL; 
+            return NULL;
         }
 
         $row = DB_fetchArray($result, false);
@@ -567,39 +569,39 @@ class Quote
     }
 
 
-     /**
-     *   Enclose the Quoted field in link tags for Google search.
-     *
-     *   @param  string  $Quoted     Person quoted
-     *   @return string              URL for google search, or 'unknown'
-     */
-     public static function GoogleLink($Quoted)
-     {
-         global $_CONF, $LANG_DQ, $_CONF_DQ;
- 
-         //do if based on setting
-         if ($_CONF_DQ['google_link'] == 0 || empty($_CONF_DQ['google_url'])) {
-             return $Quoted;
-         }
- 
-         if ($Quoted == '') {
-             return $LANG_DQ['unknown'];
-         }
- 
-         $gname = urlencode(trim($Quoted));
-         $retval = '<a href="' .
-             sprintf($_CONF_DQ['google_url'], $_CONF['iso_lang'], $gname) .
-                     '" target="_blank" rel="nofollow">' . $Quoted . '</a>';
-         return $retval;
-    }
- 
- 
     /**
-    *   Sanitize text inputs. This is to sanitize text before saving to the DB.
-    *
-    *   @param  string  $str    String to be sanitized
-    *   @return string      Sanitized string
-    */
+     * Enclose the Quoted field in link tags for Google search.
+     *
+     * @param   string  $Quoted     Person quoted
+     * @return  string              URL for google search, or 'unknown'
+     */
+    public static function GoogleLink($Quoted)
+    {
+        global $_CONF, $LANG_DQ, $_CONF_DQ;
+
+        //do if based on setting
+        if ($_CONF_DQ['google_link'] == 0 || empty($_CONF_DQ['google_url'])) {
+            return $Quoted;
+        }
+
+        if ($Quoted == '') {
+            return $LANG_DQ['unknown'];
+        }
+
+        $gname = urlencode(trim($Quoted));
+        $retval = '<a href="' .
+            sprintf($_CONF_DQ['google_url'], $_CONF['iso_lang'], $gname) .
+                    '" target="_blank" rel="nofollow">' . $Quoted . '</a>';
+        return $retval;
+    }
+
+
+    /**
+     * Sanitize text inputs. This is to sanitize text before saving to the DB.
+     *
+     * @param   string  $str    String to be sanitized
+     * @return  string      Sanitized string
+     */
     private static function _safeText($str)
     {
         //return htmlspecialchars(COM_checkWords($str),ENT_QUOTES,COM_getEncodingt());

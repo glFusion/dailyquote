@@ -1,40 +1,42 @@
 <?php
 /**
-*   Class to handle quote categories
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Class to handle quote categories.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.2.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace DailyQuote;
 
 /**
-*   Define a class to deal with quote categories
-*   @package dailyquote
-*/
+ * Define a class to deal with quote categories.
+ * @package dailyquote
+ */
 class Category
 {
-    /** Category ID
-    *   @var integer */
+    /** Category ID.
+     * @var integer */
     public $id;
 
-    /** Category Name
-    *   @var string */
+    /** Category Name.
+     * @var string */
     public $name;
 
-    /** Status.  1=enabled, 0=disabled
-    *   @var boolean */
+    /** Status.
+     * 1=enabled, 0=disabled
+     * @var boolean */
     public $enabled;
 
- 
+
     /**
-    *   Constructor
-    *
-    *   @param  string  $id     Category ID to retrieve, blank for new record
-    */
+     * Constructor.
+     *
+     * @param   string  $id     Category ID to retrieve, blank for new record
+     */
     public function __construct($id=0)
     {
         global $_CONF, $_CONF_DQ;
@@ -49,10 +51,10 @@ class Category
 
 
     /**
-    *   Read a category record from the database
-    *
-    *   @param  string  $id     Category ID to read (required)
-    */
+     * Read a category record from the database.
+     *
+     * @param   string  $id     Category ID to read (required)
+     */
     public function Read($id)
     {
         global $_TABLES;
@@ -69,11 +71,11 @@ class Category
 
 
     /**
-    *   Set the category variables from the supplied array.
-    *   The array may be from a form ($_POST) or database record
-    *
-    *   @param  array   $A  Array of values
-    */
+     * Set the category variables from the supplied array.
+     * The array may be from a form ($_POST) or database record
+     *
+     * @param   array   $A  Array of values
+     */
     public function setVars($A)
     {
         if (!is_array($A))
@@ -86,11 +88,11 @@ class Category
 
 
     /**
-    *   Update the 'enabled' value for a category.
-    *
-    *   @param  integer $newval     New value to set (1 or 0)
-    *   @param  string  $id         Category ID.
-    */
+     * Update the 'enabled' value for a category.
+     *
+     * @param   integer $newval     New value to set (1 or 0)
+     * @param   string  $id         Category ID.
+     */
     public static function toggleEnabled($newval, $id)
     {
         global $_TABLES;
@@ -103,10 +105,10 @@ class Category
 
 
     /**
-    *   Delete a category.
-    *
-    *   @param  string  $bid    Optional category ID to delete
-    */
+     * Delete a category.
+     *
+     * @param   string  $id     Category ID to delete
+     */
     public static function Delete($id)
     {
         global $_TABLES;
@@ -126,11 +128,11 @@ class Category
 
 
     /**
-    *   Save the current category object using the supplied values.
-    *
-    *   @param  array   $A  Array of values from $_POST or database
-    *   @return string      Empty string on success, error message on failure
-    */
+     * Save the current category object using the supplied values.
+     *
+     * @param   array   $A  Array of values from $_POST or database
+     * @return  string      Empty string on success, error message on failure
+     */
     public function Save($A = array())
     {
         global $_CONF, $_TABLES, $_USER, $MESSAGE, $LANG_DQ, $_CONF_DQ;
@@ -161,10 +163,10 @@ class Category
 
 
     /**
-    *   Administrator menu for categories
-    *
-    *   @return string      HTML for menu block
-    */
+     * Administrator menu for categories.
+     *
+     * @return  string      HTML for menu block
+     */
     public function AdminMenu()
     {
         global $_CONF, $LANG_ADMIN, $LANG_DQ;
@@ -182,12 +184,12 @@ class Category
         return $menu_arr;
     }
 
- 
+
     /**
-    *   Create an admin list of quotes
-    *
-    *   @return string  HTML for list
-    */
+     * Create an admin list of quotes.
+     *
+     * @return  string  HTML for list
+     */
     public static function AdminList()
     {
         global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
@@ -195,7 +197,7 @@ class Category
 
         $header_arr = array(      # display 'text' and use table field 'field'
             array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
-            array('field' => 'enabled', 
+            array('field' => 'enabled',
                 'text' => $LANG_DQ['enabled'], 'sort' => false),
             array('text' => 'Category ID', 'field' => 'id', 'sort' => true),
             array('text' => 'Category Name', 'field' => 'name', 'sort' => true),
@@ -223,10 +225,10 @@ class Category
 
 
     /**
-    *   Creates a form for editing or creating new categories
-    *
-    *   @return string      HTML for the form
-    */
+     * Creates a form for editing or creating new categories.
+     *
+     * @return  string      HTML for the form
+     */
     public function EditForm()
     {
         global $_CONF, $LANG_DQ, $_CONF_DQ;
@@ -242,7 +244,7 @@ class Category
         $T->set_var(array(
             'name'      => $this->name,
             'id'        => $this->id,
-            'chk'       => ($this->enabled == 1 || $this->id == 0) ? 
+            'chk'       => ($this->enabled == 1 || $this->id == 0) ?
                             'checked="checked"' : '',
             'cancel_url' => DQ_ADMIN_URL . '/index.php?categories',
             'show_delbtn' => $this->id > 1 ? 'true' : '',
@@ -256,14 +258,14 @@ class Category
 
 
 /**
-*   Display a single field in the category admin list
-*
-*   @param  string  $fieldname  Name of field
-*   @param  mixed   $fieldvalue Value of field
-*   @param  array   $A          Array of all fields and values
-*   @param  array   $icon_arr   Array of standard icons
-*   @return string              HTML to properly display field value
-*/
+ * Display a single field in the category admin list.
+ *
+ * @param   string  $fieldname  Name of field
+ * @param   mixed   $fieldvalue Value of field
+ * @param   array   $A          Array of all fields and values
+ * @param   array   $icon_arr   Array of standard icons
+ * @return  string              HTML to properly display field value
+ */
 function cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN;
@@ -288,7 +290,7 @@ function cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
         $value = $fieldvalue == 1 ? 1 : 0;
         $chk = $fieldvalue == 1 ? ' checked="checked" ' : '';
         $retval .= '<input type="checkbox" id="togena' . $A['id'] . '"' .
-            $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] . 
+            $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] .
                 '", "category");\' />';
         break;
 
@@ -308,7 +310,7 @@ function cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
                     $_CONF['layout_url'] . '/images/admin/delete.png',
                     $LANG_ADMIN['delete'],
                     array('class'=>'gl_mootip',
-                    'onclick'=>'return confirm(\'' . 
+                    'onclick'=>'return confirm(\'' .
                                 $LANG_DQ['confirm_delitem'] .'\');',
                     'title' => $LANG_ACCESS['delete'],
                     )),

@@ -1,25 +1,26 @@
 <?php
 /**
-*   Administrative entry point for the DailyQuote plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Administrative entry point for the DailyQuote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.2.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** Import core glFusion functions */
 require_once('../../../lib-common.php');
 USES_lib_admin();
 
 /**
-*   Create the administrators' menu.
-*
-*   @return string  HTML for the admin menu
-*/
+ * Create the administrators' menu.
+ *
+ * @param   string  $mode   Selected view
+ * @return  string  HTML for the admin menu
+ */
 function DQ_adminMenu($mode='')
 {
     global $_CONF, $LANG_ADMIN, $LANG_DQ;
@@ -47,24 +48,23 @@ function DQ_adminMenu($mode='')
         $menu_arr[] = array('text' => $LANG_DQ['manage_cats'],
                 'url' => DQ_ADMIN_URL . '/index.php?categories=x');
     }
-              
+
     $menu_arr[] = array('url' => DQ_ADMIN_URL . '/index.php?batchform=x',
               'text' => $LANG_DQ['batchaddlink']);
     $menu_arr[] = array('url' => $_CONF['site_admin_url'],
                 'text' => $LANG_ADMIN['admin_home']);
 
-    $retval = ADMIN_createMenu($menu_arr, $hlp_text, 
-                plugin_geticon_dailyquote());
+    $retval = ADMIN_createMenu($menu_arr, $hlp_text, plugin_geticon_dailyquote());
 
     return $retval;
 }
 
 
 /**
-*   Create an admin list of quotes.
-*
-*   @return string  HTML for list
-*/
+ * Create an admin list of quotes.
+ *
+ * @return  string  HTML for list
+ */
 function DQ_adminList()
 {
     global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
@@ -73,22 +73,46 @@ function DQ_adminList()
     $retval = '';
 
     $header_arr = array(      # display 'text' and use table field 'field'
-        array('field' => 'edit', 
-            'text' => $LANG_ADMIN['edit'], 'sort' => false),
-        array('field' => 'enabled', 
-            'text' => $LANG_DQ['enabled'], 'sort' => false),
-        array('field' => 'id', 
-            'text' => 'Quote ID', 'sort' => true),
-        array('field' => 'dt', 
-            'text' => $LANG_DQ['date'], 'sort' => true),
-        array('field' => 'quoted', 
-            'text' => $LANG_DQ['quoted'], 'sort' => true),
-        array('field' => 'title', 
-            'text' => $LANG_DQ['title'], 'sort' => true),
-        array('field' => 'quote', 
-            'text' => $LANG_DQ['quote'], 'sort' => true),
-        array('field' => 'delete',
-            'text' => $LANG_ADMIN['delete'], 'sort' => false),
+        array(
+            'field' => 'edit',
+            'text' => $LANG_ADMIN['edit'],
+            'sort' => false,
+        ),
+        array(
+            'field' => 'enabled',
+            'text' => $LANG_DQ['enabled'],
+            'sort' => false,
+        ),
+        array(
+            'field' => 'id',
+            'text' => 'Quote ID',
+            'sort' => true,
+        ),
+        array(
+            'field' => 'dt',
+            'text' => $LANG_DQ['date'],
+            'sort' => true,
+        ),
+        array(
+            'field' => 'quoted',
+            'text' => $LANG_DQ['quoted'],
+            'sort' => true,
+        ),
+        array(
+            'field' => 'title',
+            'text' => $LANG_DQ['title'],
+            'sort' => true,
+        ),
+        array(
+            'field' => 'quote',
+            'text' => $LANG_DQ['quote'],
+            'sort' => true,
+        ),
+        array(
+            'field' => 'delete',
+            'text' => $LANG_ADMIN['delete'],
+            'sort' => false,
+        ),
     );
 
     $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
@@ -106,20 +130,20 @@ function DQ_adminList()
     );
     $form_arr = array();
     return ADMIN_list('dailyquote', 'DQ_admin_getListField', $header_arr,
-                    $text_arr, $query_arr, $defsort_arr, '', '', 
+                    $text_arr, $query_arr, $defsort_arr, '', '',
                     $options, $form_arr);
 }
 
 
 /**
-*   Display a single formatted field in the admin quote list.
-*
-*   @param  string  $fieldname  Name of the field
-*   @param  mixed   $fieldvalue Value of the field
-*   @param  array   $A          Name->Value array of all fields
-*   @param  array   $icon_arr   System icon array
-*   @return string              HTML for the field display
-*/
+ * Display a single formatted field in the admin quote list.
+ *
+ * @param   string  $fieldname  Name of the field
+ * @param   mixed   $fieldvalue Value of the field
+ * @param   array   $A          Name->Value array of all fields
+ * @param   array   $icon_arr   System icon array
+ * @return  string              HTML for the field display
+ */
 function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 {
     global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN;
@@ -145,7 +169,7 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
         $value = $fieldvalue == 1 ? 1 : 0;
         $chk = $fieldvalue == 1 ? ' checked="checked" ' : '';
         $retval .= '<input type="checkbox" id="togena' . $A['id'] . '"' .
-            $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] . 
+            $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] .
                 '", "quote");\' />';
         break;
 
@@ -188,9 +212,7 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
 
 
-/**
-*   MAIN
-*/
+// MAIN
 // If plugin is installed but not enabled, display an error and exit gracefully
 if (!in_array('dailyquote', $_PLUGINS)) {
     COM_404();
@@ -211,7 +233,7 @@ $expected = array(
     'editcat', 'savecat', 'delcat',
     'savemoderation', 'processbatch',
     'moderate',
-    'delete', 'delitem', 'validate', 'mode', 
+    'delete', 'delitem', 'validate', 'mode',
     'quotes', 'categories', 'batchform',
 );
 foreach($expected as $provided) {
@@ -266,7 +288,7 @@ case 'savemoderation':
         LGLIB_storeMessage($message);
     } else {
         DB_delete($_TABLES['dailyquote_submission'], "id='" . DB_escapeString($item_id));
-    } 
+    }
     echo COM_refresh(DQ_ADMIN_URL);
     break;
 
@@ -289,7 +311,7 @@ case 'delcat':
     DailyQuote\Category::Delete($item_id);
     $page = 'categories';
     break;
- 
+
 case 'processbatch':
     USES_dailyquote_batch();
     $content = DQ_process_batch();
@@ -347,7 +369,7 @@ default:
 }
 
 $display = COM_siteHeader();
-$display .= COM_startBlock($_CONF_DQ['pi_display_name'] . ' ver. ' . $_CONF_DQ['pi_version'], '', 
+$display .= COM_startBlock($_CONF_DQ['pi_display_name'] . ' ver. ' . $_CONF_DQ['pi_version'], '',
                 COM_getBlockTemplate('_admin_block', 'header'));
 $display .= DQ_adminMenu($page);
 $display .= $content;

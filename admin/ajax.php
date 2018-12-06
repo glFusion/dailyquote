@@ -1,15 +1,15 @@
 <?php
 /**
-*   Common AJAX functions for the Daily Quote plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Administrative AJAX functions for the Daily Quote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.2.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** Include required glFusion common functions */
 require_once '../../../lib-common.php';

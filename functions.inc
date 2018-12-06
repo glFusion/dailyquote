@@ -1,14 +1,15 @@
 <?php
 /**
-*   Common functions for the DailyQuote plugin
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.2.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Common functions for the DailyQuote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
@@ -43,9 +44,7 @@ define('DQ_URL',
     $_CONF['site_url'].'/'.$_CONF_DQ['pi_name']);
 
 
-/**
-* Language file Include
-*/
+/** Language file Include */
 $langpath = DQ_PI_PATH . '/language';
 $langfile = "{$_CONF['language']}.php";
 if (!file_exists("$langpath/$langfile")) {
@@ -53,6 +52,9 @@ if (!file_exists("$langpath/$langfile")) {
 }
 require_once "$langpath/$langfile";
 
+/**
+ * Import the batch upload function.
+ */
 function USES_dailyquote_batch()
 {   require_once DQ_PI_PATH . '/batch.php'; }
 
@@ -69,10 +71,10 @@ spl_autoload_register(function ($class)
 
 
 /**
-*   Returns the items for this plugin that should appear on the main menu.
-*
-*   @return    array   Associative array of menu items to be added to menu
-*/
+ * Returns the items for this plugin that should appear on the main menu.
+ *
+ * @return  array   Associative array of menu items to be added to menu
+ */
 function plugin_getmenuitems_dailyquote()
 {
     global $_CONF, $_CONF_DQ;
@@ -85,30 +87,27 @@ function plugin_getmenuitems_dailyquote()
 
 
 /**
- *  Get additional Javascript into the site header.
+ * Get additional Javascript into the site header.
  *
- *  @return array List of paths to Javascript files
+ * @return  array   List of paths to Javascript files
  */
 function plugin_getheaderjs_dailyquote()
 {
-    global $_CONF, $_CONF_DQ;
-
-    $scripts = array();
-    $scripts[] = DQ_PI_PATH . '/js/toggleEnabled.js';
-
-	return $scripts;
+    return array(
+        __DIR__ . '/js/toggleEnabled.js',
+    );
 }
 
 
 /**
-*   Shows the statistics for the plugin on stats.php.
-*   If $showsitestats is 1 then we are to only print the overall stats in
-*   the 'site statistics' box otherwise we show the detailed stats for the
-*   plugin.
-*
-*   @param  integer  $showsitestate   Flag to let us know which stats to get
-*   @return string  formatted HTML to insert in stats page
-*/
+ * Shows the statistics for the plugin on stats.php.
+ * If $showsitestats is 1 then we are to only print the overall stats in
+ * the 'site statistics' box otherwise we show the detailed stats for the
+ * plugin.
+ *
+ * @param   integer $showsitestats   Flag to let us know which stats to get
+ * @return  string  formatted HTML to insert in stats page
+ */
 function plugin_showstats_dailyquote($showsitestats)
 {
     global $_CONF, $_USER, $_TABLES, $LANG_DQ, $_CONF_DQ;
@@ -166,6 +165,11 @@ function plugin_showstats_dailyquote($showsitestats)
 }
 
 
+/**
+ * Show the statistics summary.
+ *
+ * @return  array   Array of (label=>data)
+ */
 function plugin_statssummary_dailyquote()
 {
     global $LANG_DQ, $_TABLES;
@@ -180,11 +184,10 @@ function plugin_statssummary_dailyquote()
 
 
 /**
-*   This will put an option for the plugin in the command and control
-*   block on moderation.php
-*
-*   @return   array   Array containing (pi_name, pi_admin_url, pi_icon_url)
-*/
+ * This will put an option for the plugin in the command and control block.
+ *
+ * @return  array   Array containing (pi_name, pi_admin_url, pi_icon_url)
+ */
 function plugin_cclabel_dailyquote()
 {
     global $_CONF, $_CONF_DQ;
@@ -202,10 +205,10 @@ function plugin_cclabel_dailyquote()
 
 
 /**
-*   Returns the administrative menu option for this plugin.
-*
-*   @return mixed   Array (pi_name, pi_admin_url, # of items) or ''
-*/
+ * Returns the administrative menu option for this plugin.
+ *
+ * @return  mixed   Array (pi_name, pi_admin_url, # of items) or ''
+ */
 function plugin_getadminoption_dailyquote()
 {
     global $_CONF, $_TABLES, $LANG_DQ, $_CONF_DQ;
@@ -224,9 +227,10 @@ function plugin_getadminoption_dailyquote()
 
 
 /**
-*   Provide any new items that show up in the type drop-down on search.php.i
-*   @return array   Single name=>display_name value for the selection
-*/
+ * Provide any new items that show up in the type drop-down on search.php.
+ *
+ * @return  array   Single name=>display_name value for the selection
+ */
 function plugin_searchtypes_dailyquote()
 {
     global $LANG_DQ;
@@ -237,21 +241,22 @@ function plugin_searchtypes_dailyquote()
 
 
 /**
-*   Search for pages matching the user query and returns an array of
-*   for the header and table rows back to search.php where it will be
-*   formated and printed
-*
-*   @param    string  $query      Keywords user is looking for
-*   @param    date    $datestart  Start date to get results for
-*   @param    date    $dateend    End date to get results for
-*   @param    string  $topic      The topic they were searching in
-*   @param    string  $type       Type of items they are searching, or 'all'
-*   @param    int     $author     Get all results by this author
-*   @param    string  $keyType    search key type: 'all', 'phrase', 'any'
-*   @param    int     $page       page number of current search
-*   @param    int     $perpage    number of results per page
-*   @return   object              search result object
-*/
+ * Get the search configuration for the plugin.
+ * Search for pages matching the user query and returns an array of
+ * for the header and table rows back to search.php where it will be
+ * formated and printed
+ *
+ * @param   string  $query      Keywords user is looking for
+ * @param   date    $datestart  Start date to get results for
+ * @param   date    $dateend    End date to get results for
+ * @param   string  $topic      The topic they were searching in
+ * @param   string  $type       Type of items they are searching, or 'all'
+ * @param   integer $author     Get all results by this author
+ * @param   string  $keyType    search key type: 'all', 'phrase', 'any'
+ * @param   integer $page       page number of current search
+ * @param   integer $perpage    number of results per page
+ * @return  object              search result object
+ */
 function plugin_dopluginsearch_dailyquote(
     $query,
     $datestart,
@@ -303,10 +308,10 @@ function plugin_dopluginsearch_dailyquote(
 
 
 /**
-*   Whats New Block API Support.
-*
-*   @return mixed   Array of header data for block, or fals if block disabled.
-*/
+ * Whats New Block API Support.
+ *
+ * @return  mixed   Array of header data for block, or fals if block disabled.
+ */
 function plugin_whatsnewsupported_dailyquote()
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
@@ -322,10 +327,10 @@ function plugin_whatsnewsupported_dailyquote()
 
 
 /**
-*   API function provides the content of our "What's New" feed.
-*
-*   @return array   Array of links
-*/
+ * API function provides the content of our "What's New" feed.
+ *
+ * @return  array   Array of links
+ */
 function plugin_getwhatsnew_dailyquote()
 {
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
@@ -374,10 +379,10 @@ function plugin_getwhatsnew_dailyquote()
 
 
 /**
-*   Return the current version of code.
-*
-*   @return string      Current plugin version
-*/
+ * Return the current version of code.
+ *
+ * @return  string  Current plugin version
+ */
 function plugin_chkVersion_dailyquote()
 {
     global $_CONF_DQ;
@@ -386,9 +391,9 @@ function plugin_chkVersion_dailyquote()
 
 
 /**
- *  Automatically uninstall the plugin.
+ * Automatically uninstall the plugin.
  *
- *  @return array Array of plugin elements to remove
+ * @return  array   Array of plugin elements to remove
  */
 function plugin_autouninstall_dailyquote()
 {
@@ -417,8 +422,10 @@ function plugin_autouninstall_dailyquote()
 
 
 /**
-*   Return the template names that support ad blocks
-*/
+ * Return the template names that support ad blocks.
+ *
+ * @return  array   Array of template names
+ */
 function plugin_supportadblock_dailyquote()
 {
     return array('dailyquote_list');
@@ -426,12 +433,12 @@ function plugin_supportadblock_dailyquote()
 
 
 /**
-*   Converts usernames to clickable links leading to user profiles.
-*
-*   @param  integer $uid        User ID
-*   @param  string  $username   User Name
-*   @return string              HTML for link to user profile
-*/
+ * Converts usernames to clickable links leading to user profiles.
+ *
+ * @param   integer $uid        User ID
+ * @param   string  $username   User Name
+ * @return  string              HTML for link to user profile
+ */
 function DQ_linkProfile($uid, $username)
 {
     global $_CONF, $LANG_DQ;
@@ -447,12 +454,12 @@ function DQ_linkProfile($uid, $username)
 
 
 /**
-*   Converts categories to clickable links leading to the search page.
-*
-*   @param  integer $catid      Category ID
-*   @param  string  $catname    Category Name
-*   @return string              HTML for link
-*/
+ * Converts categories to clickable links leading to the search page.
+ *
+ * @param   integer $catid      Category ID
+ * @param   string  $catname    Category Name
+ * @return  string              HTML for link
+ */
 function DQ_catlink($catid, $catname)
 {
     global $_CONF, $_TABLES, $_CONF_DQ;
@@ -463,13 +470,13 @@ function DQ_catlink($catid, $catname)
 
 
 /**
-*   Create the centerblock, if needed.
-*
-*   @param  integer $where  Which area is being displayed now
-*   @param  integer $page   Page number
-*   @param  string  $topic  Topic ID, or empty string
-*   @return string          HTML for centerblock
-*/
+ * Create the centerblock, if needed.
+ *
+ * @param   integer $where  Which area is being displayed now
+ * @param   integer $page   Page number
+ * @param   string  $topic  Topic ID, or empty string
+ * @return  string          HTML for centerblock
+ */
 function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
 {
     global $_CONF, $_USER, $_TABLES, $PHP_SELF, $LANG_DQ, $_CONF_DQ;
@@ -552,9 +559,10 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
 
 
 /**
-*   Returns blockmenu content for dqblockmenu
-*   @return string      HTML for block menu
-*/
+ * Returns blockmenu content for dqblockmenu.
+ *
+ * @return  string      HTML for block menu
+ */
 function phpblock_dailyquote_dqmenu()
 {
     global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
@@ -604,9 +612,10 @@ function phpblock_dailyquote_dqmenu()
 
 
 /**
-*   Displays a random quote from your database in a block.
-*   @return string  HTML for the block contents.
-*/
+ * Displays a random quote from your database in a block.
+ *
+ * @return  string  HTML for the block contents.
+ */
 function phpblock_dailyquote_random()
 {
     global $_CONF, $_CONF_DQ;
@@ -630,13 +639,13 @@ function phpblock_dailyquote_random()
 
 
 /**
-*   Returns list of moderation values.
-*
-*   The array returned contains (in order): the row 'id' label, main plugin
-*   table, moderation fields (comma seperated), and plugin submission table
-*
-*   @return array    Returns array of useful moderation values
-*/
+ * Returns list of moderation values.
+ *
+ * The array returned contains (in order): the row 'id' label, main plugin
+ * table, moderation fields (comma seperated), and plugin submission table
+ *
+ * @return  array    Returns array of useful moderation values
+ */
 function plugin_moderationvalues_dailyquote()
 {
     global $_TABLES;
@@ -650,13 +659,13 @@ function plugin_moderationvalues_dailyquote()
 
 
 /**
-*   Show items for moderation on submissions page.
-*
-*   Uses the Plugin class to return data required by moderation.php to list
-*   plugin objects that need to be moderated.
-*
-*   @return plugin  Plugin class containing submission data
-*/
+ * Show items for moderation on submissions page.
+ *
+ * Uses the Plugin class to return data required by moderation.php to list
+ * plugin objects that need to be moderated.
+ *
+ * @return  plugin  Plugin class containing submission data
+ */
 function plugin_itemlist_dailyquote()
 {
     global $_TABLES, $LANG_DQ, $_CONF_DQ;
@@ -677,13 +686,13 @@ function plugin_itemlist_dailyquote()
 
 
 /**
-*   Returns the current user's ability to moderate the plugin.
-*
-*   Checks that the current user has the rights to moderate the
-*   plugin, returns true if this is the case, false otherwise
-*
-*   @return        boolean       Returns true if moderator
-*/
+ * Returns the current user's ability to moderate the plugin.
+ *
+ * Checks that the current user has the rights to moderate the
+ * plugin, returns true if this is the case, false otherwise
+ *
+ * @return  boolean     Returns true if moderator
+ */
 function plugin_ismoderator_dailyquote()
 {
     return SEC_hasRights('dailyquote.admin');
@@ -691,12 +700,12 @@ function plugin_ismoderator_dailyquote()
 
 
 /**
-*   Performs plugin exclusive work for items approved by moderation.
-*   This just makes sure the 'enabled' flag is set to true.
-*
-*   @param  string  $id     ID of the item
-*   @return string          Empty string to indicate success
-*/
+ * Performs plugin exclusive work for items approved by moderation.
+ * This just makes sure the 'enabled' flag is set to true.
+ *
+ * @param   string  $id     ID of the item
+ * @return  string          Empty string to indicate success
+ */
 function plugin_moderationapprove_dailyquote($id)
 {
     global $_TABLES;
@@ -709,15 +718,14 @@ function plugin_moderationapprove_dailyquote($id)
 
 
 /**
-*   Performs plugin exclusive work for items deleted by moderation
-*
-*   While moderation.php handles the actual removal from the submission
-*   table, within this function we handle all other deletion
-*   relate tasks
-*
-*   @param  string  $id     Identifying string
-*   @return string          Any wanted HTML output
-*/
+ * Performs plugin exclusive work for items deleted by moderation.
+ *
+ * While moderation.php handles the actual removal from the submission
+ * table, within this function we handle all other deletion-related tasks.
+ *
+ * @param   string  $id     Identifying string
+ * @return  string          Any wanted HTML output
+ */
 function plugin_moderationdelete_dailyquote($id)
 {
     global $_TABLES;
@@ -729,11 +737,11 @@ function plugin_moderationdelete_dailyquote($id)
 
 
 /**
-*   Returns the plugins submission form.
-*   Returns a string contain the HTML of the submission form for the plugin.
-*
-*   @return       string       The HTML form
-*/
+ * Returns the plugins submission form.
+ * Returns a string contain the HTML of the submission form for the plugin.
+ *
+ * @return  string  The HTML form
+ */
 function plugin_submit_dailyquote()
 {
     global  $LANG12, $_CONF, $_CONF_DQ, $_USER, $LANG_DQ;
@@ -761,13 +769,13 @@ function plugin_submit_dailyquote()
 
 
 /**
-*   Saves a user submission.  If user is authorized, or the submission queue
-*   is not used, save directly to the production table.  Otherwise, save
-*   to the submission table.
-*
-*   @param  array   $A  Array of items to save, from $_POST
-*   @return string      Text or HTTP redirect to display
-*/
+ * Saves a user submission.
+ * If user is authorized, or the submission queue is not used, save directly to
+ * the production table. Otherwise, save to the submission table.
+ *
+ * @param   array   $A  Array of items to save, from $_POST
+ * @return  string      Text or HTTP redirect to display
+ */
 function plugin_savesubmission_dailyquote($A)
 {
     global $_TABLES, $_USER, $_CONF, $_CONF_DQ, $LANG12, $LANG_DQ;
@@ -857,10 +865,10 @@ function plugin_savesubmission_dailyquote($A)
 
 
 /**
-* Returns the URL of the plugin's icon
-*
-* @return   string      URL of the icon
-*/
+ * Returns the URL of the plugin's icon.
+ *
+ * @return  string  URL of the icon
+ */
 function plugin_geticon_dailyquote()
 {
     global $_CONF;
@@ -869,13 +877,13 @@ function plugin_geticon_dailyquote()
 
 
 /**
-*   Implements the [dailyquote:] autotag.
-*
-*   @param  string  $op         Requested operation
-*   @param  string  $content    Page content
-*   @param  string  $autotag    Autotag content
-*   @return string              $content with the autotag substitutions
-*/
+ * Implements the [dailyquote:] autotag.
+ *
+ * @param   string  $op         Requested operation
+ * @param   string  $content    Page content
+ * @param   string  $autotag    Autotag content
+ * @return  string              $content with the autotag substitutions
+ */
 function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
 {
     global $_CONF, $_TABLES, $_CONF_DQ;
@@ -990,12 +998,12 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
 
 
 /**
-*   Disable this plugin's blocks when the plugin is changed.
-*   Does not automatically enable blocks since there's no way to know
-*   which blocks should be enabled.
-*
-*   @param  boolean $enabled    Plugin's "enabled" state
-*/
+ * Disable this plugin's blocks when the plugin is changed.
+ * Does not automatically enable blocks since there's no way to know
+ * which blocks should be enabled.
+ *
+ * @param   boolean $enabled    Plugin's "enabled" state
+ */
 function plugin_enablestatechange_dailyquote($enabled)
 {
     global $_TABLES, $_PLUGINS;
@@ -1022,12 +1030,12 @@ function plugin_enablestatechange_dailyquote($enabled)
 
 
 /**
-*   Receives notification of another plugin's deletion.
-*   Disables this plugin if the lgLib plugin is disabled or removed.
-*
-*   @param  mixed   $id     Item ID
-*   @param  string  $type   Plugin Name
-*/
+ * Receives notification of another plugin's deletion.
+ * Disables this plugin if the lgLib plugin is disabled or removed.
+ *
+ * @param   mixed   $id     Item ID
+ * @param   string  $type   Plugin Name
+ */
 function plugin_itemdeleted_dailyquote($id, $type)
 {
     global $_TABLES;
@@ -1042,32 +1050,34 @@ function plugin_itemdeleted_dailyquote($id, $type)
 
 
 /**
-*   Get the URL to the configuration help file
-*
-*   @uses   DQ_getDocURL()
-*   @param  string  $doclang    Document language
-*   @return string              URL to document
-*/
+ * Get the URL to the configuration help file.
+ *
+ * @uses    DQ_getDocURL()
+ * @param   string  $option     Documentation element to show
+ * @param   string  $doclang    Document language
+ * @return  string              URL to document
+ */
 function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
 {
     global $_CONF, $_CONF_DQ;
 
     $doc_url = DQ_getDocURL('config', $doclang);
-    if (empty($doc_url))
+    if (empty($doc_url)) {
         return false;
+    }
 
     if (!empty($option)) {
-        $file .= '#desc_' . $option;
+        $doc_url .= '#desc_' . $option;
     }
-    return array($doc_url . $file, 0);
+    return array($doc_url, 0);
 }
 
 
 /**
-*   Upgrade the plugin.
-*
-*   @return boolean True on success, code for error message otherwise
-*/
+ * Upgrade the plugin.
+ *
+ * @return  boolean     True on success, False on failure
+ */
 function plugin_upgrade_dailyquote()
 {
     require_once __DIR__ . '/upgrade.inc.php';
@@ -1076,11 +1086,11 @@ function plugin_upgrade_dailyquote()
 
 
 /**
-*   Support merging local accounts into remote accounts
-*
-*   @param  integer $origUID    Original (local) user ID
-*   @param  integer $destUID    New (remote) user ID
-*/
+ * Support merging local accounts into remote accounts.
+ *
+ * @param   integer $origUID    Original (local) user ID
+ * @param   integer $destUID    New (remote) user ID
+ */
 function plugin_user_move_dailyquote($origUID, $destUID)
 {
     global $_TABLES;
@@ -1096,11 +1106,11 @@ function plugin_user_move_dailyquote($origUID, $destUID)
 
 
 /**
-*   Get additional CSS into the site header.
-*   Allows for custom CSS to be placed by the site admin.
-*
-*   @return array   List of paths to CSS files
-*/
+ * Get additional CSS into the site header.
+ * Allows for custom CSS to be placed by the site admin.
+ *
+ * @return  array   List of paths to CSS files
+ */
 function plugin_getheadercss_dailyquote()
 {
     global $_CONF, $_CONF_DQ;
@@ -1129,14 +1139,14 @@ function plugin_getheadercss_dailyquote()
 
 
 /**
-*   Provides the getItemInfo function for daily quotes
-*
-*   @param  string  $id         Product ID
-*   @param  string  $fields     Comma-separated list of fields to return
-*   @param  integer $uid        User ID
-*   @param  array   $options    Not used
-*   @return array           Array of product information
-*/
+ * Provides the getItemInfo function for daily quotes.
+ *
+ * @param   string  $id         Product ID
+ * @param   string  $what       Comma-separated list of fields to return
+ * @param   integer $uid        User ID
+ * @param   array   $options    Not used
+ * @return  array           Array of product information
+ */
 function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
 {
     global $_TABLES, $_CONF, $LANG_DQ;
@@ -1254,15 +1264,15 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
 
 
 /**
-*   Displays a quote box at the top of the regular listings.
-*   If no quote id is specified, a random one is selected.  If a
-*   category ID is given, then the random quote is selected from among
-*   that category.
-*
-*   @param  string  $qid    Quote ID to retrieve
-*   @param  integer $cid    Category ID for random quotes
-*   @return string          HTML display for the quote
-*/
+ * Displays a quote box at the top of the regular listings.
+ * If no quote id is specified, a random one is selected.  If a
+ * category ID is given, then the random quote is selected from among
+ * that category.
+ *
+ * @param   string  $qid    Quote ID to retrieve
+ * @param   integer $cid    Category ID for random quotes
+ * @return  string          HTML display for the quote
+ */
 function DQ_random_quote($qid='', $cid='')
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
@@ -1294,12 +1304,12 @@ function DQ_random_quote($qid='', $cid='')
 
 
 /**
-*   Display the site header, with or without blocks according to configuration.
-*
-*   @param  string  $title  Title to put in header
-*   @param  string  $meta   Optional header code
-*   @return string          HTML for site header, from COM_siteHeader()
-*/
+ * Display the site header, with or without blocks according to configuration.
+ *
+ * @param   string  $title  Title to put in header
+ * @param   string  $meta   Optional header code
+ * @return  string          HTML for site header, from COM_siteHeader()
+ */
 function DQ_siteHeader($title='', $meta='')
 {
     global $_CONF_DQ;
@@ -1323,10 +1333,10 @@ function DQ_siteHeader($title='', $meta='')
 
 
 /**
-*   Display the site footer, with or without blocks as configured.
-*
-*   @return string      HTML for site footer, from COM_siteFooter()
-*/
+ * Display the site footer, with or without blocks as configured.
+ *
+ * @return  string  HTML for site footer, from COM_siteFooter()
+ */
 function DQ_siteFooter()
 {
     global $_CONF_DQ;
@@ -1349,14 +1359,14 @@ function DQ_siteFooter()
 
 
 /**
-*   Get the link to a documentation file.
-*   Returns the URL to the file, or to the directory if no file requested.
-*
-*   @see    plugin_getconfigelementhelp_dailyquote()
-*   @param  string  $file       HTML file
-*   @param  string  $doclang    Documentation language
-*   @return string              URL to document directory or file
-*/
+ * Get the link to a documentation file.
+ * Returns the URL to the file, or to the directory if no file requested.
+ *
+ * @see     plugin_getconfigelementhelp_dailyquote()
+ * @param   string  $file       HTML file
+ * @param   string  $doclang    Documentation language
+ * @return  string              URL to document directory or file
+ */
 function DQ_getDocURL($file='', $doclang='english')
 {
     global $_CONF, $_CONF_DQ;

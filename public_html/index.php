@@ -1,26 +1,27 @@
 <?php
 /**
-*   Common functions for the DailyQuote plugin
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Common functions for the DailyQuote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     0.2.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** Import core glFusion functions */
 require_once('../lib-common.php');
 
 /**
-*   Displays the quotes listing.
-*
-*   @param  string  $sort   Field to sort by
-*   @param  string  $dir    Either 'ASC' or 'DESC'
-*   @param  integer $page   Page number to display
-*   @return string          HTML for quote listing
-*/
+ * Displays the quotes listing.
+ *
+ * @param   string  $sort   Field to sort by
+ * @param   string  $dir    Either 'ASC' or 'DESC'
+ * @param   integer $page   Page number to display
+ * @return  string          HTML for quote listing
+ */
 function DQ_listQuotes($sort, $dir, $page)
 {
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
@@ -33,14 +34,14 @@ function DQ_listQuotes($sort, $dir, $page)
     if ($page < 1) $page = 1;
 
     // TODO: this query only gives us the quotes with one category name.
-    $sql = "SELECT 
+    $sql = "SELECT
                 q.id, quote, quoted, title, source, sourcedate, dt, q.uid
-            FROM {$_TABLES['dailyquote_quotes']} q 
+            FROM {$_TABLES['dailyquote_quotes']} q
             LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
                 ON q.id = x.qid
             LEFT JOIN {$_TABLES['dailyquote_cat']} c
                 ON x.cid = c.id
-            WHERE q.enabled = '1' 
+            WHERE q.enabled = '1'
             AND (c.enabled = '1' OR c.enabled IS NULL) ";
     if ($q_id != '') {
         $sql .= " AND q.id = '$q_id' ";
@@ -53,8 +54,12 @@ function DQ_listQuotes($sort, $dir, $page)
     }
 
     // Just get the total possible entries, to calculage page navigation
-    $result = DB_query($sql);
-    $numquotes = DB_numRows($result);
+    $numquotes = DailyQuote\Cache::get('numquotes');
+    if ($numquotes === NULL) {
+        $result = DB_query($sql);
+        $numquotes = DB_numRows($result);
+        DailyQuote\Cache::set('numquotes', $numquotes);
+    }
 
     switch ($sort) {
     case 'quote':
@@ -76,10 +81,18 @@ function DQ_listQuotes($sort, $dir, $page)
     $sql .= " LIMIT $startlimit, $displim";
 
     //echo $sql;die;
-    $result = DB_query($sql);
-    if (!$result) {
-        COM_errorLog("An error occured while retrieving list of quotes",1);
-        return $LANG_DQ['disperror'];
+    $cache_key = md5($sql);
+    $rows = DailyQuote\Cache::get($cache_key);
+    if ($rows === NULL) {
+        $result = DB_query($sql);
+        if (!$result) {
+            COM_errorLog("An error occured while retrieving list of quotes",1);
+            return $LANG_DQ['disperror'];
+        }
+        while ($A = DB_fetchArray($result, false)) {
+            $rows[] = $A;
+        }
+        DailyQuote\Cache::set($cache_key, $rows);
     }
 
     // Display quotes if any to display
@@ -113,19 +126,20 @@ function DQ_listQuotes($sort, $dir, $page)
     $pagestart = ($page - 1) * $displim;
     $baseurl = DQ_URL . '/index.php?sort=' . $sort . '&dir=' . $dir;
     $numpages = ceil($numquotes / $displim);
-    $T->set_var('google_paging', 
+    $T->set_var('google_paging',
             COM_printPageNavigation($baseurl, $page, $numpages));
 
     //  Now get each quote and display it
     $count = 0;
-    while ($row = DB_fetchArray($result, false)) {
+    //while ($row = DB_fetchArray($result, false)) {
+    foreach ($rows as $row) {
         $T->set_block('page', 'QuoteRow', 'qRow');
 
-        $catres = DB_query("SELECT 
+        $catres = DB_query("SELECT
                 c.id AS catid, c.name AS catname
-            FROM {$_TABLES['dailyquote_quoteXcat']} l 
+            FROM {$_TABLES['dailyquote_quoteXcat']} l
             LEFT JOIN {$_TABLES['dailyquote_cat']} c
-                ON l.cid = c.id 
+                ON l.cid = c.id
             WHERE
                 l.qid = '{$row['id']}'");
         $catnames = array();
@@ -137,8 +151,8 @@ function DQ_listQuotes($sort, $dir, $page)
 
         $source = empty($row['source']) ? '' : '&nbsp;--&nbsp;' . htmlspecialchars($row['source']);
         $sourcedate = empty($row['sourcedate']) ? '' : '&nbsp;&nbsp;(' . htmlspecialchars($row['sourcedate']) . ')';
-        $contr = DB_query("SELECT uid, username 
-                            FROM {$_TABLES['users']} 
+        $contr = DB_query("SELECT uid, username
+                            FROM {$_TABLES['users']}
                             WHERE uid={$row['uid']}");
         if ($contr) {
             list($uid, $username) = DB_fetchArray($contr);
@@ -170,15 +184,15 @@ function DQ_listQuotes($sort, $dir, $page)
         ) );
 
         if(SEC_hasRights('dailyquote.edit')) {
-            $editlink = '<a href="' . DQ_ADMIN_URL . 
+            $editlink = '<a href="' . DQ_ADMIN_URL .
                         '/index.php?edit=quote&id='.$row['id'] . '">';
             $icon_url = "{$_CONF['layout_url']}/images/edit.$_IMAGE_TYPE";
             $editlink .= COM_createImage($icon_url, $LANG_ADMIN['edit']);
             $editlink .= '</a>&nbsp;';
             $editlink .= COM_createLink(
                     COM_createImage(
-                        $_CONF['layout_url'] . 
-                                "/images/admin/delete.$_IMAGE_TYPE", 
+                        $_CONF['layout_url'] .
+                                "/images/admin/delete.$_IMAGE_TYPE",
                         $LANG_DQ['del_quote'],
                         array(
                             'onclick'=>'return confirm(\'' .
@@ -198,8 +212,10 @@ function DQ_listQuotes($sort, $dir, $page)
 
 
 /**
-*   Display a list of categories with links
-*/
+ * Display a list of categories with links.
+ *
+ * @return  string  HTML Category List
+ */
 function DQ_listCategories()
 {
     global $_TABLES, $_CONF, $LANG_DQ;
@@ -208,7 +224,7 @@ function DQ_listCategories()
 
     $sql = "SELECT DISTINCT id, name
             FROM {$_TABLES['dailyquote_cat']} c
-            WHERE c.enabled='1' 
+            WHERE c.enabled='1'
             ORDER BY name ASC";
 
     $result = DB_query($sql);
@@ -233,7 +249,7 @@ function DQ_listCategories()
             'dispcat'   => $row['name'],
             'cell_width' => (int)(100 / $col),
         ) );
-    
+
         // Determine if it's time for a new row
         $i++;
         if ($i % $col === 0) {
@@ -254,7 +270,7 @@ $action = '';
 $actionval = '';
 $expected = array(
     'savesubmission',
-    'categories', 'quotes',
+    'categories', 'quotes', 'edit',
 );
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
@@ -303,7 +319,7 @@ if (COM_isAnonUser()) {
 $T->set_var('indextitle', $LANG_DQ['indextitle']);
 $indexintro = $LANG_DQ['indexintro'];
 if ($access == 3) {
-    $indexintro .= ' ' . sprintf($LANG_DQ['indexintro_contrib'], 
+    $indexintro .= ' ' . sprintf($LANG_DQ['indexintro_contrib'],
             $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']);
 }
 $T->set_var('indexintro', $indexintro);
@@ -321,6 +337,14 @@ case 'savesubmission':
     if (empty($message)) $message = sprintf($LANG12[25], $_CONF_DQ['pi_name']);
     LGLIB_storeMessage($message);
     COM_refresh(DQ_URL);
+    break;
+
+case 'edit':
+    $q_id = isset($_GET['id']) ? $_GET['id'] : '';
+    if (!empty($q_id)) {
+        $Q = new DailyQuote\Quote($q_id);
+        $content .= $Q->Edit();
+    }
     break;
 
 default:
