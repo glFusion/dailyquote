@@ -1,106 +1,243 @@
 <?php
 /**
-*   Installation defaults for the Daily Quote plugin
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.3
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*   GNU Public License v2 or later
-*   @filesource
-*/
+ * Install configuration items for the Daily Quote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.2.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined('GVERSION')) {
     die('This file can not be used on its own!');
 }
 
-/**
- *  Daily Quote default settings
- *
- *  Initial Installation Defaults used when loading the online configuration
- *  records. These settings are only used during the initial installation
- *  and not referenced any more once the plugin is installed
- *  @global array $_DQ_DEFAULT
- *
- */
-global $_DQ_DEFAULT, $_CONF_DQ;
-$_DQ_DEFAULT = array(
-    'indexdisplim' => 10,     // limit quotes shown on index page
-    'searchdisplim' => 50,    // limit search results
-    'queue' => 1,             // use submission queue? 1=yes, 0=no
-    'anonadd' => 0,           // anon user can add? 1=yes, 0=no
-    'loginadd' => 1,          // logged-in user can add quote?
-    'cb_enable' => 0,         // centerblock enabled?
-    'cb_pos' => 2,            // centerblock position (2=top)
-    'cb_home' => '1',           // centerblock homepage only?
-    'cb_replhome' => 0,         // centerblock replaces homepage?
-    'google_link' => 1,       // add Google link to person quoted?
-    'google_url' => 'http://www.google.com/search?hl=%s&q=%s',
-    'whatsnew' => 0,          // show new quotes in whatsnew block?
-    'whatsnewdays' => 14,     // number of days to be considered new
-    'email_admin' => 1,       // email admin? 0=never, 1=if queue, 2=always
-    'displayblocks' => 3,    // display both block colums by default
+/** @var global config data */
+global $dailyquoteConfigData;
+$dailyquoteConfigData = array(
+    array(
+        'name' => 'sg_main',
+        'default_value' => NULL,
+        'type' => 'subgroup',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => NULL,
+        'sort' => 0,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'fs_main',
+        'default_value' => NULL,
+        'type' => 'fieldset',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => NULL,
+        'sort' => 0,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'indexdisplim',
+        'default_value' => 10,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 10,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'searchdisplim',
+        'default_value' => 50,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 20,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'queue',
+        'default_value' => 1,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 30,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'anonadd',
+        'default_value' => 0,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 40,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'loginadd',
+        'default_value' => 1,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 50,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'google_link',
+        'default_value' => 1,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 60,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'google_url',
+        'default_value' => 'https://www.google.com/search?hl=%s&q=%s',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 70,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'whatsnew',
+        'default_value' => 0,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 80,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'whatsnewdays',
+        'default_value' => 14,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 90,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'email_admin',
+        'default_value' => 1,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 9,
+        'sort' => 100,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'displayblocks',
+        'default_value' => 3,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 13,
+        'sort' => 110,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+
+    array(
+        'name' => 'fs_cblock',
+        'default_value' => NULL,
+        'type' => 'fieldset',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => NULL,
+        'sort' => 10,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'cb_enable',
+        'default_value' => 0,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => 0,
+        'sort' => 10,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'cb_pos',
+        'default_value' => 2,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => 5,
+        'sort' => 20,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'cb_home',
+        'default_value' => 1,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => 0,
+        'sort' => 30,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'cb_replhome',
+        'default_value' => 0,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => 0,
+        'sort' => 40,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
 );
 
-
 /**
- *  Initialize Daily Quote plugin configuration
+ * Initialize the DailyQuote plugin configuration.
  *
- *  Creates the database entries for the configuation if they don't already
- *  exist. Initial values will be taken from $_CONF_DQ if available (e.g. from
- *  an old config.php), uses $_DQ_DEFAULT otherwise.
- *
- *  @param  integer $group_id   Group ID to use as the plugin's admin group
- *  @return boolean             true: success; false: an error occurred
+ * @param   integer $group_id   Admin Group ID (not used)
+ * @return  boolean             True
  */
 function plugin_initconfig_dailyquote($group_id = 0)
 {
-    global $_CONF, $_CONF_DQ, $_DQ_DEFAULT;
-
-    if (is_array($_CONF_DQ) && (count($_CONF_DQ) > 1)) {
-        $_DQ_DEFAULT = array_merge($_DQ_DEFAULT, $_CONF_DQ);
-    }
+    global $dailyquoteConfigData;
 
     $c = config::get_instance();
-
-    if (!$c->group_exists($_CONF_DQ['pi_name'])) {
-
-        $c->add('sg_main', NULL, 'subgroup', 0, 0, NULL, 0, true, $_CONF_DQ['pi_name']);
-        $c->add('fs_main', NULL, 'fieldset', 0, 0, NULL, 0, true, $_CONF_DQ['pi_name']);
-        $c->add('indexdisplim', $_DQ_DEFAULT['indexdisplim'],
-                'text', 0, 0, 0, 10, true, $_CONF_DQ['pi_name']);
-        $c->add('searchdisplim', $_DQ_DEFAULT['searchdisplim'], 
-                'text', 0, 0, 0, 20, true, $_CONF_DQ['pi_name']);
-        $c->add('queue', $_DQ_DEFAULT['queue'], 'select',
-                0, 0, 0, 30, true, $_CONF_DQ['pi_name']);
-        $c->add('anonadd', $_DQ_DEFAULT['anonadd'], 'select',
-                0, 0, 0, 40, true, $_CONF_DQ['pi_name']);
-        $c->add('loginadd', $_DQ_DEFAULT['loginadd'], 'select',
-                0, 0, 0, 60, true, $_CONF_DQ['pi_name']);
-        $c->add('google_link', $_DQ_DEFAULT['google_link'], 'select',
-                0, 0, 0, 120, true, $_CONF_DQ['pi_name']);
-        $c->add('google_url', $_DQ_DEFAULT['google_url'], 'text',
-                0, 0, 0, 130, true, $_CONF_DQ['pi_name']);
-        $c->add('whatsnew', $_DQ_DEFAULT['whatsnew'], 'select',
-                0, 0, 0, 140, true, $_CONF_DQ['pi_name']);
-        $c->add('whatsnewdays', $_DQ_DEFAULT['whatsnewdays'], 'text',
-                0, 0, 0, 150, true, $_CONF_DQ['pi_name']);
-        $c->add('email_admin', $_DQ_DEFAULT['email_admin'], 'select',
-                0, 0, 9, 160, true, $_CONF_DQ['pi_name']);
-        $c->add('displayblocks', $_DQ_DEFAULT['displayblocks'], 'select',
-                0, 0, 13, 170, true, $_CONF_DQ['pi_name']);
-
-        $c->add('fs_cblock', NULL, 'fieldset', 0, 2, NULL, 0, true, $_CONF_DQ['pi_name']);
-        $c->add('cb_enable', $_DQ_DEFAULT['cb_enable'], 'select',
-                0, 2, 0, 10, true, $_CONF_DQ['pi_name']);
-        $c->add('cb_pos', $_DQ_DEFAULT['cb_pos'],
-                'select', 0, 2, 5, 20, true, $_CONF_DQ['pi_name']);
-        $c->add('cb_home', $_DQ_DEFAULT['cb_home'], 'select',
-                0, 2, 0, 30, true, $_CONF_DQ['pi_name']);
-        $c->add('cb_replhome', $_DQ_DEFAULT['cb_replhome'], 'select',
-                0, 2, 0, 40, true, $_CONF_DQ['pi_name']);
+    if (!$c->group_exists('dailyquote')) {
+        USES_lib_install();
+        foreach ($dailyquoteConfigData AS $cfgItem) {
+            _addConfigItem($cfgItem);
+        }
+    } else {
+        COM_errorLog('initconfig error: Paypal config group already exists');
     }
-
     return true;
 }
 
