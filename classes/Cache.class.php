@@ -49,7 +49,7 @@ class Cache
             $tag = array($tag, self::$tag);
         }
         $key = self::_makeKey($key, $tag);
-        return \glFusion\Cache::getInstance()->set($key, $data, $tag);
+        return \glFusion\Cache\Cache::getInstance()->set($key, $data, $tag);
     }
 
 
@@ -67,7 +67,7 @@ class Cache
             if (!is_array($tag)) $tag = array($tag);
             $tags = array_merge($tags, $tag);
         }
-        return \glFusion\Cache::getInstance()->deleteItemsByTagsAll($tags);
+        return \glFusion\Cache\Cache::getInstance()->deleteItemsByTagsAll($tags);
     }
 
 
@@ -94,8 +94,8 @@ class Cache
         if (GVERSION < self::MIN_GVERSION) return NULL;
 
         $key = self::_makeKey($key);
-        if (\glFusion\Cache::getInstance()->has($key)) {
-            return \glFusion\Cache::getInstance()->get($key);
+        if (\glFusion\Cache\Cache::getInstance()->has($key)) {
+            return \glFusion\Cache\Cache::getInstance()->get($key);
         } else {
             return NULL;
         }
