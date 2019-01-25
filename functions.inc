@@ -33,10 +33,6 @@ if (file_exists(__DIR__ . '/config.php')) {
     include_once __DIR__ . '/config.php';
 }
 
-// Mark whether this is a uikit theme. Save to global conf var
-// so it's available where needed.
-$_CONF_DQ['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
-
 define('DQ_PI_PATH', __DIR__);
 define('DQ_ADMIN_URL',
     $_CONF['site_url'].'/admin/plugins/'.$_CONF_DQ['pi_name']);
@@ -1344,7 +1340,6 @@ function DQ_getDocURL($file='', $doclang='english')
     $doc_url = '';
 
     if ($file != '') {
-        if (!$_CONF_DQ['_is_uikit']) $file .= '.legacy';
         $file .= '.html';
         if (!file_exists($doc_path . $file)) {
             $doclang = 'english';

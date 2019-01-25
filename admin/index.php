@@ -152,17 +152,12 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
     switch($fieldname) {
     case 'edit':
-        if ($_CONF_DQ['_is_uikit']) {
-            $retval .= COM_createLink('',
-                DQ_ADMIN_URL . "/index.php?editquote=x&amp;id={$A['id']}",
-                array('class' => 'uk-icon uk-icon-edit')
-            );
-        } else {
-            $retval .= COM_createLink(
-                $icon_arr['edit'],
-                DQ_ADMIN_URL . "/index.php?editquote=x&amp;id={$A['id']}"
-            );
-        }
+        $retval .= COM_createLink('',
+            DQ_ADMIN_URL . "/index.php?editquote=x&amp;id={$A['id']}",
+            array(
+                'class' => 'uk-icon uk-icon-edit',
+            )
+        );
         break;
 
     case 'enabled':
@@ -186,20 +181,14 @@ function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
         break;
 
     case 'delete':
-        if ($_CONF_DQ['_is_uikit']) {
-            $retval = COM_createLink('',
-                DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['id'],
-                array(
-                    'class' => 'uk-icon uk-icon-trash dq-icon-danger',
-                    'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
-                    'title' => $LANG_ADMIN['delete'],
-                )
-            );
-        } else {
-             $retval = COM_createLink('<img src='. $_CONF['layout_url'] .
-                '/images/admin/delete.png>',
-                DQ_ADMIN_URL . "/index.php?delquote=x&amp;id={$A['id']}");
-        }
+        $retval = COM_createLink('',
+            DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['id'],
+            array(
+                'class' => 'uk-icon uk-icon-trash dq-icon-danger',
+                'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
+                'title' => $LANG_ADMIN['delete'],
+            )
+        );
         break;
 
     default:

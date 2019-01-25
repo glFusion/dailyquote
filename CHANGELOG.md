@@ -1,6 +1,7 @@
 # DailyQuote - Change Log
 
 ## Version 0.2.1 - TBD
+- Remove support for non-uikit themes
 - Remove relianze on `PLG_submitForm()`
 - E_ALL fixes
 - Use DailyQuote namespace and class autoloader

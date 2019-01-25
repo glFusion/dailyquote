@@ -236,11 +236,7 @@ class Category
         $retval = '';
 
         $T = new \Template(DQ_PI_PATH . '/templates');
-        if ($_CONF_DQ['_is_uikit']) {
-            $T->set_file('page', 'catform.uikit.thtml');
-        } else {
-            $T->set_file('page', 'catform.thtml');
-        }
+        $T->set_file('page', 'catform.thtml');
         $T->set_var(array(
             'name'      => $this->name,
             'id'        => $this->id,
@@ -274,16 +270,12 @@ function cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
     switch($fieldname) {
     case 'edit':
-        if ($_CONF_DQ['_is_uikit']) {
-            $retval .= COM_createLink('',
-                DQ_ADMIN_URL . "/index.php?editcat=x&amp;id={$A['id']}",
-                array('class' => 'uk-icon uk-icon-edit')
-            );
-        } else {
-            $retval .= COM_createLink($icon_arr['edit'],
-                DQ_ADMIN_URL . "/index.php?editcat=x&amp;id={$A['id']}"
-            );
-        }
+        $retval .= COM_createLink('',
+            DQ_ADMIN_URL . "/index.php?editcat=x&amp;id={$A['id']}",
+            array(
+                'class' => 'uk-icon uk-icon-edit',
+            )
+        );
         break;
 
     case 'enabled':
@@ -296,27 +288,14 @@ function cat_getListField($fieldname, $fieldvalue, $A, $icon_arr)
 
     case 'delete':
         if ($A['id'] > 1) {
-            if ($_CONF_DQ['_is_uikit']) {
-                $retval = COM_createLink('',
-                    DQ_ADMIN_URL . '/index.php?delcat=x&id=' . $A['id'],
-                    array(
-                        'class' => 'uk-icon uk-icon-trash dq-icon-danger',
-                        'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
-                        'title' => $LANG_ADMIN['delete'],
-                    )
-                );
-            } else {
-                $retval .= COM_createLink(COM_createImage(
-                    $_CONF['layout_url'] . '/images/admin/delete.png',
-                    $LANG_ADMIN['delete'],
-                    array('class'=>'gl_mootip',
-                    'onclick'=>'return confirm(\'' .
-                                $LANG_DQ['confirm_delitem'] .'\');',
-                    'title' => $LANG_ACCESS['delete'],
-                    )),
-                    DQ_ADMIN_URL . '/index.php?delete=category&id=' . $A['id']
-                );
-            }
+            $retval = COM_createLink('',
+                DQ_ADMIN_URL . '/index.php?delcat=x&id=' . $A['id'],
+                array(
+                    'class' => 'uk-icon uk-icon-trash dq-icon-danger',
+                    'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
+                    'title' => $LANG_ADMIN['delete'],
+                )
+            );
         }
         break;
     case 'name':

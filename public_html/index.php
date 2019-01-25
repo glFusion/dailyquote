@@ -97,8 +97,7 @@ function DQ_listQuotes($sort, $dir, $page)
 
     // Display quotes if any to display
     $T = new Template(DQ_PI_PATH . '/templates');
-    $tpl = $_CONF_DQ['_is_uikit'] ? 'dispquotes.uikit.thtml' : 'dispquotes.thtml';
-    $T->set_file('page', $tpl);
+    $T->set_file('page', 'dispquotes.thtml');
 
     // Set up sorting options
     $sortby_opts = array(

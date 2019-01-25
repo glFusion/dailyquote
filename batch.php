@@ -38,14 +38,8 @@ function DQ_batch_form(){
             $chk = '';
         }
     }
-
-    if ($_CONF_DQ['_is_uikit']) {
-        $tpl = 'batchaddform.uikit.thtml';
-    } else {
-        $tpl = 'batchaddform.thtml';
-    }
     $T->set_file(array(
-        'page' => $tpl,
+        'page' => 'batchaddform.thtml',
         'footer' => 'batchadd_sample.thtml',
     ) );
     $T->set_var(array(

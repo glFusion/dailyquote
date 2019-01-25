@@ -339,14 +339,10 @@ class Quote
         }
 
         $T = new \Template(DQ_PI_PATH . '/templates');
-        if ($_SYSTEM['framework'] == 'uikit') {
-            $T->set_file('page', 'editform.uikit.thtml');
-        } else {
-            $T->set_file('page', 'editform.thtml');
-        }
-        $T->set_var('gltoken_name', CSRF_TOKEN);
-        $T->set_var('gltoken', SEC_createToken());
+        $T->set_file('page', 'editform.thtml');
         $T->set_var(array(
+            'gltoken_name'  => CSRF_TOKEN,
+            'gltoken'       => SEC_createToken(),
             'pi_name'       => $_CONF_DQ['pi_name'],
             'action_url'    => $action_url,
             'saveaction'    => $saveaction,
