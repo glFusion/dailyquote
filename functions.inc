@@ -737,38 +737,6 @@ function plugin_moderationdelete_dailyquote($id)
 
 
 /**
- * Returns the plugins submission form.
- * Returns a string contain the HTML of the submission form for the plugin.
- *
- * @return  string  The HTML form
- */
-function plugin_submit_dailyquote()
-{
-    global  $LANG12, $_CONF, $_CONF_DQ, $_USER, $LANG_DQ;
-
-    // if a previous submission being re-edited due to an error,
-    // use the previous field values
-    $A = isset($_POST['savesubmission']) ? $_POST : array();
-
-    if (SEC_hasRights('dailyquote.submit') || $_CONF_DQ['queue'] == 0) {
-        // user has submit right or submission queue is not being used
-        $Q = new DailyQuote\Quote();
-        $retval = $Q->Edit('', $A);   // Directly edit prod table
-    } elseif ( (COM_isAnonUser() && $_CONF_DQ['anonadd'] == 1) ||
-            ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1) ) {
-        // user has regular access and queue is being used
-        $Q = new DailyQuote\Quote('', 'submission');  // Send to the submission table
-        $retval = $Q->Edit('submit', $A);
-    } else {
-        COM_errorLog("Someone has tried to illegally access the dailyquote submission page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
-        COM_404();
-        exit;
-    }
-    return $retval;
-}
-
-
-/**
  * Saves a user submission.
  * If user is authorized, or the submission queue is not used, save directly to
  * the production table. Otherwise, save to the submission table.

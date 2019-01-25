@@ -320,10 +320,8 @@ $T->set_var('indextitle', $LANG_DQ['indextitle']);
 $indexintro = $LANG_DQ['indexintro'];
 if ($access == 3) {
     $indexintro .= ' ' . sprintf($LANG_DQ['indexintro_contrib'],
-            $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']);
+        DQ_URL . '/index.php?edit');
 }
-$T->set_var('indexintro', $indexintro);
-$T->set_var('randomquote', DQ_random_quote($qid, $cid));
 
 $content = '';
 switch ($action) {
@@ -341,13 +339,15 @@ case 'savesubmission':
 
 case 'edit':
     $q_id = isset($_GET['id']) ? $_GET['id'] : '';
-    if (!empty($q_id)) {
-        $Q = new DailyQuote\Quote($q_id);
+    $Q = new DailyQuote\Quote($q_id);
+    if ($q_id == '' || !$Q->isNew) {
         $content .= $Q->Edit();
     }
     break;
 
 default:
+    $T->set_var('indexintro', $indexintro);
+    $T->set_var('randomquote', DQ_random_quote($qid, $cid));
     $content .= DQ_listQuotes($sort, $dir, $page);
     break;
 }
