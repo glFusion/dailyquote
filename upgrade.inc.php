@@ -53,6 +53,9 @@ function DQ_do_upgrade($dvlp=false)
     require_once __DIR__ . '/install_defaults.php';
     _update_config('dailyquote', $dailyquoteConfigData);
 
+    // Remove deprecated files
+    DQ_remove_old_files();
+
     // Final version update to catch updates that don't go through
     // any of the update functions, e.g. code-only updates
     if (!COM_checkVersion($current_ver, $installed_ver)) {
@@ -122,6 +125,39 @@ function DQ_do_set_version($ver)
         return false;
     } else {
         return true;
+    }
+}
+
+
+/**
+ * Remove deprecated files
+ * Errors in unlink() and rmdir() are ignored.
+ */
+function DQ_remove_old_files()
+{
+    global $_CONF;
+
+    $paths = array(
+        // private/plugins/dailyquote
+        __DIR__ => array(
+	    'templates/batchaddform.uikit.thtml',
+	    'templates/catform.uikit.thtml',
+	    'templates/dispquotes.uikit.thtml',
+	    'templates/editform.uikit.thtml',
+        ),
+        // public_html/dailyquote
+        $_CONF['path_html'] . 'dailyquote' => array(
+            'docs/english/config.legacy.html',
+        ),
+        // public_html/admin/plugins/dailyquote
+        $_CONF['path_html'] . 'admin/plugins/dailyquote' => array(
+        ),
+    );
+
+    foreach ($paths as $path=>$files) {
+        foreach ($files as $file) {
+            @unlink("$path/$file");
+        }
     }
 }
 
