@@ -113,9 +113,9 @@ function plugin_showstats_dailyquote($showsitestats)
     $retval = '';
 
     // Check user has rights to view this, if so, do it.
-    if ($_CONF_DQ['default_permissions'][3] < 2 && $_USER['uid'] < 2) {
+    /*if ($_CONF_DQ['default_permissions'][3] < 2 && $_USER['uid'] < 2) {
         return '';
-    }
+    }*/
 
     $T = new Template($_CONF['path_layout'] . 'stats');
     $T->set_file(array('itemstats'=>'itemstatistics.thtml',
@@ -396,22 +396,29 @@ function plugin_autouninstall_dailyquote()
     global $_CONF_DQ;
 
     $out = array (
-        'tables'    => array($_CONF_DQ['pi_name']. '_quotes',
-                            $_CONF_DQ['pi_name']. '_submission',
-                            $_CONF_DQ['pi_name']. '_cat',
-                            $_CONF_DQ['pi_name']. '_quoteXcat',
-                        ),
-        'groups'    => array($_CONF_DQ['pi_name'] . ' Admin'),
-        'features'  => array($_CONF_DQ['pi_name'] . '.add',
-                            $_CONF_DQ['pi_name'] . '.edit',
-                            $_CONF_DQ['pi_name'] . '.view',
-                            $_CONF_DQ['pi_name'] . '.submit',
-                            $_CONF_DQ['pi_name'] . '.admin',
-                        ),
-        'php_blocks' => array('phpblock_' . $_CONF_DQ['pi_name'] . '_dqmenu',
-                            'phpblock_' . $_CONF_DQ['pi_name'] . '_random',
-                        ),
-        'vars'      => array($_CONF_DQ['pi_name'] . '_gid')
+        'tables'    => array(
+            $_CONF_DQ['pi_name']. '_quotes',
+            $_CONF_DQ['pi_name']. '_submission',
+            $_CONF_DQ['pi_name']. '_cat',
+            $_CONF_DQ['pi_name']. '_quoteXcat',
+        ),
+        'groups'    => array(
+            $_CONF_DQ['pi_name'] . ' Admin',
+        ),
+        'features'  => array(
+            $_CONF_DQ['pi_name'] . '.add',
+            $_CONF_DQ['pi_name'] . '.edit',
+            $_CONF_DQ['pi_name'] . '.view',
+            $_CONF_DQ['pi_name'] . '.submit',
+            $_CONF_DQ['pi_name'] . '.admin',
+        ),
+        'php_blocks' => array(
+            'phpblock_' . $_CONF_DQ['pi_name'] . '_dqmenu',
+            'phpblock_' . $_CONF_DQ['pi_name'] . '_random',
+        ),
+        'vars'      => array(
+            $_CONF_DQ['pi_name'] . '_gid',
+        )
     );
     return $out;
 }
@@ -527,7 +534,7 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
         return '';
     }
 
-    $Q = DailyQuote\Quote::getQuote();
+    $Q = DailyQuote\Quote::getInstance();
     if (!$Q) {
         return '';
     }
@@ -540,10 +547,10 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
     $T = new Template(DQ_PI_PATH . '/templates');
     $T->set_file('page', 'centerblock.thtml');
     $T->set_var(array(
-        'dispquote'     => $Q->quote,
-        'dispquoted'    => $Q->quoted,
-        'source'        => $Q->source,
-        'title'         => $Q->title,
+        'dispquote'     => $Q->getQuote(),
+        'dispquoted'    => $Q->getQuoted(),
+        'source'        => $Q->getSource(),
+        'title'         => $Q->getTitle(),
     ) );
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));
@@ -610,22 +617,24 @@ function phpblock_dailyquote_dqmenu()
 /**
  * Displays a random quote from your database in a block.
  *
+ * @param   array   $A      Array of block configuration data
+ * @param   integer $cat    Optional category ID
  * @return  string  HTML for the block contents.
  */
-function phpblock_dailyquote_random()
+function phpblock_dailyquote_random($A=array(), $cat='')
 {
     global $_CONF, $_CONF_DQ;
 
     $retval = '';
-    $Q = DailyQuote\Quote::getQuote();
-    if ($Q) {
+    $Q = DailyQuote\Quote::getInstance('', (int)$cat);
+    if (!$Q->isNew()) {
         $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('page', 'blk_random.thtml');
         $T->set_var(array(
-            'randomquote'   => $Q->quote,
-            'quoted'        => $Q->quoted,
-            'sourcedate'    => $Q->sourcedate,
-            'source'        => $Q->source,
+            'randomquote'   => $Q->getQuote(),
+            'quoted'        => $Q->getQuoted(),
+            'sourcedate'    => $Q->getSourceDate(),
+            'source'        => $Q->getSource(),
         ) );
         $T->parse('output','page');
         $retval = $T->finish($T->get_var('output'));
@@ -650,7 +659,8 @@ function plugin_moderationvalues_dailyquote()
         'id',
         $_TABLES['dailyquote_quotes'],
         'id, quote, quoted, title, source, sourcedate, dt, uid',
-        $_TABLES['dailyquote_submission']);
+        $_TABLES['dailyquote_submission']
+    );
 }
 
 
@@ -675,7 +685,6 @@ function plugin_itemlist_dailyquote()
         $plugin->addSubmissionHeading($LANG_DQ['quoted']);
         $plugin->addSubmissionHeading($LANG_DQ['title']);
         $plugin->addSubmissionHeading($LANG_DQ['source']);
-
         return $plugin;
     }
 }
@@ -727,7 +736,7 @@ function plugin_moderationdelete_dailyquote($id)
     global $_TABLES;
 
     // Delete the category lookup entries for the rejected quotation.
-    DB_delete ($_TABLES['dailyquote_quoteXcat'], 'qid', $id);
+    DB_delete($_TABLES['dailyquote_quoteXcat'], 'qid', $id);
     return '';
 }
 
@@ -915,7 +924,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         $nocache = false;
         switch ($option) {
         case 'random':
-            $quote = DailyQuote\Quote::getQuote('', $cat);
+            $quote = DailyQuote\Quote::getInstance('', $cat);
             // Don't cache random quote in template
             $nocache = true;
             break;
@@ -923,7 +932,7 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         case 'quote':
             $qid = COM_sanitizeID($qid);
             if ($qid != '') {
-                $quote = DailyQuote\Quote::getQuote($qid);
+                $quote = DailyQuote\Quote::getInstance($qid);
             }
             break;
 
@@ -937,11 +946,11 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
             $T = new Template(DQ_PI_PATH . '/templates/autotags');
             $T->set_file('block', $template . '.thtml');
             $T->set_var(array(
-                'quote'     => $quote->quote,
-                'quoted'    => $quote->quoted,
-                'source'    => $incl_src ? $quote->source : '',
-                'sourcedate' => $quote->sourcedate,
-                'qid'       => $quote->id,
+                'quote'     => $quote->getQuote(),
+                'quoted'    => $quote->getQuoted(),
+                'source'    => $incl_src ? $quote->getSource() : '',
+                'sourcedate' => $quote->getSourceDate(),
+                'qid'       => $quote->getID(),
             ), false, $nocache );
             $T->parse('output','block');
             $HTML = $T->finish($T->get_var('output'));
@@ -1241,7 +1250,7 @@ function DQ_random_quote($qid='', $cid='')
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
 
-    $Q = DailyQuote\Quote::getQuote($qid, $cid);
+    $Q = DailyQuote\Quote::getInstance($qid, $cid);
     if (!$Q) {
         return '';
     }
@@ -1251,16 +1260,16 @@ function DQ_random_quote($qid='', $cid='')
     $T->set_var(array(
         'site_url'  => $_CONF['site_url'],
         'randomboxtitle' => $LANG_DQ['randomboxtitle'],
-        'title'     => $Q->title,
-        'randomquote' => $Q->quote,
-        'quoted'    => $Q->quoted,
-        'source'    => $Q->source,
-        'sourcedate' => $Q->sourcedate,
+        'title'     => $Q->getTitle(),
+        'randomquote' => $Q->getQuote(),
+        'quoted'    => $Q->getQuoted(),
+        'source'    => $Q->getSource(),
+        'sourcedate' => $Q->getSourceDate(),
     ) );
-    if ($Q->uid > 1) {
+    if ($Q->getUid() > 1) {
         $T->set_var('subm_by', $LANG_DQ['subm_by'] . ':&nbsp;');
-        $T->set_var('dispcontr', COM_getDisplayName($Q->uid));
-        $T->set_var('datecontr', '&nbsp;/&nbsp;' . $Q->date);
+        $T->set_var('dispcontr', COM_getDisplayName($Q->getUid()));
+        $T->set_var('datecontr', '&nbsp;/&nbsp;' . $Q->getDate());
     }
     $T->parse('output','page');
     return $T->finish($T->get_var('output'));
