@@ -27,73 +27,20 @@ function DQ_listQuotes($sort, $dir, $page)
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
         $LANG_ADMIN;
 
-    $q_id = isset($_REQUEST['id']) ? DB_escapeString($_REQUEST['id']) : '';
-    $catid = isset($_REQUEST['cat']) ? (int)$_REQUEST['cat'] : 0;
-    $author = isset($_REQUEST['quoted']) ? DB_escapeString($_REQUEST['quoted']) : '';
-    if ($dir != 'ASC') $dir = 'DESC';
-    if ($page < 1) $page = 1;
-
-    // TODO: this query only gives us the quotes with one category name.
-    $sql = "SELECT
-                q.id, quote, quoted, title, source, sourcedate, dt, q.uid
-            FROM {$_TABLES['dailyquote_quotes']} q
-            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
-                ON q.id = x.qid
-            LEFT JOIN {$_TABLES['dailyquote_cat']} c
-                ON x.cid = c.id
-            WHERE q.enabled = '1'
-            AND (c.enabled = '1' OR c.enabled IS NULL) ";
-    if ($q_id != '') {
-        $sql .= " AND q.id = '$q_id' ";
+    $QL = new DailyQuote\QuoteList;
+    if (isset($_REQUEST['id'])) {
+        $QL->setFilterID($_REQUEST['id']);
     }
-    if ($catid > 0) {
-        $sql .= " AND x.cid = $catid ";
+    if (isset($_REQUEST['cat'])) {
+        $QL->setFilterCat($_REQUEST['cat']);
     }
-    if ($author != '') {
-        $sql .= " AND quoted = '$author'";
+    if (isset($_REQUEST['quoted'])) {
+        $QL->setFilterAuthor($_REQUEST['quoted']);
     }
-
-    // Just get the total possible entries, to calculage page navigation
-    $numquotes = DailyQuote\Cache::get('numquotes');
-    if ($numquotes === NULL) {
-        $result = DB_query($sql);
-        $numquotes = DB_numRows($result);
-        DailyQuote\Cache::set('numquotes', $numquotes);
-    }
-
-    switch ($sort) {
-    case 'quote':
-    case 'quoted':
-    case 'dt':
-        $sorted = $sort;
-        break;
-    default:
-        $sorted = 'dt';
-        break;
-    }
-    $sql .= " GROUP BY q.id ORDER BY $sorted ";
-    $sql .= $dir == 'ASC' ? ' ASC' : ' DESC';
-
-    // Retrieve results per page setting, set to reasonable default if missing.
-    $displim = (int)$_CONF_DQ['indexdisplim'];
-    if ($displim <= 0) $displim = 15;
-    $startlimit = ($displim * $page) - $displim;
-    $sql .= " LIMIT $startlimit, $displim";
-
-    //echo $sql;die;
-    $cache_key = md5($sql);
-    $rows = DailyQuote\Cache::get($cache_key);
-    if ($rows === NULL) {
-        $result = DB_query($sql);
-        if (!$result) {
-            COM_errorLog("An error occured while retrieving list of quotes",1);
-            return $LANG_DQ['disperror'];
-        }
-        while ($A = DB_fetchArray($result, false)) {
-            $rows[] = $A;
-        }
-        DailyQuote\Cache::set($cache_key, $rows);
-    }
+    $numquotes = $QL->getPageCount();
+    $rows = $QL->setSort($sort, $dir)
+        ->setPage($page)
+        ->getPageQuotes();
 
     // Display quotes if any to display
     $T = new Template(DQ_PI_PATH . '/templates');
@@ -119,64 +66,48 @@ function DQ_listQuotes($sort, $dir, $page)
         $T->set_var('desc_sel', 'selected="selected"');
     }
 
-    // Calculate page navigation
-    $prevpage = $page - 1;
-    $nextpage = $page + 1;
-    $pagestart = ($page - 1) * $displim;
-    $baseurl = DQ_URL . '/index.php?sort=' . $sort . '&dir=' . $dir;
-    $numpages = ceil($numquotes / $displim);
-    $T->set_var('google_paging',
-            COM_printPageNavigation($baseurl, $page, $numpages));
+    $T->set_var(
+        'google_paging',
+        $QL->getPageNavigation($numquotes)
+    );
 
     //  Now get each quote and display it
     $count = 0;
-    //while ($row = DB_fetchArray($result, false)) {
-    foreach ($rows as $row) {
+    foreach ($rows as $Quote) {
         $T->set_block('page', 'QuoteRow', 'qRow');
-
-        $catres = DB_query("SELECT
-                c.id AS catid, c.name AS catname
-            FROM {$_TABLES['dailyquote_quoteXcat']} l
-            LEFT JOIN {$_TABLES['dailyquote_cat']} c
-                ON l.cid = c.id
-            WHERE
-                l.qid = '{$row['id']}'");
+        $Cats = DailyQuote\Quote::getCats($Quote->getID());
         $catnames = array();
-        while ($cats = DB_fetcharray($catres, false)) {
-            $catnames[] = COM_createLink($cats['catname'],
-                    DQ_URL . '?cat=' . $cats['catid']);
+        foreach ($Cats as $Cat) {
+            $catnames[] = COM_createLink(
+                $Cat->getName(),
+                DQ_URL . '?cat=' . $Cat->getID()
+            );
         }
         $catlist = join(',' , $catnames);
 
-        $source = empty($row['source']) ? '' : '&nbsp;--&nbsp;' . htmlspecialchars($row['source']);
-        $sourcedate = empty($row['sourcedate']) ? '' : '&nbsp;&nbsp;(' . htmlspecialchars($row['sourcedate']) . ')';
-        $contr = DB_query("SELECT uid, username
-                            FROM {$_TABLES['users']}
-                            WHERE uid={$row['uid']}");
-        if ($contr) {
-            list($uid, $username) = DB_fetchArray($contr);
-            $username = DQ_linkProfile($uid, $username);
+        if ($Quote->getUid() > 1) {
+            $username = DQ_linkProfile($Quote->getUid(), $Quote->getUsername());
         } else {
             $username = $LANG_DQ['anonymous'];
         }
 
-        $dt = new Date($row['dt'], $_CONF['timezone']);
+        $dt = new Date($Quote->getDate(), $_CONF['timezone']);
         if (isset($_REQUEST['query'])) {
-            $title = COM_highlightQuery($row['title'], $_REQUEST['query']);
-            $quote = COM_highlightQuery($row['quote'], $_REQUEST['query']);
+            $title = COM_highlightQuery($Quote->getTitle(), $_REQUEST['query']);
+            $quote = COM_highlightQuery($Quote->getQuote(), $_REQUEST['query']);
         } else {
-            $title = $row['title'];
-            $quote = $row['quote'];
+            $title = $Quote->getTitle();
+            $quote = $Quote->getQuote();
         }
         $T->set_var(array(
-            'quote_id'      => $row['id'],
+            'quote_id'      => $Quote->getID(),
             'title'         => $title,
             'quote'         => $quote,
-            'quoted'        => DailyQuote\Quote::GoogleLink($row['quoted']),
+            'quoted'        => DailyQuote\Quote::GoogleLink($Quote->getQuoted()),
             'catname'       => $catlist,
             'contr'         => $username,
-            'source'        => $source,
-            'sourcedate'    => $sourcedate,
+            'source'        => htmlspecialchars($Quote->getSource()),
+            'sourcedate'    => htmlspecialchars($Quote->getSourceDate()),
             'datecontr'     => $dt->format($_CONF['shortdate'], true),
             'adblock'       => PLG_displayAdBlock('dailyquote_list', ++$count),
             'can_edit'      => SEC_hasRights('dailyquote.edit') ? true : false,
@@ -184,23 +115,23 @@ function DQ_listQuotes($sort, $dir, $page)
 
         if(SEC_hasRights('dailyquote.edit')) {
             $editlink = '<a href="' . DQ_ADMIN_URL .
-                        '/index.php?edit=quote&id='.$row['id'] . '">';
+                        '/index.php?edit=quote&id='.$Quote->getID() . '">';
             $icon_url = "{$_CONF['layout_url']}/images/edit.$_IMAGE_TYPE";
             $editlink .= COM_createImage($icon_url, $LANG_ADMIN['edit']);
             $editlink .= '</a>&nbsp;';
             $editlink .= COM_createLink(
-                    COM_createImage(
-                        $_CONF['layout_url'] .
-                                "/images/admin/delete.$_IMAGE_TYPE",
-                        $LANG_DQ['del_quote'],
-                        array(
-                            'onclick'=>'return confirm(\'' .
-                                $LANG_DQ['del_item_conf'] . '\');',
-                            'class'=> 'gl_mootip',
-                        )
-                    ),
-                    DQ_ADMIN_URL . '/index.php?delete=x&xtype=quote&id='.$row['id']
-                );
+                COM_createImage(
+                    $_CONF['layout_url'] .
+                            "/images/admin/delete.$_IMAGE_TYPE",
+                    $LANG_DQ['del_quote'],
+                    array(
+                        'onclick'=>'return confirm(\'' .
+                            $LANG_DQ['del_item_conf'] . '\');',
+                        'class'=> 'tooltip',
+                    )
+                ),
+                DQ_ADMIN_URL . '/index.php?delete=x&xtype=quote&id='.$Quote->getID()
+            );
             $T->set_var('editlink', $editlink);
         }
         $T->parse('qRow', 'QuoteRow', true);
@@ -339,7 +270,7 @@ case 'savesubmission':
 case 'edit':
     $q_id = isset($_GET['id']) ? $_GET['id'] : '';
     $Q = new DailyQuote\Quote($q_id);
-    if ($q_id == '' || !$Q->isNew) {
+    if ($q_id == '' || !$Q->isNew()) {
         $content .= $Q->Edit();
     }
     break;

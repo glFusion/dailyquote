@@ -13,193 +13,6 @@
 
 /** Import core glFusion functions */
 require_once('../../../lib-common.php');
-USES_lib_admin();
-
-/**
- * Create the administrators' menu.
- *
- * @param   string  $mode   Selected view
- * @return  string  HTML for the admin menu
- */
-function DQ_adminMenu($mode='')
-{
-    global $_CONF, $LANG_ADMIN, $LANG_DQ;
-
-    $menu_arr = array();
-
-    if (isset($LANG_DQ['hlp_admin_' . $mode])) {
-        $hlp_text = $LANG_DQ['hlp_admin_' . $mode];
-    } else {
-        $hlp_text = $LANG_DQ['hlp_admin_dailyquote'];
-    }
-
-    if ($mode == 'quotes') {
-        $menu_arr[] = array('text' => $LANG_DQ['newquote'],
-                'url' => DQ_ADMIN_URL . '/index.php?editquote=x');
-    } else {
-        $menu_arr[] = array('text' => $LANG_DQ['glsearchlabel'],
-                'url' => DQ_ADMIN_URL . '/index.php?quotes=x');
-    }
-
-    if ($mode == 'categories') {
-        $menu_arr[] = array('text' => 'New Category',
-                'url' => DQ_ADMIN_URL . '/index.php?editcat=x');
-    } else {
-        $menu_arr[] = array('text' => $LANG_DQ['manage_cats'],
-                'url' => DQ_ADMIN_URL . '/index.php?categories=x');
-    }
-
-    $menu_arr[] = array('url' => DQ_ADMIN_URL . '/index.php?batchform=x',
-              'text' => $LANG_DQ['batchaddlink']);
-    $menu_arr[] = array('url' => $_CONF['site_admin_url'],
-                'text' => $LANG_ADMIN['admin_home']);
-
-    $retval = ADMIN_createMenu($menu_arr, $hlp_text, plugin_geticon_dailyquote());
-
-    return $retval;
-}
-
-
-/**
- * Create an admin list of quotes.
- *
- * @return  string  HTML for list
- */
-function DQ_adminList()
-{
-    global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
-    global $_CONF_DQ, $LANG_DQ;
-
-    $retval = '';
-
-    $header_arr = array(      # display 'text' and use table field 'field'
-        array(
-            'field' => 'edit',
-            'text' => $LANG_ADMIN['edit'],
-            'sort' => false,
-        ),
-        array(
-            'field' => 'enabled',
-            'text' => $LANG_DQ['enabled'],
-            'sort' => false,
-        ),
-        array(
-            'field' => 'id',
-            'text' => 'Quote ID',
-            'sort' => true,
-        ),
-        array(
-            'field' => 'dt',
-            'text' => $LANG_DQ['date'],
-            'sort' => true,
-        ),
-        array(
-            'field' => 'quoted',
-            'text' => $LANG_DQ['quoted'],
-            'sort' => true,
-        ),
-        array(
-            'field' => 'title',
-            'text' => $LANG_DQ['title'],
-            'sort' => true,
-        ),
-        array(
-            'field' => 'quote',
-            'text' => $LANG_DQ['quote'],
-            'sort' => true,
-        ),
-        array(
-            'field' => 'delete',
-            'text' => $LANG_ADMIN['delete'],
-            'sort' => false,
-        ),
-    );
-
-    $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
-    $text_arr = array(
-        'has_extras' => true,
-        'form_url' => "{$_CONF['site_admin_url']}/plugins/{$_CONF_DQ['pi_name']}/index.php?type=quote"
-    );
-
-    $options = array('chkdelete' => 'true', 'chkfield' => 'id');
-
-    $query_arr = array('table' => 'dailyquote',
-        'sql' => "SELECT * FROM {$_TABLES['dailyquote_quotes']} ",
-        'query_fields' => array('title', 'quotes', 'quoted'),
-        'default_filter' => 'WHERE 1=1'
-    );
-    $form_arr = array();
-    return ADMIN_list('dailyquote', 'DQ_admin_getListField', $header_arr,
-                    $text_arr, $query_arr, $defsort_arr, '', '',
-                    $options, $form_arr);
-}
-
-
-/**
- * Display a single formatted field in the admin quote list.
- *
- * @param   string  $fieldname  Name of the field
- * @param   mixed   $fieldvalue Value of the field
- * @param   array   $A          Name->Value array of all fields
- * @param   array   $icon_arr   System icon array
- * @return  string              HTML for the field display
- */
-function DQ_admin_getListField($fieldname, $fieldvalue, $A, $icon_arr)
-{
-    global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN;
-
-    $retval = '';
-
-    switch($fieldname) {
-    case 'edit':
-        $retval .= COM_createLink('',
-            DQ_ADMIN_URL . "/index.php?editquote=x&amp;id={$A['id']}",
-            array(
-                'class' => 'uk-icon uk-icon-edit',
-            )
-        );
-        break;
-
-    case 'enabled':
-        $value = $fieldvalue == 1 ? 1 : 0;
-        $chk = $fieldvalue == 1 ? ' checked="checked" ' : '';
-        $retval .= '<input type="checkbox" id="togena' . $A['id'] . '"' .
-            $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] .
-                '", "quote");\' />';
-        break;
-
-    case 'title':
-    case 'quote':
-        $max_len = 40;
-        $ellipses = strlen($fieldvalue) > $max_len ? ' ...' : '';
-        $retval = substr(stripslashes($fieldvalue), 0, $max_len) . $ellipses;
-        break;
-
-    case 'dt';
-        $dt = new Date($A['dt'], $_CONF['timezone']);
-        $retval = $dt->format($_CONF['shortdate'], true);
-        break;
-
-    case 'delete':
-        $retval = COM_createLink('',
-            DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['id'],
-            array(
-                'class' => 'uk-icon uk-icon-trash dq-icon-danger',
-                'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
-                'title' => $LANG_ADMIN['delete'],
-            )
-        );
-        break;
-
-    default:
-        $retval = strip_tags($fieldvalue);
-        break;
-    }
-
-    return $retval;
-}
-
-
 
 // MAIN
 // If plugin is installed but not enabled, display an error and exit gracefully
@@ -302,8 +115,7 @@ case 'delcat':
     break;
 
 case 'processbatch':
-    USES_dailyquote_batch();
-    $content = DQ_process_batch();
+    $content = DailyQuote\Batch::process();
     $page = 'none';
     break;
 
@@ -342,8 +154,7 @@ case 'categories':
     break;
 
 case 'batchform':
-    USES_dailyquote_batch();
-    $content .= DQ_batch_form();
+    $content .= DailyQuote\Batch::form();
     break;
 
 case 'none':
@@ -353,18 +164,17 @@ case 'none':
 case 'quotes':
 default:
     $page = 'quotes';
-    $content .= DQ_adminList();
+    $content .= DailyQuote\Quote::adminList();
     break;
 }
 
 $display = COM_siteHeader();
 $display .= COM_startBlock($_CONF_DQ['pi_display_name'] . ' ver. ' . $_CONF_DQ['pi_version'], '',
                 COM_getBlockTemplate('_admin_block', 'header'));
-$display .= DQ_adminMenu($page);
+$display .= DailyQuote\Menu::Admin($page);
 $display .= $content;
 $display .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 $display .= COM_siteFooter();
-
 echo $display;
 
 ?>
