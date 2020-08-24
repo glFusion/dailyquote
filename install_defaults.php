@@ -236,7 +236,7 @@ function plugin_initconfig_dailyquote($group_id = 0)
             _addConfigItem($cfgItem);
         }
     } else {
-        COM_errorLog('initconfig error: Paypal config group already exists');
+        COM_errorLog('initconfig error: DailyQuote config group already exists');
     }
     return true;
 }
