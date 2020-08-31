@@ -77,7 +77,7 @@ class Batch
         // First, upload the file
         USES_class_upload();
 
-        $upload = new upload();
+        $upload = new \upload();
         $upload->setPath($_CONF['path_data']. 'temp');
         $upload->setAllowedMimeTypes(array(
             'text/plain' => '.txt',
@@ -150,7 +150,7 @@ class Batch
                 }
                 $failures++;
             } else {
-                $Q = new DailyQuote\Quote();
+                $Q = new Quote();
                 // Convert to hash for $Q->Save() function
                 $A = array(
                     'id' => COM_makeSid(),
