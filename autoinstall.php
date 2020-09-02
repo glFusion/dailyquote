@@ -18,7 +18,7 @@ if (!defined ('GVERSION')) {
 /** Import plugin functions */
 require_once __DIR__ . '/functions.inc';
 /** Import plugin database definition */
-require_once __DIR__ . '/mysql_install.php';
+require_once __DIR__ . '/sql/mysql_install.php';
 
 /** Plugin installation options
  * @global array $INSTALL_plugin['dailyquote']
