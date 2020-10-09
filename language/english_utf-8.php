@@ -11,7 +11,6 @@
 *   @filesource
 */
 
-
 $LANG_DQ= array(
 'access_denied'     => 'Access Denied',
 'access_denied_msg' => 'You do not have Access to this page. Your user name and IP have been recorded.',

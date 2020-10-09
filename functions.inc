@@ -41,12 +41,30 @@ define('DQ_URL',
 
 
 /** Language file Include */
-$langpath = DQ_PI_PATH . '/language';
-$langfile = "{$_CONF['language']}.php";
-if (!file_exists("$langpath/$langfile")) {
-    $langfile = 'english.php';
+$langpath = __DIR__ . '/language';
+require_once "$langpath/english_utf-8.php";
+if (file_exists("$langpath/custom/english_utf-8.php")) {
+    include_once "$langpath/custom/english_utf-8.php";
 }
-require_once "$langpath/$langfile";
+$langfile = "{$_CONF['language']}.php";
+if (
+    $lang_file != 'english_utf-8.php' &&
+    file_exists("$langpath/$langfile")
+) {
+    $save = $LANG_DQ;
+    unset($LANG_DQ);
+    include_once "$langpath/$langfile";
+    if (file_exists("$langpath/custom/$langfile")) {
+        include_once "$langpath/custom/$langfile";
+    }
+    if ($LANG_DQ !== NULL) {
+        $LANG_DQ = array_merge($save, $LANG_DQ);
+    } else {
+        $LANG_DQ = $save;
+    }
+    unset($save);
+}
+
 
 /**
  * Import the batch upload function.
