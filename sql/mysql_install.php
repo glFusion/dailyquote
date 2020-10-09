@@ -24,18 +24,16 @@ $quote_table_creation = "id VARCHAR(40) NOT NULL PRIMARY KEY,
   dt INT(11) UNSIGNED DEFAULT 0,
   uid INT(11) UNSIGNED NOT NULL default '1',
   enabled TINYINT(1) UNSIGNED NOT NULL DEFAULT '1',
-  UNIQUE idx_quote (`quote`(32)
+  UNIQUE idx_quote (`quote`(32))
 ) ENGINE=MyISAM";
 
 // Main quote table
 $_SQL['dailyquote_quotes'] = "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
-  $quote_table_creation
-)";
+  $quote_table_creation";
 
 // Submission Table
 $_SQL['dailyquote_submission'] = "CREATE TABLE {$_TABLES['dailyquote_submission']} (
-  $quote_table_creation
-)";
+  $quote_table_creation";
 
 // Categories Table
 $_SQL['dailyquote_cat'] =
