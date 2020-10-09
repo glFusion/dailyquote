@@ -731,9 +731,7 @@ class Quote
         //echo $sql;die;
         $Q = new self();
         $result = DB_query($sql, 1);
-        if (!$result || DB_numRows($result) == 0) {
-            COM_errorLog("DailyQuote\\Quote::getQuote() error: $sql");
-        } else {
+        if ($result && DB_numRows($result) > 0) {
             $row = DB_fetchArray($result, false);
             $Q->setVars($row);
             $Q->setIsNew(0);
