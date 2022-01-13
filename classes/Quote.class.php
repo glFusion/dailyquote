@@ -823,11 +823,13 @@ class Quote
                 'field' => 'edit',
                 'text' => MO::_('Edit'),
                 'sort' => false,
+                'align' => 'center',
             ),
             array(
                 'field' => 'enabled',
                 'text' => MO::_('Enabled'),
                 'sort' => false,
+                'align' => 'center',
             ),
             array(
                 'field' => 'id',
@@ -858,6 +860,7 @@ class Quote
                 'field' => 'delete',
                 'text' => MO::_('Delete'),
                 'sort' => false,
+                'align' => 'center',
             ),
         );
 
@@ -942,7 +945,7 @@ class Quote
             $retval = COM_createLink('',
                 DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['id'],
                 array(
-                    'class' => 'uk-icon uk-icon-trash dq-icon-danger',
+                    'class' => 'uk-icon uk-icon-minus-square uk-text-danger',
                     'onclick' => 'return confirm(\'' . 
                         MO::_('Are you sure you want to delete this item?') .                       '\');',
                     'title' => MO::_('Delete'),
