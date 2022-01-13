@@ -1,21 +1,22 @@
 <?php
 /**
-*   Batch add quotes to the database.  Similar to glFusion's user import.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Batch add quotes to the database.  Similar to glFusion's user import.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     0.2.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
+use DailyQuote\MO;
 
 
 /**
-*   Displays the batch add form.
-*   @return string  HTML for the form
-*/
+ *   Displays the batch add form.
+ *   @return string  HTML for the form
+ */
 function DQ_batch_form(){
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
 
@@ -45,6 +46,7 @@ function DQ_batch_form(){
     $T->set_var(array(
         'action_url' => DQ_ADMIN_URL .'/index.php',
         'catlist'   => $catlist,
+        'lang_batchaddtitle' => MO::_('Add Your Quotations Here'),
     ) );
     $T->parse('output','page');
     $retval .= $T->finish($T->get_var('output'));

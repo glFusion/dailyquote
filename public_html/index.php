@@ -13,6 +13,7 @@
 
 /** Import core glFusion functions */
 require_once('../lib-common.php');
+use DailyQuote\MO;
 
 /**
  * Displays the quotes listing.
@@ -24,7 +25,7 @@ require_once('../lib-common.php');
  */
 function DQ_listQuotes($sort, $dir, $page)
 {
-    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
+    global $_TABLES, $_CONF, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
         $LANG_ADMIN;
 
     $QL = new DailyQuote\QuoteList;
@@ -48,18 +49,28 @@ function DQ_listQuotes($sort, $dir, $page)
 
     // Set up sorting options
     $sortby_opts = array(
-        'dt' => $LANG_DQ['date'],
-        'quote' => $LANG_DQ['quotation'],
-        'quoted' => $LANG_DQ['quoted'],
+        'dt' => MO::_('Date'),
+        'quote' => MO::_('Quotation'),
+        'quoted' => MO::_('Person Quoted'),
     );
     $sortby = '';
     foreach ($sortby_opts as $key=>$value) {
         $sel = $sort == $key ? ' selected="selected"' : '';
         $sortby .= "<option value=\"$key\" $sel>$value</option>\n";
     }
-    $T->set_var('sortby_opts', $sortby);
-    $T->set_var('submit', $LANG_DQ['sort']);
-    $T->set_var('pi_url', DQ_URL);
+    $T->set_var(array(
+        'sortby_opts' => $sortby,
+        'submit' => MO::_('Sort'),
+        'pi_url' => DQ_URL,
+        'lang_sortby' => MO::_('Sort Quotations by'),
+        'lang_ascending' => MO::_('Ascending'),
+        'lang_descending' => MO::_('Descending'),
+        'lang_sort' => MO::_('Sort'),
+        'lang_edit' => MO::_('Edit'),
+        'lang_del_item_conf' => MO::_('Do you really want to delete this item?'),
+        'lang_delete' => MO::_('Delete'),
+        'lang_subm_by' => MO::_('Submitted By'),
+    ) );
     if ($dir == 'ASC') {
         $T->set_var('asc_sel', 'selected="selected"');
     } else {
@@ -88,7 +99,7 @@ function DQ_listQuotes($sort, $dir, $page)
         if ($Quote->getUid() > 1) {
             $username = DQ_linkProfile($Quote->getUid(), $Quote->getUsername());
         } else {
-            $username = $LANG_DQ['anonymous'];
+            $username = MO::_('Anonymous');
         }
 
         $dt = new Date($Quote->getDate(), $_CONF['timezone']);
@@ -123,10 +134,11 @@ function DQ_listQuotes($sort, $dir, $page)
                 COM_createImage(
                     $_CONF['layout_url'] .
                             "/images/admin/delete.$_IMAGE_TYPE",
-                    $LANG_DQ['del_quote'],
+                    MO::_('Delete Quote'),
                     array(
                         'onclick'=>'return confirm(\'' .
-                            $LANG_DQ['del_item_conf'] . '\');',
+                            MO::_('Do you really want to delete this item?') .
+                            '\');',
                         'class'=> 'tooltip',
                     )
                 ),
@@ -148,7 +160,7 @@ function DQ_listQuotes($sort, $dir, $page)
  */
 function DQ_listCategories()
 {
-    global $_TABLES, $_CONF, $LANG_DQ;
+    global $_TABLES, $_CONF;
 
     $retval = '';
 
@@ -159,8 +171,8 @@ function DQ_listCategories()
 
     $result = DB_query($sql);
     if (!$result){
-        $retval = $LANG_DQ['caterror'];
-        COM_errorLog("An error occured while retrieving list of categories",1);
+        $retval = MO::_('An error occurred while retrieving category list.');
+        COM_errorLog($retval, 1);
         return $retval;
     }
 
@@ -246,11 +258,13 @@ if (COM_isAnonUser()) {
     $access = 3;
 }
 
-$T->set_var('indextitle', $LANG_DQ['indextitle']);
-$indexintro = $LANG_DQ['indexintro'];
+$T->set_var('indextitle', MO::_('Quote of the Day'));
+$indexintro = MO::_('History is full of stories, rants, perspectives, truths, lies, facts, details, opinions, ordinances, etc. The stories told by the men and women who were there, as well as by those who were not, and their comments are items for display in the archives of humankind.');
 if ($access == 3) {
-    $indexintro .= ' ' . sprintf($LANG_DQ['indexintro_contrib'],
-        DQ_URL . '/index.php?edit');
+    $indexintro .= ' ' . sprintf(
+        MO::_('Visit the museum and <a href="%s">contribute</a>.'),
+        DQ_URL . '/index.php?edit'
+    );
 }
 
 $content = '';

@@ -11,6 +11,8 @@
  * @filesource
  */
 namespace DailyQuote;
+use DailyQuote\MO;
+
 
 /**
  * Define a class to deal with quotes.
@@ -468,7 +470,7 @@ class Quote
      */
     public function Edit($mode='edit', $A=array())
     {
-        global $_TABLES, $_CONF, $_USER, $LANG_DQ, $LANG_ADMIN, $_CONF_DQ,
+        global $_TABLES, $_CONF, $_USER, $_CONF_DQ,
             $LANG12, $_SYSTEM;
 
         $retval = '';
@@ -488,21 +490,21 @@ class Quote
 
         switch ($mode) {
         case 'edit':
-            $saveoption = $LANG_ADMIN['save'];      // Save
+            $saveoption = MO::_('Save');      // Save
             $cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php' :
                 $_CONF['site_url'];
             break;
 
         case 'submit':
         case $LANG12[8]:
-            $saveoption = $LANG_ADMIN['save'];      // Save
+            $saveoption = MO::_('Save');      // Save
             $hidden_vars= '<input type="hidden" name="type" value="dailyquote" />'
                 .'<input type="hidden" name="mode" value="' . $LANG12[8].'" />';
             $cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php' : $_CONF['site_url'];
             break;
 
         case 'moderate':
-            $saveoption = $LANG_ADMIN['moderate'];  // Save & Approve
+            $saveoption = MO::_('Moderate');  // Save & Approve
             $saveaction = 'savemoderation'; // override $saveaction
             $cancel_url = $_CONF['site_admin_url'] . '/moderation.php';
             break;
@@ -528,6 +530,23 @@ class Quote
             'ena_chk'       => $this->enabled ? 'checked="checked"' : '',
             'is_admin'      => $this->isAdmin,
             'hidden_vars'   => $hidden_vars,
+            'lang_addquote' => MO::_('Add Your Quotation Here'),
+            'lang_nomarks'  => MO::_('Please do not enclose your quotation inside quotation marks.') .
+                MO::_('Any quotations within your quotation should be contained within single quotation marks.') .
+                MO::_('There should not be any double quotation marks anywhere in the text that you have typed or pasted into this space.') .
+                MO::_('The only required field is the quotation field.'),
+            'lang_addtitle' => MO::_('Title'),
+            'lang_quotation' => MO::_('Quotation'),
+            'lang_required' => MO::_('This item is required'),
+            'lang_quoted' => MO::_('Person Quoted'),
+            'lang_source' => MO::_('Source'),
+            'lang_sourcedate' => MO::_('Source Date'),
+            'lang_enabled' => MO::_('Enabled'),
+            'lang_choosecat' => MO::_('Choose one or more categories'),
+            'lang_reset' => MO::_('Reset'),
+            'lang_delete'   => MO::_('Delete'),
+            'lang_cancel'   => MO::_('Cancel'),
+            'lang_confirm_delitem' => MO::_('Are you sure you want to delete this item?'),
         ) );
 
         //retrieve categories from db if any and display
@@ -572,7 +591,7 @@ class Quote
      */
     public function Save($A)
     {
-        global $_CONF, $_TABLES, $_USER, $MESSAGE, $LANG_DQ, $_CONF_DQ;
+        global $_CONF, $_TABLES, $_USER, $MESSAGE, $_CONF_DQ;
 
         if (is_array($A)) {
             $this->setVars($A);
@@ -657,7 +676,7 @@ class Quote
      */
     public function SaveSubmission($A)
     {
-        global $_CONF_DQ, $LANG_DQ, $_USER, $_CONF;
+        global $_CONF_DQ, $_USER, $_CONF;
 
         if (SEC_hasRights('dailyquote.submit')) {
             $this->setTable('quotes');
@@ -671,7 +690,7 @@ class Quote
             $this->setTable('submission');
             $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
         }  else {
-            return $LANG_DQ['access_denied'];
+            return MO::_('Access Denied');
         }
         $msg = $this->Save($A);
 
@@ -687,8 +706,9 @@ class Quote
                     'subm_by'   => COM_getDisplayName($_USER['uid']),
                 ) );
                 $T->parse('output','msg');
-                COM_mail($_CONF['site_mail'],
-                    $LANG_DQ['email_subject'],
+                COM_mail(
+                    $_CONF['site_mail'],
+                    MO::_('New Daily Quote Notification'),
                     $T->finish($T->get_var('output'))
                 );
             }
@@ -748,10 +768,10 @@ class Quote
      */
     public static function GoogleLink($Quoted)
     {
-        global $_CONF, $LANG_DQ, $_CONF_DQ;
+        global $_CONF, $_CONF_DQ;
 
         if ($Quoted == '') {
-            $retval = $LANG_DQ['unknown'];
+            $retval = MO::_('Unknown');
         } elseif (
             $_CONF_DQ['google_link'] == 0 ||
             !isset($_CONF_DQ['google_url']) ||
@@ -794,20 +814,19 @@ class Quote
      */
     public static function adminList()
     {
-        global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
-        global $_CONF_DQ, $LANG_DQ;
+        global $_CONF, $_TABLES, $_CONF_DQ;
 
         $retval = '';
 
         $header_arr = array(      # display 'text' and use table field 'field'
             array(
                 'field' => 'edit',
-                'text' => $LANG_ADMIN['edit'],
+                'text' => MO::_('Edit'),
                 'sort' => false,
             ),
             array(
                 'field' => 'enabled',
-                'text' => $LANG_DQ['enabled'],
+                'text' => MO::_('Enabled'),
                 'sort' => false,
             ),
             array(
@@ -817,27 +836,27 @@ class Quote
             ),
             array(
                 'field' => 'dt',
-                'text' => $LANG_DQ['date'],
+                'text' => MO::_('Date'),
                 'sort' => true,
             ),
             array(
                 'field' => 'quoted',
-                'text' => $LANG_DQ['quoted'],
+                'text' => MO::_('Person Quoted'),
                 'sort' => true,
             ),
             array(
                 'field' => 'title',
-                'text' => $LANG_DQ['title'],
+                'text' => MO::_('Title'),
                 'sort' => true,
             ),
             array(
                 'field' => 'quote',
-                'text' => $LANG_DQ['quote'],
+                'text' => MO::_('Quote'),
                 'sort' => true,
             ),
             array(
                 'field' => 'delete',
-                'text' => $LANG_ADMIN['delete'],
+                'text' => MO::_('Delete'),
                 'sort' => false,
             ),
         );
@@ -856,7 +875,7 @@ class Quote
         );
         $form_arr = array();
         $retval = COM_createLink(
-            $LANG_DQ['newquote'],
+            MO::_('New Quote'),
             DQ_ADMIN_URL . '/index.php?editquote=x',
             array(
                 'class' => 'uk-button uk-button-success',
@@ -885,7 +904,7 @@ class Quote
      */
     public static function getListField($fieldname, $fieldvalue, $A, $icon_arr)
     {
-        global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN;
+        global $_CONF, $_CONF_DQ;
 
         $retval = '';
 
@@ -924,8 +943,9 @@ class Quote
                 DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['id'],
                 array(
                     'class' => 'uk-icon uk-icon-trash dq-icon-danger',
-                    'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
-                    'title' => $LANG_ADMIN['delete'],
+                    'onclick' => 'return confirm(\'' . 
+                        MO::_('Are you sure you want to delete this item?') .                       '\');',
+                    'title' => MO::_('Delete'),
                 )
             );
             break;

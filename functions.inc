@@ -18,6 +18,18 @@ if (!defined('GVERSION')) {
 /** @global array $_CONF_DQ */
 global $_CONF_DQ;
 
+spl_autoload_register(function ($class)
+{
+    if (strpos($class, 'DailyQuote\\') === 0) {
+        $class = str_replace('DailyQuote\\', '', $class);
+        $path = __DIR__ . '/classes/' . $class . '.class.php';
+        if (file_exists($path)) {
+            include $path;
+        }
+    }
+});
+use DailyQuote\MO;
+
 //  Check and see if we need to load the plugin configuration
 if (!isset($_CONF_DQ['quoteperpage'])) {
     /** Import configuration-handling class */
@@ -46,9 +58,9 @@ require_once "$langpath/english_utf-8.php";
 if (file_exists("$langpath/custom/english_utf-8.php")) {
     include_once "$langpath/custom/english_utf-8.php";
 }
-$langfile = "{$_CONF['language']}.php";
+$langfile = $_CONF['language'] . '.php';
 if (
-    $lang_file != 'english_utf-8.php' &&
+    $langfile != 'english_utf-8.php' &&
     file_exists("$langpath/$langfile")
 ) {
     $save = $LANG_DQ;
@@ -71,17 +83,6 @@ if (
  */
 function USES_dailyquote_batch()
 {   require_once DQ_PI_PATH . '/batch.php'; }
-
-spl_autoload_register(function ($class)
-{
-    if (strpos($class, 'DailyQuote\\') === 0) {
-        $class = str_replace('DailyQuote\\', '', $class);
-        $path = __DIR__ . '/classes/' . $class . '.class.php';
-        if (file_exists($path)) {
-            include $path;
-        }
-    }
-});
 
 
 /**
@@ -157,10 +158,10 @@ function plugin_showstats_dailyquote($showsitestats)
             ORDER BY 2 DESC, 1 ASC
             LIMIT 10");
     $nrows  = DB_numRows($result);
-    $retval .= COM_startBlock($LANG_DQ['StatsMsg1']);
+    $retval .= COM_startBlock(MO::_('Top Ten Most Quoted Personalities'));
     if ($nrows > 0) {
-        $T->set_var('item_label', $LANG_DQ['StatsMsg3']);
-        $T->set_var('stat_name', $LANG_DQ['StatsMsg4']);
+        $T->set_var('item_label', MO::_('Most Quoted'));
+        $T->set_var('stat_name', MO::_('Quotes'));
 
         while ($A = DB_fetchArray($result)) {
             $T->set_var('item_url',
@@ -172,7 +173,7 @@ function plugin_showstats_dailyquote($showsitestats)
         $T->parse('output','itemstats');
         $retval .= $T->finish($T->get_var('output'));
     } else {
-        $retval .= $LANG_DQ['StatsMsg2'];
+        $retval .= MO::_('It appears there are no personalities quoted for the Daily Quote plugin on this site.');
     }
     $retval .= COM_endBlock();
     return $retval;
@@ -186,11 +187,11 @@ function plugin_showstats_dailyquote($showsitestats)
  */
 function plugin_statssummary_dailyquote()
 {
-    global $LANG_DQ, $_TABLES;
+    global $_TABLES;
 
     // This shows in the summary box
     $total_items = DB_count($_TABLES['dailyquote_quotes']);
-    $summary_label = $LANG_DQ['quotes_in_db'];
+    $summary_label = MO::_('Quotes in the database');
 
     $retval = array($summary_label, $total_items);
     return $retval;
@@ -225,12 +226,12 @@ function plugin_cclabel_dailyquote()
  */
 function plugin_getadminoption_dailyquote()
 {
-    global $_CONF, $_TABLES, $LANG_DQ, $_CONF_DQ;
+    global $_CONF, $_TABLES, $_CONF_DQ;
 
     if (SEC_hasRights('dailyquote.admin')) {
         $count = DB_count($_TABLES['dailyquote_quotes'], 'enabled', 1);
         return array(
-            $LANG_DQ['admin_menu'],
+            MO::_('Daily Quotes'),
             DQ_ADMIN_URL . '/index.php',
             $count
         );
@@ -247,10 +248,9 @@ function plugin_getadminoption_dailyquote()
  */
 function plugin_searchtypes_dailyquote()
 {
-    global $LANG_DQ;
-
-    $tmp['dailyquote'] = $LANG_DQ['glsearchlabel'];
-    return $tmp;
+    return array(
+        'dailyquote' => MO::_('Quotes Listing'),
+    );
 }
 
 
@@ -282,7 +282,7 @@ function plugin_dopluginsearch_dailyquote(
     $page,
     $perpage)
 {
-    global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
+    global $_TABLES, $_CONF, $_USER, $_CONF_DQ;
 
     $htmlquery = urlencode($query);
     $query = trim(DB_escapeString(htmlspecialchars($query)));
@@ -328,14 +328,18 @@ function plugin_dopluginsearch_dailyquote(
  */
 function plugin_whatsnewsupported_dailyquote()
 {
-    global $_CONF, $LANG_DQ, $_CONF_DQ;
+    global $_CONF, $_CONF_DQ;
 
     if ($_CONF_DQ['whatsnew'] == '0') {
         return false;
     } else {
         return array(
-            $LANG_DQ['whatsnewlabel'],
-            sprintf($LANG_DQ['whatsnewperiod'], $_CONF_DQ['whatsnewdays']));
+            MO::_('Quotes'),
+            sprintf(
+                MO::_('last %s days'),
+                $_CONF_DQ['whatsnewdays']
+            )
+        );
     }
 }
 
@@ -347,7 +351,7 @@ function plugin_whatsnewsupported_dailyquote()
  */
 function plugin_getwhatsnew_dailyquote()
 {
-    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
+    global $_TABLES, $_CONF, $_CONF_DQ;
 
     $days = (int)$_CONF_DQ['whatsnewdays'];
 
@@ -387,7 +391,7 @@ function plugin_getwhatsnew_dailyquote()
         }
         return $items;
     } else {
-        return $LANG_DQ['newempty'] . '<br />' . LB;
+        return MO::_('No new quotes') . '<br />' . LB;
     }
 }
 
@@ -462,13 +466,15 @@ function plugin_supportadblock_dailyquote()
  */
 function DQ_linkProfile($uid, $username)
 {
-    global $_CONF, $LANG_DQ;
+    global $_CONF;
 
     if ($uid > '1') {
-        $retval = COM_createLink(htmlspecialchars($username),
-                $_CONF['site_url'].'/users.php?mode=profile&amp;uid='.$uid);
+        $retval = COM_createLink(
+            htmlspecialchars($username),
+            $_CONF['site_url'].'/users.php?mode=profile&amp;uid='.$uid
+        );
     } else {
-        $retval = $LANG_DQ['anonymous'];
+        $retval = MO::_('Anonymous');
     }
     return $retval;
 }
@@ -500,7 +506,7 @@ function DQ_catlink($catid, $catname)
  */
 function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
 {
-    global $_CONF, $_USER, $_TABLES, $PHP_SELF, $LANG_DQ, $_CONF_DQ;
+    global $_CONF, $_USER, $_TABLES, $PHP_SELF, $_CONF_DQ;
 
     $retval = '';
     $img_dir = $_CONF['layout_url'] . '/' . $_CONF_DQ['pi_name'] . '/image_set';
@@ -586,46 +592,59 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
  */
 function phpblock_dailyquote_dqmenu()
 {
-    global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
+    global $_TABLES, $_CONF, $_USER, $_CONF_DQ;
 
     $content = '';
 
     // Link to the plugin index page
     $count = DB_count($_TABLES['dailyquote_quotes'], 'enabled', '1');
-    $href = COM_createLink("{$LANG_DQ['indexlink']}&nbsp;($count)",
-            DQ_URL . '/index.php');
+    $href = COM_createLink(
+        MO::_('Listings') . "&nbsp;($count)",
+        DQ_URL . '/index.php'
+    );
     $content .= $href . "<br />\n";
 
     // Link to the category index
     $count = DB_count($_TABLES['dailyquote_cat'], 'enabled', '1');
     if ($count > '0') {
-        $href = COM_createLink("{$LANG_DQ['catindexlink']}&nbsp;($count)",
-            DQ_URL . '/index.php?mode=categories');
+        $href = COM_createLink(
+            MO::_('Categories') . "&nbsp;($count)",
+            DQ_URL . '/index.php?mode=categories'
+        );
         $content .= $href . "<br />\n";
     }
 
     //link to the search form
-    $href = COM_createLink($LANG_DQ['searchlink'], DQ_URL . '/index.php?quoted=');
+    $href = COM_createLink(
+        MO::_('Search Quotes'),
+        DQ_URL . '/index.php?quoted='
+    );
     $content .= $href . "<br />\n";
 
     // Link to the submission form
     if (($anonadd == '1' && $_USER['uid'] < 2) ||
         ($loginadd == '1' && $_USER['uid'] > 2) ||
         SEC_hasRights('dailyquote.add')) {
-        $href = COM_createLink($LANG_DQ['addformlink'],
-            $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']);
+        $href = COM_createLink(
+            MO::_('Add a Quote'),
+            $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']
+        );
         $content .= $href . "<br />\n";
     }
 
     if (SEC_hasRights('dailyquote.edit')) {
         // Link to the manage quotes page
-        $href = COM_createLink($LANG_DQ['managelink'],
-            DQ_ADMIN_URL . '/index.php');
+        $href = COM_createLink(
+            MO::_('Manage Quotes'),
+            DQ_ADMIN_URL . '/index.php'
+        );
         $content .= $href . "<br />\n";
 
         // Link to the category management page
-        $href = COM_createLink($LANG_DQ['manage_cats'],
-            DQ_ADMIN_URL . '/index.php?mode=categories');
+        $href = COM_createLink(
+            MO::_('Manage Categories'),
+            DQ_ADMIN_URL . '/index.php?mode=categories'
+        );
         $content .= $href . "<br />\n";
     }
     return $content;
@@ -692,7 +711,7 @@ function plugin_moderationvalues_dailyquote()
  */
 function plugin_itemlist_dailyquote()
 {
-    global $_TABLES, $LANG_DQ, $_CONF_DQ;
+    global $_TABLES, $_CONF_DQ;
 
     if (plugin_ismoderator_dailyquote()) {
         $plugin = new Plugin();
@@ -700,9 +719,9 @@ function plugin_itemlist_dailyquote()
         $plugin->getsubmissionssql =
                 "SELECT id, quoted, title, source, uid
                 FROM {$_TABLES['dailyquote_submission']}";
-        $plugin->addSubmissionHeading($LANG_DQ['quoted']);
-        $plugin->addSubmissionHeading($LANG_DQ['title']);
-        $plugin->addSubmissionHeading($LANG_DQ['source']);
+        $plugin->addSubmissionHeading(MO::_('Person Quoted'));
+        $plugin->addSubmissionHeading(MO::_('Title'));
+        $plugin->addSubmissionHeading(MO::_('Source'));
         return $plugin;
     }
 }
@@ -769,7 +788,7 @@ function plugin_moderationdelete_dailyquote($id)
  */
 function plugin_savesubmission_dailyquote($A)
 {
-    global $_TABLES, $_USER, $_CONF, $_CONF_DQ, $LANG12, $LANG_DQ;
+    global $_TABLES, $_USER, $_CONF, $_CONF_DQ, $LANG12;
 
     // Initialize error message.  If it's still empty at the end, then
     // the save was successful.  Otherwise, redisplay the submission
@@ -787,7 +806,7 @@ function plugin_savesubmission_dailyquote($A)
     //if (empty($A['title']) || empty($A['quote'])) {
     if (empty($A['quote'])) {
         COM_resetSpeedlimit('submit');
-        $errmsg .= "<li>". $LANG_DQ['missing_req_fields']. "</li>\n";
+        $errmsg .= "<li>". MO::_('Required fields are missing.') . "</li>\n";
     }
 
     // If this user is an authorized submitter, or we're not using the
@@ -838,8 +857,11 @@ function plugin_savesubmission_dailyquote($A)
                 'subm_by'   => COM_getDisplayName($A['uid']),
             ) );
             $T->parse('output','msg');
-            COM_mail($_CONF['site_mail'], $LANG_DQ['email_subject'],
-                $T->finish($T->get_var('output')));
+            COM_mail(
+                $_CONF['site_mail'],
+                MO::_('New Daily Quote Notification'),
+                $T->finish($T->get_var('output'))
+            );
         }
         return COM_refresh($_CONF['site_url']
                     . "/index.php?msg=$msg&amp;plugin=". $_CONF_DQ['pi_name']);
@@ -1140,7 +1162,7 @@ function plugin_getheadercss_dailyquote()
  */
 function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
 {
-    global $_TABLES, $_CONF, $LANG_DQ;
+    global $_TABLES, $_CONF;
 
     $properties = explode(',', $what);
     $fields = array();
@@ -1201,7 +1223,7 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
                 $props[$p] = $A['quote'];
                 break;
             case 'title':
-                $props[$p] = empty($A['title']) ? $LANG_DQ['untitled'] : $A['title'];
+                $props[$p] = empty($A['title']) ? MO::_('Untitled') : $A['title'];
                 break;
             case 'author':
                 $props[$p] = $A['uid'];
@@ -1266,7 +1288,7 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
  */
 function DQ_random_quote($qid='', $cid='')
 {
-    global $_CONF, $LANG_DQ, $_CONF_DQ;
+    global $_CONF, $_CONF_DQ;
 
     $Q = DailyQuote\Quote::getInstance($qid, $cid);
     if (!$Q) {
@@ -1277,7 +1299,7 @@ function DQ_random_quote($qid='', $cid='')
     $T->set_file('page', 'randomquotebox.thtml');
     $T->set_var(array(
         'site_url'  => $_CONF['site_url'],
-        'randomboxtitle' => $LANG_DQ['randomboxtitle'],
+        'randomboxtitle' => MO::_('Quote of the Day'),
         'title'     => $Q->getTitle(),
         'randomquote' => $Q->getQuote(),
         'quoted'    => $Q->getQuoted(),
@@ -1285,7 +1307,7 @@ function DQ_random_quote($qid='', $cid='')
         'sourcedate' => $Q->getSourceDate(),
     ) );
     if ($Q->getUid() > 1) {
-        $T->set_var('subm_by', $LANG_DQ['subm_by'] . ':&nbsp;');
+        $T->set_var('subm_by', MO::_('Submitted By') . ':&nbsp;');
         $T->set_var('dispcontr', COM_getDisplayName($Q->getUid()));
         $T->set_var('datecontr', '&nbsp;/&nbsp;' . $Q->getDate());
     }

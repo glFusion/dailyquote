@@ -29,6 +29,6 @@ $_CONF_DQ['pi_version'] = '0.3.0';
 $_CONF_DQ['pi_name'] = 'dailyquote';
 $_CONF_DQ['gl_version'] = '1.7.7';
 $_CONF_DQ['pi_url'] = 'http://www.leegarner.com';
-$_CONF_DQ['pi_display_name'] = 'Daily Quotes';
+$_CONF_DQ['pi_display_name'] = DailyQuote\MO::_('Daily Quotes');
 
 ?>
