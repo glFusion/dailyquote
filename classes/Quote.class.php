@@ -804,11 +804,13 @@ class Quote
                 'field' => 'edit',
                 'text' => $LANG_ADMIN['edit'],
                 'sort' => false,
+                'align' => 'center',
             ),
             array(
                 'field' => 'enabled',
                 'text' => $LANG_DQ['enabled'],
                 'sort' => false,
+                'align' => 'center',
             ),
             array(
                 'field' => 'id',
@@ -839,6 +841,7 @@ class Quote
                 'field' => 'delete',
                 'text' => $LANG_ADMIN['delete'],
                 'sort' => false,
+                'align' => 'center',
             ),
         );
 
@@ -923,7 +926,7 @@ class Quote
             $retval = COM_createLink('',
                 DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['id'],
                 array(
-                    'class' => 'uk-icon uk-icon-trash dq-icon-danger',
+                    'class' => 'uk-icon uk-icon-minus-square uk-text-danger',
                     'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
                     'title' => $LANG_ADMIN['delete'],
                 )
