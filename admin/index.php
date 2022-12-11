@@ -50,7 +50,7 @@ foreach($expected as $provided) {
     }
 }
 
-$item_id = isset($_REQUEST['id']) ? COM_sanitizeID($_REQUEST['id'], false) : '';
+$item_id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
 
 if (isset($_REQUEST['page'])) {
     $page = COM_applyFilter($_REQUEST['page']);
@@ -73,21 +73,21 @@ case 'savecat':
     break;
 
 case 'savequote':
-    $Q = new DailyQuote\Quote($item_id);
-    $message = $Q->Save($_POST, 'dailyquote_quotes');
+    $Q = DailyQuote\Quote::getInstance($item_id);
+    $message = $Q->Save($_POST);
     if (!empty($message)) {
-        LGLIB_storeMessage($message);
+        COM_setMsg($message);
     }
     echo COM_refresh(DQ_ADMIN_URL);
     break;
 
 case 'savemoderation':
     // Save the quote to the prod table and delete from the queue
-    $Q = new DailyQuote\Quote($item_id);
+    $Q = DailyQuote\Quote::getInstance($item_id);
     $message = $Q->Save($_POST, 'dailyquote_quotes');
     if (!empty($message)) {
         // Error saving
-        LGLIB_storeMessage($message);
+        COM_setMsg($message);
     } else {
         DB_delete($_TABLES['dailyquote_submission'], "id='" . DB_escapeString($item_id));
     }
@@ -128,7 +128,7 @@ switch ($page) {
 case 'edit':
     // "edit" is here so this will work with submit.php
 case 'editquote':
-    $Q = new DailyQuote\Quote($item_id);
+    $Q = DailyQuote\Quote::getInstance($item_id);
     $content .= $Q->Edit();
     break;
 
@@ -139,7 +139,7 @@ case 'editcat':
 
 //case 'editsubmission':
 case 'moderate':
-    $Q = new DailyQuote\Quote($item_id, 'submission');
+    $Q = DailyQuote\Quote::getInstance($item_id);
     $Q->setTable('quotes');
     $Q->isNew = true;
     $content .= $Q->Edit($action);

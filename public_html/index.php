@@ -27,20 +27,22 @@ function DQ_listQuotes($sort, $dir, $page)
     global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
         $LANG_ADMIN;
 
-    $QL = new DailyQuote\QuoteList;
+    $Coll = new DailyQuote\Collections\QuoteCollection;
+
     if (isset($_REQUEST['id'])) {
-        $QL->setFilterID($_REQUEST['id']);
+        $Coll->withQuoteId($_REQUEST['id']);
     }
     if (isset($_REQUEST['cat'])) {
-        $QL->setFilterCat($_REQUEST['cat']);
+        $Coll->withCategoryId($_REQUEST['cat']);
     }
     if (isset($_REQUEST['quoted'])) {
-        $QL->setFilterAuthor($_REQUEST['quoted']);
+        $Coll->withAuthorName($_REQUEST['quoted']);
     }
-    $numquotes = $QL->getPageCount();
-    $rows = $QL->setSort($sort, $dir)
-        ->setPage($page)
-        ->getPageQuotes();
+    $numquotes = $Coll->getPageCount();
+    $Quotes = $Coll->orderBy($sort, $dir)
+                 ->setPage($page)
+                 ->createLimit()
+                 ->getObjects();
 
     // Display quotes if any to display
     $T = new Template(DQ_PI_PATH . '/templates');
@@ -68,12 +70,12 @@ function DQ_listQuotes($sort, $dir, $page)
 
     $T->set_var(
         'google_paging',
-        $QL->getPageNavigation($numquotes)
+        $Coll->getPageNavigation($sort, $dir, $numquotes)
     );
 
     //  Now get each quote and display it
     $count = 0;
-    foreach ($rows as $Quote) {
+    foreach ($Quotes as $Quote) {
         $T->set_block('page', 'QuoteRow', 'qRow');
         $Cats = DailyQuote\Quote::getCats($Quote->getID());
         $catnames = array();
@@ -216,7 +218,7 @@ foreach($expected as $provided) {
 
 // Retrieve and sanitize provided parameters
 $mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : 'quotes';
-$qid = isset($_REQUEST['qid']) ? COM_sanitizeID($_REQUEST['qid']) : '';
+$qid = isset($_REQUEST['qid']) ? (int)$_REQUEST['qid'] : 0;
 $cid = isset($_REQUEST['cid']) ? (int)$_REQUEST['cid'] : 0;
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'dt';
 $dir = isset($_GET['dir']) ? $_GET['dir'] : 'ASC';
@@ -256,7 +258,7 @@ if ($access == 3) {
 $content = '';
 switch ($action) {
 case 'categories':
-    $content .= DQ_listCategories();
+    $content .= DailyDQ_listCategories();
     break;
 
 case 'savesubmission':
@@ -268,9 +270,9 @@ case 'savesubmission':
     break;
 
 case 'edit':
-    $q_id = isset($_GET['id']) ? $_GET['id'] : '';
-    $Q = new DailyQuote\Quote($q_id);
-    if ($q_id == '' || !$Q->isNew()) {
+    $q_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $Q = DailyQuote\Quote::getInstance($q_id);
+    if ($q_id == 0 || !$Q->isNew()) {
         $content .= $Q->Edit();
     }
     break;
