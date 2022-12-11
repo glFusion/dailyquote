@@ -18,6 +18,36 @@ if (!defined('GVERSION')) {
 /** @global array $_CONF_DQ */
 global $_CONF_DQ;
 
+spl_autoload_register(function ($class)
+{
+    $prefix = 'DailyQuote';
+
+    // does the class use the namespace prefix?
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        // no, move to the next registered autoloader
+        return;
+    }
+
+    // base directory for the namespace prefix
+    $base_dir = __DIR__ . '/classes/';
+
+    // get the relative class name
+    $relative_class = substr($class, $len);
+
+    // replace the namespace prefix with the base directory, replace namespace
+    // separators with directory separators in the relative class name, append
+    // with .php
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.class.php';
+
+    // if the file exists, require it
+    if (file_exists($file)) {
+        require $file;
+    }
+});
+use glFusion\Database\Database;
+use glFusion\Log\Log;
+
 //  Check and see if we need to load the plugin configuration
 if (!isset($_CONF_DQ['quoteperpage'])) {
     /** Import configuration-handling class */
@@ -130,23 +160,16 @@ function plugin_showstats_dailyquote($showsitestats)
 
     $retval = '';
 
-    // Check user has rights to view this, if so, do it.
-    /*if ($_CONF_DQ['default_permissions'][3] < 2 && $_USER['uid'] < 2) {
-        return '';
-    }*/
-
     $T = new Template($_CONF['path_layout'] . 'stats');
-    $T->set_file(array('itemstats'=>'itemstatistics.thtml',
-                                'statrow'=>'singlestat.thtml'));
-    /*if ($showsitestats == 1) {
-        $total_pages = DB_count($_TABLES['dailyquote_quotes'], 'enabled', '1');
-        $retval .= "<table border = '0' width='100%' cellspacing='0' cellpadding='0'>";
-        $retval .= "<tr><td>" . $LANG_DQ['noquotes'] . "</td>";
-        $retval .= "<td align='right'>" . $total_pages . "&nbsp;&nbsp </td></tr></table>";
-        return $retval;
-    }*/
+    $T->set_file(array(
+        'itemstats' => 'itemstatistics.thtml',
+        'statrow' => 'singlestat.thtml'
+    ) );
 
-    $result = DB_query("SELECT q.quoted, COUNT(*)
+    $db = Database::getInstance();
+    try {
+        $stmt = $db->conn->executeQuery(
+            "SELECT q.quoted, COUNT(*)
             FROM {$_TABLES['dailyquote_quotes']} q
             LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
                 ON q.id = x.qid
@@ -155,14 +178,21 @@ function plugin_showstats_dailyquote($showsitestats)
             WHERE q.enabled= '1' AND c.enabled = '1'
             GROUP BY quoted
             ORDER BY 2 DESC, 1 ASC
-            LIMIT 10");
-    $nrows  = DB_numRows($result);
-    $retval .= COM_startBlock($LANG_DQ['StatsMsg1']);
+            LIMIT 10"
+        );
+        $nrows  = $stmt->rowCount();
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $stmt = false;
+        $nrows = false;
+    }
+    $retval .= COM_startBlock('Top Ten Most Quoted Personalities');
+
     if ($nrows > 0) {
         $T->set_var('item_label', $LANG_DQ['StatsMsg3']);
         $T->set_var('stat_name', $LANG_DQ['StatsMsg4']);
 
-        while ($A = DB_fetchArray($result)) {
+        while ($A = $stmt->fetchAssociative()) {
             $T->set_var('item_url',
                         "{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/index.php?quoted=" . $A['quoted']);
             $T->set_var('item_text', $A['quoted']);
@@ -189,9 +219,8 @@ function plugin_statssummary_dailyquote()
     global $LANG_DQ, $_TABLES;
 
     // This shows in the summary box
-    $total_items = DB_count($_TABLES['dailyquote_quotes']);
+    $total_items = Database::getInstance()->getCount($_TABLES['dailyquote_quotes']);
     $summary_label = $LANG_DQ['quotes_in_db'];
-
     $retval = array($summary_label, $total_items);
     return $retval;
 }
@@ -228,7 +257,12 @@ function plugin_getadminoption_dailyquote()
     global $_CONF, $_TABLES, $LANG_DQ, $_CONF_DQ;
 
     if (SEC_hasRights('dailyquote.admin')) {
-        $count = DB_count($_TABLES['dailyquote_quotes'], 'enabled', 1);
+        $count = Database::getInstance()->getCount(
+            $_TABLES['dailyquote_quotes'],
+            'enabled',
+            1,
+            Database::INTEGER
+        );
         return array(
             $LANG_DQ['admin_menu'],
             DQ_ADMIN_URL . '/index.php',
@@ -251,73 +285,6 @@ function plugin_searchtypes_dailyquote()
 
     $tmp['dailyquote'] = $LANG_DQ['glsearchlabel'];
     return $tmp;
-}
-
-
-/**
- * Get the search configuration for the plugin.
- * Search for pages matching the user query and returns an array of
- * for the header and table rows back to search.php where it will be
- * formated and printed
- *
- * @param   string  $query      Keywords user is looking for
- * @param   date    $datestart  Start date to get results for
- * @param   date    $dateend    End date to get results for
- * @param   string  $topic      The topic they were searching in
- * @param   string  $type       Type of items they are searching, or 'all'
- * @param   integer $author     Get all results by this author
- * @param   string  $keyType    search key type: 'all', 'phrase', 'any'
- * @param   integer $page       page number of current search
- * @param   integer $perpage    number of results per page
- * @return  object              search result object
- */
-function plugin_dopluginsearch_dailyquote(
-    $query,
-    $datestart,
-    $dateend,
-    $topic,
-    $type,
-    $author,
-    $keyType,
-    $page,
-    $perpage)
-{
-    global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
-
-    $htmlquery = urlencode($query);
-    $query = trim(DB_escapeString(htmlspecialchars($query)));
-
-    // Build search SQL
-    $sql = "SELECT
-            q.id as id, q.quote as description,
-            q.title as title, q.uid as uid,
-            q.dt as date, 0 as hits,
-            CONCAT('/{$_CONF_DQ['pi_name']}/index.php?qid=',q.id,'&query=$htmlquery') as url
-        FROM
-            {$_TABLES['dailyquote_quotes']} q
-        WHERE
-            q.enabled = 1
-    ";
-
-    if (!empty($datestart) && !empty($dateend)) {
-        $delim = substr($datestart, 4, 1);
-        $DS = explode($delim,$datestart);
-        $DE = explode($delim,$dateend);
-        $startdate = mktime(0,0,0,$DS[1],$DS[2],$DS[0]);
-        $enddate = mktime(0,0,0,$DE[1],$DE[2],$DE[0]) + 3600;
-        $sql .= " AND (q.dt BETWEEN '$startdate' AND '$enddate') ";
-    }
-
-    if (!empty($author)) {
-        $sql .= " AND (q.uid='$author') ";
-    }
-
-    $search = new SearchCriteria($_CONF_DQ['pi_name'], $_CONF_DQ['pi_display_name']);
-    $columns = array('q.title', 'q.source', 'q.quoted', 'q.quote');
-    list($sql, $ftsql) = $search->buildSearchSQL($keyType, $query, $columns, $sql);
-    //echo $sql;
-    $search->setSQL($sql);
-    return $search;
 }
 
 
@@ -351,24 +318,31 @@ function plugin_getwhatsnew_dailyquote()
 
     $days = (int)$_CONF_DQ['whatsnewdays'];
 
-    $sql = "SELECT DISTINCT q.id, q.quote
-            FROM {$_TABLES['dailyquote_quotes']} q
-            LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
-                ON q.id = x.qid
-            LEFT JOIN {$_TABLES['dailyquote_cat']} c
-                ON c.id = x.cid
-            WHERE q.enabled='1'
-            AND c.enabled='1'
-            AND q.dt >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL {$days} DAY))
-            ORDER BY q.dt DESC
-            LIMIT 15 ";
-    //echo $sql;die;
-    $result = DB_query($sql);
-    $nrows = DB_numRows($result);
-    if ($nrows > 0) {
+    $db = Database::getInstance();
+    $qb = $db->conn->createQueryBuilder();
+    $qb->select('q.id', 'q.quote')
+       ->from($_TABLES['dailyquote_quotes'], 'q')
+       ->leftJoin('q', $_TABLES['dailyquote_quoteXcat'], 'x', 'q.id = x.qid')
+       ->leftJoin('x', $_TABLES['dailyquote_cat'], 'c', 'c.id = x.cid')
+       ->where('q.enabled = 1')
+       ->andWhere('c.enabled = 1')
+       ->andWhere('q.dt >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL :days DAY))')
+       ->orderBy('q.dt', 'DESC')
+       ->setFirstResult(0)
+       ->setMaxResults(15)
+       ->setParameter('days', $days, Database::INTEGER);
+    try {
+        $stmt = $qb->execute();
+        $nrows = $stmt->rowCount();
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $stmt = false;
+        $nrows = false;
+    }
+    if ($stmt && $nrows > 0) {
         $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('block', 'blk_whatsnew.thtml');
-        while ($row = DB_fetchArray($result, false)) {
+        while ($row = $stmt->fetchAssociative()) {
             $quote = htmlspecialchars($row['quote']);
             $itemlen = strlen($quote);
             if ($itemlen > 16) {
@@ -535,12 +509,19 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
     if ($topic != "") {
         $wherenames = array('tid', 'featured', 'draft_flag');
         $wherevalues = array($topic, 0, 0);
+        $wheretypes = array(Database::STRING, Database::INTEGER, Database::INTEGER);
     } else {
         $wherenames = array('featured', 'draft_flag');
         $wherevalues = array(1, 0);
+        $wheretypes = array(Database::INTEGER, Database::INTEGER);
     }
 
-    $story_count = DB_count($_TABLES['stories'], $wherenames, $wherevalues);
+    $story_count = Database::getInstance()->getCount(
+        $_TABLES['stories'],
+        $wherenames,
+        $wherevalues,
+        $wheretypes
+    );
     if ($story_count == 0 && $_CONF_DQ['cb_pos'] == 2) {
         // If the centerblock comes after the featured story, and there
         // are no stories, put the centerblock at the top.
@@ -589,15 +570,16 @@ function phpblock_dailyquote_dqmenu()
     global $_TABLES, $_CONF, $_USER, $LANG_DQ, $_CONF_DQ;
 
     $content = '';
+    $db = Database::getInstance();
 
     // Link to the plugin index page
-    $count = DB_count($_TABLES['dailyquote_quotes'], 'enabled', '1');
+    $count = $db->getCount($_TABLES['dailyquote_quotes'], 'enabled', '1', Database::INTEGER);
     $href = COM_createLink("{$LANG_DQ['indexlink']}&nbsp;($count)",
             DQ_URL . '/index.php');
     $content .= $href . "<br />\n";
 
     // Link to the category index
-    $count = DB_count($_TABLES['dailyquote_cat'], 'enabled', '1');
+    $count = $db->getCount($_TABLES['dailyquote_cat'], 'enabled', '1', Database::INTEGER);
     if ($count > '0') {
         $href = COM_createLink("{$LANG_DQ['catindexlink']}&nbsp;($count)",
             DQ_URL . '/index.php?mode=categories');
@@ -609,11 +591,15 @@ function phpblock_dailyquote_dqmenu()
     $content .= $href . "<br />\n";
 
     // Link to the submission form
-    if (($anonadd == '1' && $_USER['uid'] < 2) ||
-        ($loginadd == '1' && $_USER['uid'] > 2) ||
-        SEC_hasRights('dailyquote.add')) {
-        $href = COM_createLink($LANG_DQ['addformlink'],
-            $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']);
+    if (
+        ($_CONF_DQ['anonadd'] == '1' && $_USER['uid'] < 2) ||
+        ($_CONF_DQ['loginadd'] == '1' && $_USER['uid'] > 2) ||
+        SEC_hasRights('dailyquote.add')
+    ) {
+        $href = COM_createLink(
+            'Add a Quote',
+            $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']
+        );
         $content .= $href . "<br />\n";
     }
 
@@ -639,20 +625,25 @@ function phpblock_dailyquote_dqmenu()
  * @param   integer $cat    Optional category ID
  * @return  string  HTML for the block contents.
  */
-function phpblock_dailyquote_random($A=array(), $cat='')
+function phpblock_dailyquote_random($A=array(), $cat='') : string
 {
     global $_CONF, $_CONF_DQ;
 
     $retval = '';
-    $Q = DailyQuote\Quote::getInstance('', (int)$cat);
-    if (!$Q->isNew()) {
+
+    $Coll = new DailyQuote\Collections\QuoteCollection;
+    $Coll->withRandom()
+         ->withLimit(1);
+    $Quotes = $Coll->getObjects();
+    $Quote = reset($Quotes);
+    if (!empty($Quotes)) {
         $T = new Template(DQ_PI_PATH . '/templates');
         $T->set_file('page', 'blk_random.thtml');
         $T->set_var(array(
-            'randomquote'   => $Q->getQuote(),
-            'quoted'        => $Q->getQuoted(),
-            'sourcedate'    => $Q->getSourceDate(),
-            'source'        => $Q->getSource(),
+            'randomquote'   => $Quote->getQuote(),
+            'quoted'        => $Quote->getQuoted(),
+            'sourcedate'    => $Quote->getSourceDate(),
+            'source'        => $Quote->getSource(),
         ) );
         $T->parse('output','page');
         $retval = $T->finish($T->get_var('output'));
@@ -674,10 +665,10 @@ function plugin_moderationvalues_dailyquote()
     global $_TABLES;
 
     return array(
-        'id',
+        'quote_id',
         $_TABLES['dailyquote_quotes'],
-        'id, quote, quoted, title, source, sourcedate, dt, uid',
-        $_TABLES['dailyquote_submission']
+        '',
+        $_TABLES['dailyquote_quotes'],
     );
 }
 
@@ -698,13 +689,32 @@ function plugin_itemlist_dailyquote()
         $plugin = new Plugin();
         $plugin->submissionlabel = $_CONF_DQ['pi_display_name'];
         $plugin->getsubmissionssql =
-                "SELECT id, quoted, title, source, uid
-                FROM {$_TABLES['dailyquote_submission']}";
+                "SELECT quote_id AS id, quoted, title, source, uid
+                FROM {$_TABLES['dailyquote_quotes']}
+                WHERE approved = 0";
         $plugin->addSubmissionHeading($LANG_DQ['quoted']);
         $plugin->addSubmissionHeading($LANG_DQ['title']);
         $plugin->addSubmissionHeading($LANG_DQ['source']);
         return $plugin;
     }
+}
+
+
+/**
+ * Get the number of submissions awaiting approval.
+ *
+ * @return  integer     Number of submissions
+ */
+function plugin_submissioncount_quotes() : int
+{
+    global $_TABLES;
+
+    return Database::getInstance()->getCount(
+        $_TABLES['dailyquote_quotes'],
+        array('approved'),
+        array(0),
+        array(Database::INTEGER)
+    );
 }
 
 
@@ -733,9 +743,16 @@ function plugin_moderationapprove_dailyquote($id)
 {
     global $_TABLES;
 
-    DB_query("UPDATE {$_TABLES['dailyquote_quotes']}
-        SET enabled = 1
-        WHERE id='" . DB_escapeString($id) . "'");
+    try {
+        Database::getInstance()->conn->update(
+            $_TABLES['dailyquote_quotes'],
+            array('enabled' => 1, 'approved' => 1),
+            array('quote_id' => $id),
+            array(Database::INTEGER, Database::INTEGER, Database::INTEGER)
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+    }
     return '';
 }
 
@@ -754,7 +771,15 @@ function plugin_moderationdelete_dailyquote($id)
     global $_TABLES;
 
     // Delete the category lookup entries for the rejected quotation.
-    DB_delete($_TABLES['dailyquote_quoteXcat'], 'qid', $id);
+    try {
+        Database::getInstance()->conn->delete(
+            $_TABLES['dailyquote_quoteXcat'],
+            array('qid' => $id),
+            array(Database::INTEGER)
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+    }
     return '';
 }
 
@@ -1000,21 +1025,38 @@ function plugin_enablestatechange_dailyquote($enabled)
     global $_TABLES, $_PLUGINS;
 
     $enabled = $enabled == true ? 1 : 0;
+    $db = Database::getInstance();
 
     // If trying to enable the plugin but lgLib is not available,
     // take no action and return
     if ($enabled && !in_array('lglib', $_PLUGINS)) {
         // Re-disable the plugin
-        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'dailyquote');
+        try {
+            $db->conn->update(
+                $_TABLES['plugins'],
+                array('pi_enabled' => 0),
+                array('pi_name' => 'dailyquote'),
+                array(Database::INTEGER, Database::STRING)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        }
         $enabled = 0;
     }
 
     if ($enabled == 0) {
         $blocks = array('dailyquote_random', 'dailyquote_dgmenu');
         foreach ($blocks as $block) {
-            DB_query("UPDATE {$_TABLES['blocks']}
-                SET is_enabled=$enabled
-                WHERE name='$block'");
+            try {
+                $db->conn->update(
+                    $_TABLES['blocks'],
+                    array('is_enabled' => $enabled),
+                    array('name' => $block),
+                    array(Database::INTEGER, Database::STRING)
+                );
+            } catch (\Throwable $e) {
+                Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+            }
         }
     }
 }
@@ -1035,7 +1077,16 @@ function plugin_itemdeleted_dailyquote($id, $type)
         // Disable blocks, etc.
         plugin_enablestatechange_dailyquote(false);
         // Disable this plugin
-        DB_change($_TABLES['plugins'], 'pi_enabled', 0, 'pi_name', 'dailyquote');
+        try {
+            Database::getInstance()->conn->update(
+                $_TABLES['plugins'],
+                array('pi_enabled' => 0),
+                array('pi_name' => 'dailyquote'),
+                array(Database::INTEGER, Database::STRING)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        }
     }
 }
 
@@ -1088,11 +1139,27 @@ function plugin_user_move_dailyquote($origUID, $destUID)
 
     $origUID = (int)$origUID;
     $destUID = (int)$destUID;
-
-    DB_query("UPDATE {$_TABLES['dailyquote_submissions']}
-            SET uid = $destUID WHERE uid = $origUID", 1);
-    DB_query("UPDATE {$_TABLES['dailyquote_quotes']}
-            SET uid = $destUID WHERE uid = $origUID", 1);
+    $db = Database::getInstance();
+    try {
+        $db->update(
+            $_TABLES['dailyquote_submission'],
+            array('uid' => $destUID),
+            array('uid' => $origUID),
+            array(Database::INTEGER, Database::INTEGER)
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+    }
+    try {
+        $db->update(
+            $_TABLES['dailyquote_quotes'],
+            array('uid' => $destUID),
+            array('uid' => $origUID),
+            array(Database::INTEGER, Database::INTEGER)
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+    }
 }
 
 
@@ -1104,24 +1171,17 @@ function plugin_user_move_dailyquote($origUID, $destUID)
  */
 function plugin_getheadercss_dailyquote()
 {
-    global $_CONF, $_CONF_DQ;
+    global $_CONF_DQ;
 
     // When looking for CSS files, we'll check in this order:
-    //  1. layout/plugin/custom
-    //  2. layout/plugin
-    //  3. plugin/custom
-    //  4. plugin (default distribution version)
-    $pi_css = DQ_PI_PATH . '/css/';
-    $layout_css = "{$_CONF['path_layout']}plugins/{$_CONF_DQ['pi_name']}/";
+    //  1. plugin/custom
+    //  2. plugin (default distribution version)
+    $pi_css = __DIR__ . '/css/';
     $files = array('style.css');
     foreach ($files as $file) {
-        if (@file_exists($layout_css . 'custom/' . $file)) {
-            $styles[] = $layout_css . 'custom/' . $file;
-        } elseif (@file_exists($layout_css . $file)) {
-            $styles[] = $layout_css . $file;
-        } elseif (@file_exists($pi_css . 'custom/' . $file)) {
+        if (@file_exists($pi_css . 'custom/' . $file)) {
             $styles[] = $pi_css . 'custom/' . $file;
-        } elseif (@file_exists($pi_css . $file)) {
+        } else {
             $styles[] = $pi_css . $file;
         }
     }
@@ -1151,7 +1211,7 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
         case 'search_index':
             $buildingSearchIndex = true;
             break;
-        case 'id':
+        /*case 'id':
             $fields[] = 'id';
             break;
         case 'title':
@@ -1171,56 +1231,66 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
             break;
         case 'date':
             $fields[] = 'dt';
-            break;
+            break;*/
         }
     }
-    if (count($fields) == 0) {
+    /*if (count($fields) == 0) {
         return $retval;
     }
     $fields = array_unique($fields);
-    $fields = implode(',', $fields);
+    $fields = implode(',', $fields);*/
+
     $retval = array();
-    $sql = "SELECT $fields
-            FROM {$_TABLES['dailyquote_quotes']} ";
+    $db = Database::getInstance();
+    $qb = $db->conn->createQueryBuilder();
+    $qb->select('*')
+       ->from($_TABLES['dailyquote_quotes']);
     if ($id == '*') {
-        $where = ' WHERE enabled = 1 ';
+        $qb->where('enabled = 1');
     } else {
-        $where = " WHERE (id = '" . DB_escapeString($id) . "')";
+        $qb->where('id = :id')
+           ->setParameter('id', $id, Database::STRING);
     }
-    //echo $sql;die;
-    $res = DB_query($sql . $where);
-    while ($A = DB_fetchArray($res, false)) {
-        foreach ($properties as $p) {
-            switch ($p) {
-            case 'id':
-                $props[$p] = $A['id'];
-                break;
-            case 'excerpt':
-            case 'description':
-            case 'content':
-                $props[$p] = $A['quote'];
-                break;
-            case 'title':
-                $props[$p] = empty($A['title']) ? $LANG_DQ['untitled'] : $A['title'];
-                break;
-            case 'author':
-                $props[$p] = $A['uid'];
-                break;
-            case 'author_name':
-                $props[$p] = COM_getDisplayName($A['uid']);
-                break;
-            case 'date':
-                $props[$p] = $A['dt'];
-                break;
-            case 'searchidx':
-                $props[$p] = $A['title'] . ' ' . $A['quote'];
-                break;
-            case 'url':
-                $props[$p] = DQ_URL . '/index.php?id=' . urlencode($A['id']);
-                break;
-            default:
-                $props[$p] = isset($A[$p]) ? $A[$p] : NULL;
-                break;
+    try {
+        $stmt = $qb->execute();
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $stmt = false;
+    }
+    if ($stmt) {
+        while ($A = $stmt->fetchAssociative()) {
+            foreach ($properties as $p) {
+                switch ($p) {
+                case 'id':
+                    $props[$p] = $A['id'];
+                    break;
+                case 'excerpt':
+                case 'description':
+                case 'content':
+                    $props[$p] = $A['quote'];
+                    break;
+                case 'title':
+                    $props[$p] = empty($A['title']) ? 'Untitled' : $A['title'];
+                    break;
+                case 'author':
+                    $props[$p] = $A['uid'];
+                    break;
+                case 'author_name':
+                    $props[$p] = COM_getDisplayName($A['uid']);
+                    break;
+                case 'date':
+                    $props[$p] = $A['dt'];
+                    break;
+                case 'searchidx':
+                    $props[$p] = $A['title'] . ' ' . $A['quote'];
+                    break;
+                case 'url':
+                    $props[$p] = DQ_URL . '/index.php?id=' . urlencode($A['id']);
+                    break;
+                default:
+                    $props[$p] = isset($A[$p]) ? $A[$p] : NULL;
+                    break;
+                }
             }
         }
         $mapped = array();
@@ -1238,7 +1308,6 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
             $retval[] = $mapped;
         } else {
             $retval = $mapped;
-            break;
         }
     }
 
@@ -1264,30 +1333,37 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
  * @param   integer $cid    Category ID for random quotes
  * @return  string          HTML display for the quote
  */
-function DQ_random_quote($qid='', $cid='')
+function DQ_random_quote(?int $qid=NULL, ?int $cid=NULL)
 {
     global $_CONF, $LANG_DQ, $_CONF_DQ;
 
-    $Q = DailyQuote\Quote::getInstance($qid, $cid);
-    if (!$Q) {
+    $Coll = new DailyQuote\Collections\QuoteCollection;
+    if (empty($qid)) {
+        $Coll->withRandom();
+    } else {
+        $Coll->withQuoteId($qid);
+    }
+    $Quotes = $Coll->getObjects();
+
+    if (empty($Quotes)) {
         return '';
     }
-
+    $Quote = reset($Quotes);
     $T = new Template($_CONF['path'] . 'plugins/' . $_CONF_DQ['pi_name'] . '/templates');
     $T->set_file('page', 'randomquotebox.thtml');
     $T->set_var(array(
         'site_url'  => $_CONF['site_url'],
         'randomboxtitle' => $LANG_DQ['randomboxtitle'],
-        'title'     => $Q->getTitle(),
-        'randomquote' => $Q->getQuote(),
-        'quoted'    => $Q->getQuoted(),
-        'source'    => $Q->getSource(),
-        'sourcedate' => $Q->getSourceDate(),
+        'title'     => $Quote->getTitle(),
+        'randomquote' => $Quote->getQuote(),
+        'quoted'    => $Quote->getQuoted(),
+        'source'    => $Quote->getSource(),
+        'sourcedate' => $Quote->getSourceDate(),
     ) );
-    if ($Q->getUid() > 1) {
+    if ($Quote->getUid() > 1) {
         $T->set_var('subm_by', $LANG_DQ['subm_by'] . ':&nbsp;');
-        $T->set_var('dispcontr', COM_getDisplayName($Q->getUid()));
-        $T->set_var('datecontr', '&nbsp;/&nbsp;' . $Q->getDate());
+        $T->set_var('dispcontr', COM_getDisplayName($Quote->getUid()));
+        $T->set_var('datecontr', '&nbsp;/&nbsp;' . $Quote->getDate());
     }
     $T->parse('output','page');
     return $T->finish($T->get_var('output'));
