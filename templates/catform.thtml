@@ -4,22 +4,22 @@
     class="uk-form uk-form-horizontal" >
     <input type="hidden" name="id" value="{id}" />
     <div class="uk-alert">{$LANG_DQ['instr_catform']}</div>
-    <div class="uk-form-row">
+    <div class="uk-form-row uk-margin">
         <label class="uk-form-label" for="f_name">{$LANG_DQ['category_name']}:</label>
         <div class="uk-form-controls">
-            <input required type="text" id="f_name" name="name" value="{name}" size="64" />
+            <input class="uk-input uk-form-width-medium" required type="text" id="f_name" name="name" value="{name}" />
             <i class="uk-icon uk-icon-warning uk-text-danger" data-uk-tooltip title="{$LANG_DQ['required']}"></i>
         </div>
     </div>
 
-    <div class="uk-form-row">
+    <div class="uk-form-row uk-margin">
         <label class="uk-form-label" for="name">{$LANG_DQ['enabled']}:</label>
         <div class="uk-form-controls">
-            <input name="enabled" type="checkbox" value="1" {chk} />
+            <input class="checkbox" name="enabled" type="checkbox" value="1" {chk} />
         </div>
     </div>
 
-    <div class="uk-form-row">
+    <div class="uk-form-row uk-margin">
         <div class="uk-form-controls">
             <button class="uk-button uk-button-success" type="submit" name="savecat" value="{$LANG_ADMIN['save']}">{$LANG_ADMIN['save']}</button>
             <button class="uk-button uk-button-primary" type="reset" value="{$LANG_DQ['reset']}">{$LANG_DQ['reset']}</button>
@@ -28,8 +28,7 @@
                 value="{$LANG_ADMIN['delete']}"
                 onclick="return confirm('{$LANG_DQ['confirm_delitem']}');">{$LANG_ADMIN['delete']}</button>
 {!endif}
-            <button class="uk-button" type="reset" name="cancel" value="{$LANG_ADMIN['cancel']}"
-                onclick="javascript: document.location.href='{cancel_url}'">{$LANG_ADMIN['cancel']}</button>
+            <a class="uk-button uk-button-default" href="{cancel_url}">{$LANG_ADMIN['cancel']}</a>
         </div>
     </div>
 </form>

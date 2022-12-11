@@ -1,5 +1,8 @@
 # DailyQuote - Change Log
 
+## Version 0.4.0 - TBD
+- Change to `auto_increment` field for quote ID.
+
 ## Version 0.3.0 - 2020-09-02
 - Remove support for non-uikit themes
 - Remove relianze on `PLG_submitForm()`

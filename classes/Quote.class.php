@@ -3,15 +3,17 @@
  * Class to handle quotes.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
- * @version     v0.2.1
+ * @version     v0.3.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace DailyQuote;
 use DailyQuote\MO;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 
 
 /**
@@ -22,7 +24,7 @@ class Quote
 {
     /** Quote ID.
      * @var string */
-    private $id = '';
+    private $quote_id = 0;
 
     /** Quote contents.
      * @var string */
@@ -56,25 +58,17 @@ class Quote
      * @var boolean */
     private $enabled = 1;
 
+    /** Flag indicating whether a submission has been approved.
+     * @var boolean */
+    private $approved = 0;
+
     /** Categories to which this quote belongs.
      * @var array */
     private $categories = array();
 
-    /** Is this a new submission?
-     * @var boolean */
-    private $isNew = 1;
-
     /** Flag to indicate current user is an admin.
      *  @var boolean */
     private $isAdmin = 0;
-
-    /** Table to use, submission or production.
-     * @var string */
-    private $table = '';
-
-    /** Table ID indicator, used to check which table is in use.
-     * @var string */
-    private $table_id = 'quotes';
 
     /** Array of Category objects.
      * @var object */
@@ -85,9 +79,8 @@ class Quote
      * Constructor.
      *
      * @param   string  $id     Quote ID to retrieve, blank for empty object
-     * @param   string  $table  Table ID, used for reading an existing quote
      */
-    public function __construct($id='', $table='quotes')
+    public function X__construct($id='', $table='quotes')
     {
         global $_USER;
 
@@ -95,31 +88,38 @@ class Quote
             // Already have the record.
             $this->setVars($id);
         } else {
-            $this->id = $id;
-            $this->isNew = true;
+            $this->quote_id = (int)$id;
             $this->uid = $_USER['uid'];
             $this->enabled = 1;
 
             // Set the table name here in case a quote is being read
             $this->setTable($table);
 
-            if ($this->id != '') {
+            if ($this->quote_id > 0) {
                 // Read() returns true if found
-                $this->isNew = $this->Read() ? false : true;
+                $this->Read();
             }
         }
         $this->isAdmin = SEC_hasRights('dailyquote.admin');
     }
 
 
+    public static function fromArray(array $A) : self
+    {
+        $Quote = new self;
+        $Quote->setVars($A);
+        return $Quote;
+    }
+
+
     /**
      * Get the quote ID.
      *
-     * @return  string      Quote ID
+     * @return  integer     Quote ID
      */
-    public function getID()
+    public function getID() : int
     {
-        return $this->id;
+        return $this->quote_id;
     }
 
 
@@ -190,25 +190,13 @@ class Quote
 
 
     /**
-     * Set the isNew flag manually.
+     * Check if this is a new or non-existant record.
      *
-     * @param   boolean $flag   Nonzero for a new record, Zero if existing
-     * @return  object  $this
-     */
-    private function setIsNew($flag=1)
-    {
-        $this->isNew = $flag ? 1 : 0;
-        return $this;
-    }
-
-    /**
-     * Get the isNew flag.
-     *
-     * @return  boolean     1 if this is a new record, 0 if existing
+     * @return  boolean     True if not from the database
      */
     public function isNew()
     {
-        return $this->isNew ? 1 : 0;
+        return $this->quote_id == 0;
     }
 
 
@@ -247,10 +235,10 @@ class Quote
         $uid = $this->getUid();
         if ($uid < 1) $uid = 1;
         if (!isset($users[$uid])) {
-            $users[$uid] = DB_getItem(
+            $users[$uid] = Database::getInstance()->getItem(
                 $_TABLES['users'],
                 'username',
-                "uid = $uid"
+                array('uid' => $uid)
             );
         }
         return $users[$uid];
@@ -291,26 +279,41 @@ class Quote
         // Reset the categories for this quote
         $this->categories = array();
 
-        $sql = "SELECT * FROM {$this->table}
-                WHERE id = '{$this->id}'";
-        $res = DB_query($sql);
-        if (!$res|| DB_numRows($res) != 1) {
+        $db = Database::getInstance();
+        try {
+            $row = $db->conn->executeQuery(
+                "SELECT * FROM {$this->table} WHERE id = ?",
+                array($this->quote_id),
+                array(Database::INTEGER)
+            )->fetchAssociative();
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $row = false;
+        }
+        if (!is_array($row)) {
             return false;
         }
-        $A = DB_fetchArray($res, false);
-        $this->setVars($A);
+        $this->setVars($row);
 
         // Get the categories that this quote is in.
-        $sql = "SELECT cid FROM {$_TABLES['dailyquote_quoteXcat']}
-                WHERE qid = '{$this->id}'";
-        $res = DB_query($sql);
-        if ($res) {
-            while ($A = DB_fetchArray($res, false)) {
+        try {
+            $stmt = $db->conn->executeQuery(
+                "SELECT cid FROM {$_TABLES['dailyquote_quoteXcat']} WHERE qid = ?",
+                array($this->quote_id),
+                array(Database::INTEGER)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $stmt = false;
+        }
+        if ($stmt) {
+            while ($A = $stmt->fetchAssociative()) {
                 $this->categories[] = (int)$A['cid'];
             }
         }
         return true;
     }
+
 
     public static function getCats($qid)
     {
@@ -321,12 +324,23 @@ class Quote
             $Cats = Category::getAll();
         }
         $retval = array();
-        $sql = "SELECT cid FROM {$_TABLES['dailyquote_quoteXcat']}
-            WHERE qid = '" . DB_escapeString($qid) . "'";
-        $res = DB_query($sql);
-        while ($A = DB_fetchArray($res, false)) {
-            if (array_key_exists($A['cid'], $Cats)) {
-                $retval[$A['cid']] = $Cats[$A['cid']];
+        try {
+            $rows = Database::getInstance()->conn->executeQuery(
+                "SELECT cid FROM {$_TABLES['dailyquote_quoteXcat']}
+                WHERE qid = ?",
+                array($qid),
+                array(Database::STRING)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $rows = false;
+        }
+
+        if (is_array($rows)) {
+            foreach ($rows as $A) {
+                if (array_key_exists($A['cid'], $Cats)) {
+                    $retval[$A['cid']] = $Cats[$A['cid']];
+                }
             }
         }
         return $retval;
@@ -346,7 +360,9 @@ class Quote
             return;
         }
 
-        $this->id = COM_sanitizeID($A['id'], true);
+        if (isset($A['quote_id'])) {
+            $this->quote_id = (int)$A['quote_id'];
+        }
         $this->quote = $A['quote'];
         $this->quoted = $A['quoted'];
         $this->source = $A['source'];
@@ -364,15 +380,26 @@ class Quote
      *
      * @param   integer $newval     New value to set (1 or 0)
      * @param   string  $id         Quote ID
+     * @return  integer     New value, or old value on error
      */
-    public static function toggleEnabled($newval, $id)
+    public static function toggleEnabled(int $newval, string $id) : int
     {
         global $_TABLES;
 
         $newval = $newval == 0 ? 0 : 1;
-        DB_change($_TABLES['dailyquote_quotes'],
-                'enabled', $newval,
-                'id', DB_escapeString(trim($id)));
+        $oldval = $newval == 0 ? 1 : 0;
+        try {
+            Database::getInstance()->conn->update(
+                $_TABLES['dailyquote_quotes'],
+                array('enabled' => $newval),
+                array('id' => $id),
+                array(Database::INTEGER, Database::STRING)
+            );
+            return $newval;
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return $oldval;
+        }
     }
 
 
@@ -382,52 +409,55 @@ class Quote
      * deletes the current object.
      *
      * @param   string  $id     Quote ID to delete
-     * @param   string  $table  Table key from which to delete
      */
-    public static function Delete($id, $table='quotes')
+    public static function Delete(int $id) : void
     {
         global $_TABLES;
-
-        if ($table != 'quotes') {
-            $table = 'submission';
-        }
 
         if (!self::hasAccess(3)) {
             return;
         }
 
         $id = COM_sanitizeID($id, false);
-        DB_delete(
-            $_TABLES['dailyquote_' . $table],
-            'id',
-            $id
-        );
-        DB_delete(
-            $_TABLES['dailyquote_quoteXcat'],
-            'qid',
-            $id
-        );
-
-        if ($table == 'quotes') {
-            PLG_itemDeleted($id, 'dailyquote');
+        $db = Database::getInstance();
+        try {
+            $db->conn->delete(
+                $_TABLES['dailyquote_quotes'],
+                array('quote_id' => $id),
+                array(Database::INTEGER)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return;     // Don't continue to delete category references
         }
+        try {
+            $db->conn->delete(
+                $_TABLES['dailyquote_quoteXcat'],
+                array('qid' => $id),
+                array(Database::INTEGER)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
+
+        PLG_itemDeleted($id, 'dailyquote');
     }
 
 
     /**
      * Returns the current user's access level to this quote.
      *
-     * @param   boolean $isNew  True to check new item access, false for existing
+     * @param   boolean $new_item   True to check new item access, false for existing
      * @return  integer     User's access level (1 - 3)
      */
-    public static function Access($isNew = false)
+    public static function Access(bool $new_item = false) : int
     {
         global $_USER, $_CONF_DQ;
 
         if (SEC_hasRights('dailyquote.edit'))
             return 3;
 
-        if ($isNew) {
+        if ($new_item) {
             if (SEC_hasRights('dailyquote.submit')) {
                 $access = 3;
             } elseif (COM_isAnonUser()) {
@@ -448,12 +478,12 @@ class Quote
      *
      * @see     Access()
      * @param   integer $level  Minimum access level required
-     * @param   boolean $isNew  True is this is a new submission
+     * @param   boolean $new_item   True is this is a new submission
      * @return  boolean     True if user has access >= level, false otherwise
      */
-    public static function hasAccess($level=3, $isNew=false)
+    public static function hasAccess(int $level=3, bool $new_item=false) : bool
     {
-        if (self::Access($isNew) < $level) {
+        if (self::Access($new_item) < $level) {
             return false;
         } else {
             return true;
@@ -480,7 +510,6 @@ class Quote
         }
 
         // Default save action based on table
-        $saveaction = $this->table_id == 'quotes' ? 'savequote' : 'savesubmission';
         $hidden_vars = '';
         if ($this->isAdmin) {
             $action_url = DQ_ADMIN_URL . '/index.php';
@@ -488,19 +517,21 @@ class Quote
             $action_url = DQ_URL . '/index.php';
         }
 
+        $cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php?quotes' : $_CONF['site_url'];
         switch ($mode) {
         case 'edit':
             $saveoption = MO::_('Save');      // Save
             $cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php' :
                 $_CONF['site_url'];
+            $saveaction = 'savequote';
             break;
 
         case 'submit':
         case $LANG12[8]:
             $saveoption = MO::_('Save');      // Save
+            $saveaction = 'savesubmission';
             $hidden_vars= '<input type="hidden" name="type" value="dailyquote" />'
                 .'<input type="hidden" name="mode" value="' . $LANG12[8].'" />';
-            $cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php' : $_CONF['site_url'];
             break;
 
         case 'moderate':
@@ -519,7 +550,7 @@ class Quote
             'action_url'    => $action_url,
             'saveaction'    => $saveaction,
             'saveoption'    => $saveoption,
-            'id'            => $this->id,
+            'id'            => $this->quote_id,
             'uid'           => $this->uid,
             'quote'         => $this->quote,
             'quoted'        => $this->quoted,
@@ -548,7 +579,6 @@ class Quote
             'lang_cancel'   => MO::_('Cancel'),
             'lang_confirm_delitem' => MO::_('Are you sure you want to delete this item?'),
         ) );
-
         //retrieve categories from db if any and display
         if (!$result = DB_query(
             "SELECT id, name
@@ -565,7 +595,6 @@ class Quote
         // if you increase or decrease this number,
         // then you'll need to adjust the cell width in the addcol and
         // addcatcol.thtml files
-        $catinput = '';
         if ($numrows > 0) {
             $T->set_block('page', 'CatSelect', 'CS');
             while ($A = DB_fetchArray($result, false)) {
@@ -589,7 +618,7 @@ class Quote
      *
      * @param   array   $A  Array of values from $_POST or database
      */
-    public function Save($A)
+    public function Save($A) : string
     {
         global $_CONF, $_TABLES, $_USER, $MESSAGE, $_CONF_DQ;
 
@@ -602,38 +631,67 @@ class Quote
             $uid = $_USER['uid'];
         }
 
-        $access = $this->hasAccess(3, $this->isNew);
-        if (!$access || $this->id == '') {
-            COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->id}.");
+        $access = $this->hasAccess(3, $this->isNew());
+        if (!$access || $this->quote_id == 0) {
+            COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->quote_id}.");
             return $MESSAGE[31];
         }
 
-        // Determine if this is an INSERT or UPDATE
-        if ($this->isNew) {
-            $sql1 = "INSERT INTO {$this->table} SET id = '" .
-                    DB_escapeString($this->id) . "',
-                    dt = UNIX_TIMESTAMP(), ";
-            $sql3 = '';
-        } else {
-            $sql1 = "UPDATE {$this->table} SET ";
-            $sql3 = " WHERE id = '{$this->id}'";
-        }
-        $sql2 = "quote = '" .  DB_escapeString(self::_safeText($this->quote)). "',
-                quoted = '" . DB_escapeString(self::_safeText($this->quoted)). "',
-                title = '" . DB_escapeString(self::_safeText($this->title)) . "',
-                source = '" . DB_escapeString(self::_safeText($this->source)) . "',
-                sourcedate = '" . DB_escapeString(self::_safeText($this->sourcedate)) . "',
-                enabled = {$this->isEnabled()},
-                uid = {$this->uid}";
-        $sql = $sql1 . $sql2 . $sql3;
-        DB_query($sql, 1);
-        if (DB_error()) {
+        $values = array(
+            'quote' => self::_safeText($this->quote),
+            'quoted' => self::_safeText($this->quoted),
+            'title' => self::_safeText($this->title),
+            'source' => self::_safeText($this->source),
+            'sourcedate' => self::_safeText($this->sourcedate),
+            'enabled' => $this->isEnabled(),
+            'uid' => $this->uid,
+            'approved' => $this->approved,
+        );
+        $types = array(
+            Database::STRING,
+            Database::STRING,
+            Database::STRING,
+            Database::STRING,
+            Database::STRING,
+            Database::INTEGER,
+            Database::INTEGER,
+            Database::INTEGER,
+        );
+        $db = Database::getInstance();
+        try {
+            if ($this->isNew()) {
+                $db->conn->insert(
+                    $_TABLES['dailyquote_quotes'],
+                    $values,
+                    $types
+                );
+                $this->quote_id = $db->conn->lastInsertId();
+            } else {
+                $types[] = Database::INTEGER;   // for quote_id
+                $db->conn->update(
+                    $_TABLES['dailyquote_quotes'],
+                    $values,
+                    array('quote_id' => $this->quote_id),
+                    $types
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
             return 'An error occurred inserting the quote';
         }
 
         // Delete all lookup records for this quote to make sure we
         // get rid of unused categories.
-        DB_delete($_TABLES['dailyquote_quoteXcat'], 'qid', $this->id);
+        try {
+            $db->conn->delete(
+                $_TABLES['dailyquote_quoteXcat'],
+                array('qid' => $this->quote_id),
+                array(Datbase::INTEGER)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            // just keep going
+        }
 
         // Now, add records to the lookup table to link the categories
         // to the quote.  Only if bypassing the submission queue; if
@@ -649,7 +707,7 @@ class Quote
         $values = array();
         foreach($A['categories'] as $key => $dummy) {
             $key = (int)$key;
-            $values[] = "('{$this->id}', $key)";
+            $values[] = "('{$this->quote_id}', $key)";
         }
         if (!empty($values)) {
             $value_str = implode(',', $values);
@@ -658,9 +716,9 @@ class Quote
                 VALUES $value_str";
             DB_query($sql);
         }
-        if ($this->table_id == 'quotes') {
+        if ($this->approved && $this->enabled) {
             Cache::clear();
-            PLG_itemSaved($this->id, 'dailyquote');
+            PLG_itemSaved($this->quote_id, 'dailyquote');
         }
         return '';
     }
@@ -679,15 +737,15 @@ class Quote
         global $_CONF_DQ, $_USER, $_CONF;
 
         if (SEC_hasRights('dailyquote.submit')) {
-            $this->setTable('quotes');
+            $this->approved = 1;
             $email_admin = 0;
         } elseif ($_CONF_DQ['queue'] == 0) {
             // user has submit right or submission queue is not being used
-            $this->setTable('quotes');
+            $this->approved = 1;
             $email_admin = $_CONF_DQ['email_admin'] == 2 ? 1 : 0;
         } elseif ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1) {
             // user must go through the submission queue
-            $this->setTable('submission');
+            $this->approved = 0;
             $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
         }  else {
             return MO::_('Access Denied');
@@ -720,43 +778,31 @@ class Quote
     /**
      * Retrieves a single quote. If $id is empty, a random quote is selected.
      *
-     * @param   string  $qid    Optional quote specifier
-     * @param   string  $cid    Optional category specifier
+     * @param   integer $qid    Optional quote specifier
      * @return  object          Quote object, NULL if error or not found
      */
-    public static function getInstance($qid='', $cid=0)
+    public static function getInstance(?int $qid=NULL) : self
     {
         global $_TABLES;
 
-        // Sanitize category ID
-        $cid = (int)$cid;
-
-        //get random quote
-        $sql = "SELECT q.* FROM {$_TABLES['dailyquote_quotes']} q";
-        if ($cid > 0) {
-            $sql .= " LEFT JOIN {$_TABLES['dailyquote_quoteXcat']} x
-                    ON x.qid = q.id
-                LEFT JOIN {$_TABLES['dailyquote_cat']} c
-                    ON x.cid = c.id";
-        }
-        $sql .= " WHERE q.enabled=1";
-        if ($qid == '') {
-            if ($cid > 0) {
-                $sql .= " AND c.id = '$cid' AND c.enabled = 1";
+        $row = false;
+        if ($qid > 0) {
+            try {
+                $row = Database::getInstance()->conn->executeQuery(
+                    "SELECT * FROM {$_TABLES['dailyquote_quotes']} WHERE quote_id = ?",
+                    array($qid),
+                    array(Database::INTEGER)
+                )->fetchAssociative();
+            } catch (\Throwable $e) {
+                Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+                $row = false;
             }
-            $sql .= " ORDER BY rand() LIMIT 1";
+        }
+        if (is_array($row)) {
+            return self::fromArray($row);
         } else {
-            $sql .= " AND q.id='" . DB_escapeString($qid). "'";
+            return new self;
         }
-        //echo $sql;die;
-        $Q = new self();
-        $result = DB_query($sql, 1);
-        if ($result && DB_numRows($result) > 0) {
-            $row = DB_fetchArray($result, false);
-            $Q->setVars($row);
-            $Q->setIsNew(0);
-        }
-        return $Q;
     }
 
 
@@ -832,7 +878,7 @@ class Quote
                 'align' => 'center',
             ),
             array(
-                'field' => 'id',
+                'field' => 'quote_id',
                 'text' => 'Quote ID',
                 'sort' => true,
             ),
@@ -914,7 +960,7 @@ class Quote
         switch($fieldname) {
         case 'edit':
             $retval .= COM_createLink('',
-                DQ_ADMIN_URL . "/index.php?editquote=x&amp;id={$A['id']}",
+                DQ_ADMIN_URL . "/index.php?editquote=x&amp;id={$A['quote_id']}",
                 array(
                     'class' => 'uk-icon uk-icon-edit',
                 )
@@ -924,8 +970,8 @@ class Quote
         case 'enabled':
             $value = $fieldvalue == 1 ? 1 : 0;
             $chk = $fieldvalue == 1 ? ' checked="checked" ' : '';
-            $retval .= '<input type="checkbox" id="togena' . $A['id'] . '"' .
-                $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] .
+            $retval .= '<input type="checkbox" id="togena' . $A['quote_id'] . '"' .
+                $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['quote_id'] .
                     '", "quote");\' />';
             break;
 
@@ -943,7 +989,7 @@ class Quote
 
         case 'delete':
             $retval = COM_createLink('',
-                DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['id'],
+                DQ_ADMIN_URL . '/index.php?delquote=x&id=' . $A['quote_id'],
                 array(
                     'class' => 'uk-icon uk-icon-minus-square uk-text-danger',
                     'onclick' => 'return confirm(\'' . 
@@ -960,6 +1006,4 @@ class Quote
         return $retval;
     }
 
-}   // class Quote
-
-?>
+}

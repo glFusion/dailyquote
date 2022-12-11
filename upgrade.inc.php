@@ -3,21 +3,23 @@
  * Upgrade routines for the Dailyquote plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
- * @version     v0.2.0
+ * @version     v0.3.0.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 
-global $_CONF, $_CONF_DQ, $_DB_dbms, $_SQL_UPGRADE;
+global $_CONF, $_CONF_DQ, $_SQL_UPGRADE;
 
 /** Include the default configuration values */
 require_once __DIR__ . '/install_defaults.php';
 /** Include the table creation strings */
 require_once __DIR__ . "/sql/mysql_install.php";
 
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 
 /**
  * Perform the upgrade starting at the current version.
@@ -29,6 +31,7 @@ function DQ_do_upgrade($dvlp=false)
 {
     global $_CONF_DQ, $_TABLES, $_PLUGIN_INFO, $dailyquoteConfigData;
 
+    $db = Database::getInstance();
     if (isset($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
         if (is_array($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
             // glFusion > 1.6.5
@@ -45,6 +48,48 @@ function DQ_do_upgrade($dvlp=false)
     if (!COM_checkVersion($current_ver, '0.2.0')) {
         $current_ver = '0.2.0';
         if (!DQ_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!DQ_do_set_version($current_ver)) return false;
+    }
+
+    if (!COM_checkVersion($current_ver, '0.4.0')) {
+        $current_ver = '0.4.0';
+        if (!DQ_do_upgrade_sql($current_ver, $dvlp)) return false;
+        // Changing quote ID to auto_increment integer.
+        // Must add new key field to quote table, then update quoteXcat to
+        // change to the integer key, and finally change the field type for
+        // quote ID to int.
+        $qb = $db->conn->createQueryBuilder();
+        try {
+            $stmt = $qb->select('x.qid', 'q.quote_id')
+                       ->distinct()
+                       ->from($_TABLES['dailyquote_quoteXcat'], 'x')
+                       ->leftJoin('x', $_TABLES['dailyquote_quotes'], 'q', 'q.id = x.qid')
+                       ->execute();
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+            $stmt = false;
+        }
+        if ($stmt) {
+            while ($A = $stmt->fetchAssociative()) {
+                try {
+                    $db->conn->update(
+                        $_TABLES['dailyquote_quoteXcat'],
+                        array('qid' => $A['quote_id']),
+                        array('qid' => $A['qid']),
+                        array(Database::INTEGER, Database::STRING)
+                    );
+                } catch (\Throwable $e) {
+                    Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+                }
+            }
+        }
+        try {
+            $db->conn->executeStatement(
+                "ALTER TABLE {$_TABLES['dailyquote_quoteXcat']} CHANGE qid qid int(11) unsigned not null"
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        }
         if (!DQ_do_set_version($current_ver)) return false;
     }
 
@@ -78,21 +123,24 @@ function DQ_do_upgrade($dvlp=false)
  * @param   boolean $dvlp       True to ignore errors and continue
  * @return  boolean         True on success, False on failure
  */
-function DQ_do_upgrade_sql($version, $dvlp=false)
+function DQ_do_upgrade_sql(string $version, bool $dvlp=false) : bool
 {
     global $_CONF_DQ, $_SQL_UPGRADE;
 
     // If no sql statements passed in, return success
-    if (empty($_SQL_UPGRADE[$version]))
+    if (empty($_SQL_UPGRADE[$version])) {
         return true;
+    }
 
+    $db = Database::getInstance();
     // Execute SQL now to perform the upgrade
-    COM_errorLog("--Updating {$_CONF_DQ['pi_name']} to version $version");
+    Log::write('system', Log::INFO, "--Updating {$_CONF_DQ['pi_name']} to version $version");
     foreach ($_SQL_UPGRADE[$version] as $sql) {
-        COM_errorLog("{$_CONF_DQ['pi_name']} $version update: Executing SQL => $sql");
-        DB_query($sql, '1');
-        if (DB_error()) {
-            COM_errorLog("SQL Error during {$_CONF_DQ['pi_name']} plugin update",1);
+        Log::write('system', Log::DEBUG, "{$_CONF_DQ['pi_name']} $version update: Executing SQL => $sql");
+        try {
+            $db->conn->executeStatement($sql);
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
             if (!$dvlp) return false;
         }
     }
@@ -112,19 +160,26 @@ function DQ_do_set_version($ver)
 {
     global $_TABLES, $_CONF_DQ;
 
-    // now update the current version number.
-    $sql = "UPDATE {$_TABLES['plugins']} SET
-            pi_version = '{$_CONF_DQ['pi_version']}',
-            pi_gl_version = '{$_CONF_DQ['gl_version']}',
-            pi_homepage = '{$_CONF_DQ['pi_url']}'
-        WHERE pi_name = '{$_CONF_DQ['pi_name']}'";
-
-    $res = DB_query($sql, 1);
-    if (DB_error()) {
-        COM_errorLog("Error updating the {$_CONF_DQ['pi_display_name']} Plugin version",1);
-        return false;
-    } else {
+    try {
+        Database::getInstance()->conn->update(
+            $_TABLES['plugins'],
+            array(
+                'pi_version' => $_CONF_DQ['pi_version'],
+                'pi_gl_version' =>$_CONF_DQ['gl_version'],
+                'pi_homepage' => $_CONF_DQ['pi_url'],
+            ),
+            array('pi_name' => $_CONF_DQ['pi_name']),
+            array(
+                Database::STRING,
+                Database::STRING,
+                Database::STRING,
+                Database::STRING,
+            )
+        );
         return true;
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        return false;
     }
 }
 
@@ -160,5 +215,3 @@ function DQ_remove_old_files()
         }
     }
 }
-
-?>

@@ -11,6 +11,9 @@
  * @filesource
  */
 namespace DailyQuote;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
+
 
 /**
  * Define a class to deal with quote categories.
@@ -69,14 +72,23 @@ class Category
     {
         global $_TABLES;
 
-        $res = DB_query("SELECT * FROM {$_TABLES[self::$TABLE]}
-                WHERE id='".(int)$id."'");
-        if ($res && DB_numRows($res) == 1) {
-            $A = DB_fetchArray($res, false);
-            $this->setVars($A);
-            return true;
+        try {
+            $row = Database::getInstance()->conn->executeQuery(
+                "SELECT * FROM {$_TABLES[self::$TABLE]} WHERE id = ?",
+                array($id),
+                array(Database::INTEGER)
+            )->fetchAssociative();
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $row = false;
         }
-        return false;
+
+        if (is_array($row)) {
+            $this->setVars($row);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -93,6 +105,7 @@ class Category
             $this->name = $A['name'];
             $this->enabled = isset($A['enabled']) && $A['enabled'] == 1 ? 1 : 0;
         }
+        return $this;
     }
 
 
@@ -111,10 +124,18 @@ class Category
             $Cats = Cache::get($key);
             if (!$Cats) {
                 $Cats = array();
-                $sql = "SELECT * FROM {$_TABLES[self::$TABLE]}";
-                $res = DB_query($sql);
-                while ($A = DB_fetchArray($res, false)) {
-                    $Cats[$A['id']] = new self($A);
+                try {
+                    $stmt = Database::getInstance()->conn->executeQuery(
+                        "SELECT * FROM {$_TABLES[self::$TABLE]}"
+                    );
+                } catch (\Throwable $e) {
+                    Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+                    $stmt = false;
+                }
+                if ($stmt) {
+                    while ($A = $stmt->fetchAssociative()) {
+                        $Cats[$A['id']] = new self($A);
+                    }
                 }
                 Cache::set($key, $Cats, array('categories'));
             }
@@ -162,16 +183,21 @@ class Category
      * @param   integer $newval     New value to set (1 or 0)
      * @param   string  $id         Category ID.
      */
-    public static function toggleEnabled($newval, $id) : void
+    public static function toggleEnabled(int $newval, int $id) : void
     {
         global $_TABLES;
 
         $newval = $newval == 0 ? 0 : 1;
-        DB_change(
-            $_TABLES[self::$TABLE],
-            'enabled', $newval,
-            'id', (int)$id
-        );
+        try {
+            Database::getInstance()->conn->update(
+                $_TABLES[self::$TABLE],
+                array('enabled' => $newval),
+                array('id' => $id),
+                array(Database::INTEGER, Database::INTEGER)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
     }
 
 
@@ -189,10 +215,27 @@ class Category
         // Can't delete category 1
         if ($id == 1) return;
 
-        DB_delete($_TABLES[self::$TABLE], 'id', $id);
+        $db = Database::getInstance();
+        try {
+            $db->conn->delete(
+                $_TABLES[self::$TABLE],
+                array('id' => $id),
+                array(Database::INTEGER)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
 
         // Also delete from lookup table
-        DB_delete($_TABLES['dailyquote_quoteXcat'], 'cid', $id);
+        try {
+            $db->conn->delete(
+                $_TABLES['dailyquote_quoteXcat'],
+                array('cid' => $id),
+                array(Database::INTEGER)
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+        }
     }
 
 
@@ -206,27 +249,34 @@ class Category
     {
         global $_CONF, $_TABLES, $_USER, $MESSAGE, $_CONF_DQ;
 
-        if (is_array($A) && !empty($A))
+        if (is_array($A) && !empty($A)) {
             $this->setVars($A);
-
-        // Determine if this is an INSERT or UPDATE
-        if ($this->id == 0) {
-            $sql = "INSERT INTO {$_TABLES[self::$TABLE]}
-                    (name, enabled)
-                VALUES (
-                    '" . DB_escapeString($this->name) . "',
-                    1)";
-        } else {
-            $sql = "UPDATE {$_TABLES[self::$TABLE]} SET
-                        name = '" . DB_escapeString($this->name). "',
-                        enabled = {$this->enabled}
-                    WHERE id = {$this->id}";
         }
-        $res = DB_query($sql);
-        if (DB_error()) {
-            return MO::_('There was an error updating the category.');
-        } else {
+        $db = Database::getInstance();
+
+        try {
+            // Determine if this is an INSERT or UPDATE
+            if ($this->id == 0) {
+                $db->conn->insert(
+                    $_TABLES[self::$TABLE],
+                    array('name' => $this->name, 'enabled' => 1),
+                    array(Database::STRING, Database::INTEGER)
+                );
+            } else {
+                $db->conn->update(
+                    $_TABLES[self::$TABLE],
+                    array(
+                        'name' => $this->name,
+                        'enabled' => $this->enabled,
+                    ),
+                    array('id' => $this->id),
+                    array(Database::STRING, Database::INTEGER, Database::INTEGER)
+                );
+            }
             return '';
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return MO::_('There was an error updating the category.');
         }
     }
 
@@ -409,6 +459,57 @@ class Category
             $retval = $fieldvalue;
             break;
         }
+        return $retval;
+    }
+
+
+    public static function userList() : string
+    {
+        global $_TABLES, $_CONF;
+
+        $retval = '';
+
+        $sql = "SELECT DISTINCT id, name
+            FROM {$_TABLES['dailyquote_cat']} c
+            WHERE c.enabled='1'
+            ORDER BY name ASC";
+        try {
+            $stmt = Database::getInstance()->conn->executeQuery($sql);
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $retval = 'An error occurred while retrieving category list.';
+            return $retval;
+        }
+
+        // Display cats if any to display
+        $T = new \Template(DQ_PI_PATH . '/templates');
+        $T->set_file('page', 'dispcats.thtml');
+
+        // display horizontal rows -- 3 cats per row
+        $i = 0;
+        $col = 3;
+        while ($row = $stmt->fetchAssociative()) {
+            $T->set_block('page', 'CatRow', 'cRow');
+            $T->set_var(array(
+                'pi_url'    => DQ_URL . '/index.php',
+                'cat_id'    => $row['id'],
+                'dispcat'   => $row['name'],
+                'cell_width' => (int)(100 / $col),
+            ) );
+
+            // Determine if it's time for a new row
+            $i++;
+            if ($i % $col === 0) {
+                $T->set_var('newrow', 'true');
+            }
+            $T->parse('cRow', 'CatRow', true);
+        }
+
+        if ($i > 0) {
+            $T->parse('output', 'page');
+            $retval .= $T->finish($T->get_var('output'));
+        }
+
         return $retval;
     }
 
