@@ -3,9 +3,9 @@
  * Common functions for the DailyQuote plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2017 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
- * @version     v0.2.1
+ * @version     v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -668,7 +668,7 @@ function plugin_moderationvalues_dailyquote()
         'quote_id',
         $_TABLES['dailyquote_quotes'],
         '',
-        $_TABLES['dailyquote_quotes'],
+        '',
     );
 }
 
@@ -689,11 +689,12 @@ function plugin_itemlist_dailyquote()
         $plugin = new Plugin();
         $plugin->submissionlabel = $_CONF_DQ['pi_display_name'];
         $plugin->getsubmissionssql =
-                "SELECT quote_id AS id, quoted, title, source, uid
+            "SELECT quote_id AS id, title,
+                FROM_UNIXTIME(dt) as date, source, uid
                 FROM {$_TABLES['dailyquote_quotes']}
                 WHERE approved = 0";
-        $plugin->addSubmissionHeading($LANG_DQ['quoted']);
         $plugin->addSubmissionHeading($LANG_DQ['title']);
+        $plugin->addSubmissionHeading($LANG_DQ['date']);
         $plugin->addSubmissionHeading($LANG_DQ['source']);
         return $plugin;
     }
@@ -746,10 +747,11 @@ function plugin_moderationapprove_dailyquote($id)
     try {
         Database::getInstance()->conn->update(
             $_TABLES['dailyquote_quotes'],
-            array('enabled' => 1, 'approved' => 1),
+            array('approved' => 1),
             array('quote_id' => $id),
-            array(Database::INTEGER, Database::INTEGER, Database::INTEGER)
+            array(Database::INTEGER, Database::INTEGER)
         );
+        DailyQuote\Cache::clear();
     } catch (\Throwable $e) {
         Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
     }
