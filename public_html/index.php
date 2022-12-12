@@ -40,9 +40,10 @@ function DQ_listQuotes($sort, $dir, $page)
     }
     $numquotes = $Coll->getPageCount();
     $Quotes = $Coll->orderBy($sort, $dir)
-                 ->setPage($page)
-                 ->createLimit()
-                 ->getObjects();
+                   ->withApproved(true)
+                   ->setPage($page)
+                   ->createLimit()
+                   ->getObjects();
 
     // Display quotes if any to display
     $T = new Template(DQ_PI_PATH . '/templates');
@@ -264,22 +265,25 @@ case 'categories':
 case 'savesubmission':
     $Q = new DailyQuote\Quote();
     $message = $Q->SaveSubmission($_POST);
-    if (empty($message)) $message = sprintf($LANG12[25], $_CONF_DQ['pi_name']);
-    LGLIB_storeMessage($message);
+    if (empty($message)) {
+        $message = sprintf($LANG12[25], $_CONF_DQ['pi_name']);
+    }
+    COM_setMsg($message);
     COM_refresh(DQ_URL);
     break;
 
 case 'edit':
     $q_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
     $Q = DailyQuote\Quote::getInstance($q_id);
-    if ($q_id == 0 || !$Q->isNew()) {
+    if ($Q->isNew()) {
+        $content .= $Q->Edit('submit');
+    } else {
         $content .= $Q->Edit();
     }
     break;
 
 default:
     $T->set_var('indexintro', $indexintro);
-    $T->set_var('randomquote', DQ_random_quote($qid, $cid));
     $content .= DQ_listQuotes($sort, $dir, $page);
     break;
 }
@@ -289,5 +293,3 @@ $T->parse('output','page');
 $display .= $T->finish($T->get_var('output'));
 $display .= DQ_siteFooter();
 echo $display;
-
-?>
