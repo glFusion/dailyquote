@@ -47,6 +47,7 @@ spl_autoload_register(function ($class)
 });
 use glFusion\Database\Database;
 use glFusion\Log\Log;
+use DailyQuote\Models\DataArray;
 
 //  Check and see if we need to load the plugin configuration
 if (!isset($_CONF_DQ['quoteperpage'])) {
@@ -802,8 +803,8 @@ function plugin_savesubmission_dailyquote($A)
     // the save was successful.  Otherwise, redisplay the submission
     // form with the error message at the top.
     $errmsg = '';
+    $A = new DataArray($A);
 
-    //var_dump($A);die;
     if (empty($_USER['uid'])) {
         return false;       // Catastrophic error, just return
     } else {
@@ -811,7 +812,6 @@ function plugin_savesubmission_dailyquote($A)
     }
 
     // check for missing fields
-    //if (empty($A['title']) || empty($A['quote'])) {
     if (empty($A['quote'])) {
         COM_resetSpeedlimit('submit');
         $errmsg .= "<li>". $LANG_DQ['missing_req_fields']. "</li>\n";
@@ -875,7 +875,7 @@ function plugin_savesubmission_dailyquote($A)
         $display = COM_siteHeader();
         $display .= "<span class=alert><ul>$errmsg</ul></span\n";
         $Q->id = '';
-        $display .= $Q->Edit('submit', $_POST);
+        $display .= $Q->Edit('submit', $Request);
         $display .= COM_siteFooter();
         return $display;
     }
@@ -1029,23 +1029,6 @@ function plugin_enablestatechange_dailyquote($enabled)
     $enabled = $enabled == true ? 1 : 0;
     $db = Database::getInstance();
 
-    // If trying to enable the plugin but lgLib is not available,
-    // take no action and return
-    if ($enabled && !in_array('lglib', $_PLUGINS)) {
-        // Re-disable the plugin
-        try {
-            $db->conn->update(
-                $_TABLES['plugins'],
-                array('pi_enabled' => 0),
-                array('pi_name' => 'dailyquote'),
-                array(Database::INTEGER, Database::STRING)
-            );
-        } catch (\Throwable $e) {
-            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
-        }
-        $enabled = 0;
-    }
-
     if ($enabled == 0) {
         $blocks = array('dailyquote_random', 'dailyquote_dgmenu');
         foreach ($blocks as $block) {
@@ -1059,35 +1042,6 @@ function plugin_enablestatechange_dailyquote($enabled)
             } catch (\Throwable $e) {
                 Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
             }
-        }
-    }
-}
-
-
-/**
- * Receives notification of another plugin's deletion.
- * Disables this plugin if the lgLib plugin is disabled or removed.
- *
- * @param   mixed   $id     Item ID
- * @param   string  $type   Plugin Name
- */
-function plugin_itemdeleted_dailyquote($id, $type)
-{
-    global $_TABLES;
-
-    if ($type == 'lglib' && $id == '*') {
-        // Disable blocks, etc.
-        plugin_enablestatechange_dailyquote(false);
-        // Disable this plugin
-        try {
-            Database::getInstance()->conn->update(
-                $_TABLES['plugins'],
-                array('pi_enabled' => 0),
-                array('pi_name' => 'dailyquote'),
-                array(Database::INTEGER, Database::STRING)
-            );
-        } catch (\Throwable $e) {
-            Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
         }
     }
 }
@@ -1369,61 +1323,6 @@ function DQ_random_quote(?int $qid=NULL, ?int $cid=NULL)
     }
     $T->parse('output','page');
     return $T->finish($T->get_var('output'));
-}
-
-
-/**
- * Display the site header, with or without blocks according to configuration.
- *
- * @param   string  $title  Title to put in header
- * @param   string  $meta   Optional header code
- * @return  string          HTML for site header, from COM_siteHeader()
- */
-function DQ_siteHeader($title='', $meta='')
-{
-    global $_CONF_DQ;
-
-    $retval = '';
-
-    switch($_CONF_DQ['displayblocks']) {
-    case 2:     // right only
-    case 0:     // none
-        $retval .= COM_siteHeader('none', $title, $meta);
-        break;
-
-    case 1:     // left only
-    case 3:     // both
-    default :
-        $retval .= COM_siteHeader('menu', $title, $meta);
-        break;
-    }
-    return $retval;
-}
-
-
-/**
- * Display the site footer, with or without blocks as configured.
- *
- * @return  string  HTML for site footer, from COM_siteFooter()
- */
-function DQ_siteFooter()
-{
-    global $_CONF_DQ;
-
-    $retval = '';
-
-    switch($_CONF_DQ['displayblocks']) {
-    case 2 : // right only
-    case 3 : // left and right
-        $retval .= COM_siteFooter(true);
-        break;
-
-    case 0: // none
-    case 1: // left only
-        $retval .= COM_siteFooter();
-        break;
-    }
-    return $retval;
 }
 
 
