@@ -79,26 +79,11 @@ class Quote
      *
      * @param   string  $id     Quote ID to retrieve, blank for empty object
      */
-    public function X__construct($id='', $table='quotes')
+    public function __construct()
     {
         global $_USER;
 
-        if (is_array($id)) {
-            // Already have the record.
-            $this->setVars($id);
-        } else {
-            $this->quote_id = (int)$id;
-            $this->uid = $_USER['uid'];
-            $this->enabled = 1;
-
-            // Set the table name here in case a quote is being read
-            $this->setTable($table);
-
-            if ($this->quote_id > 0) {
-                // Read() returns true if found
-                $this->Read();
-            }
-        }
+        $this->uid = $_USER['uid'];
         $this->isAdmin = SEC_hasRights('dailyquote.admin');
     }
 
@@ -366,8 +351,10 @@ class Quote
         $this->quoted = $A['quoted'];
         $this->source = $A['source'];
         $this->sourcedate = $A['sourcedate'];
+        $this->dt = isset($A['dt']) ? $A['dt'] : time();
         $this->title = $A['title'];
         $this->enabled = (isset($A['enabled']) && $A['enabled'] == 1) ? 1 : 0;
+        $this->approved = (isset($A['approved']) && $A['approved'] == 1) ? 1 : 0;
         $this->uid = (int)$A['uid'];
         return $this;
     }
@@ -391,7 +378,7 @@ class Quote
             Database::getInstance()->conn->update(
                 $_TABLES['dailyquote_quotes'],
                 array('enabled' => $newval),
-                array('id' => $id),
+                array('quote_id' => $id),
                 array(Database::INTEGER, Database::STRING)
             );
             return $newval;
@@ -614,7 +601,7 @@ class Quote
         }
 
         $access = $this->hasAccess(3, $this->isNew());
-        if (!$access || $this->quote_id == 0) {
+        if (!$access) {
             COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->quote_id}.");
             return $MESSAGE[31];
         }
@@ -625,6 +612,7 @@ class Quote
             'title' => self::_safeText($this->title),
             'source' => self::_safeText($this->source),
             'sourcedate' => self::_safeText($this->sourcedate),
+            'dt' => $this->dt,
             'enabled' => $this->isEnabled(),
             'uid' => $this->uid,
             'approved' => $this->approved,
@@ -668,7 +656,7 @@ class Quote
             $db->conn->delete(
                 $_TABLES['dailyquote_quoteXcat'],
                 array('qid' => $this->quote_id),
-                array(Datbase::INTEGER)
+                array(Database::INTEGER)
             );
         } catch (\Throwable $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
@@ -698,8 +686,8 @@ class Quote
                 VALUES $value_str";
             DB_query($sql);
         }
+        Cache::clear();
         if ($this->approved && $this->enabled) {
-            Cache::clear();
             PLG_itemSaved($this->quote_id, 'dailyquote');
         }
         return '';
@@ -714,24 +702,25 @@ class Quote
      * @param   array   $A      $_POST array of data
      * @return  string      Error message or empty string on success
      */
-    public function SaveSubmission($A)
+    public function saveSubmission($A)
     {
         global $_CONF_DQ, $LANG_DQ, $_USER, $_CONF;
 
         if (SEC_hasRights('dailyquote.submit')) {
-            $this->approved = 1;
+            $A['approved'] = 1;
             $email_admin = 0;
         } elseif ($_CONF_DQ['queue'] == 0) {
             // user has submit right or submission queue is not being used
-            $this->approved = 1;
+            $A['approved'] = 1;
             $email_admin = $_CONF_DQ['email_admin'] == 2 ? 1 : 0;
         } elseif ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1) {
             // user must go through the submission queue
-            $this->approved = 0;
+            $A['approved'] = 0;
             $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
         }  else {
             return $LANG_DQ['access_denied'];
         }
+        $A['dt'] = time();
         $msg = $this->Save($A);
 
         if ($msg == '') {
@@ -897,7 +886,7 @@ class Quote
             'has_extras' => true,
             'form_url' => DQ_ADMIN_URL . '/index.php?type=quote',
         );
-        $options = array('chkdelete' => 'true', 'chkfield' => 'id');
+        $options = array('chkdelete' => 'true', 'chkfield' => 'quote_id');
         $query_arr = array(
             'table' => 'dailyquote',
             'sql' => "SELECT * FROM {$_TABLES['dailyquote_quotes']} ",
