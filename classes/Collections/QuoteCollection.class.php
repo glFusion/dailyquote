@@ -3,16 +3,17 @@
  * Class to handle product collections.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2022 Lee Garner
+ * @copyright   Copyright (c) 2022 Lee Garner
  * @package     dailyquote
- * @version     v1.5.0
- * @since       v1.5.0
+ * @version     v0.3.0
+ * @since       v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace DailyQuote\Collections;
 use glFusion\Database\Database;
+use glFusion\Log\Log;
 use DailyQuote\Quote;
 
 
@@ -40,10 +41,31 @@ class QuoteCollection extends Collection
     }
 
 
+    /**
+     * Limit results to a single quote ID.
+     * Really no different than calling Quote::getInstance($qid).
+     *
+     * @param   integer $qid    Quote ID
+     * @return  object  $this
+     */
     public function withQuoteId(int $qid) : self
     {
         $this->_qb->andWhere('quote_id = :qid')
                   ->setParameter('qid', $qid, Database::INTEGER);
+        return $this;
+    }
+
+
+    /**
+     * Get only approved or un-approved quotes.
+     *
+     * @param   boolean $flag   True for approved, False for unapproved
+     * @return  object  $this
+     */
+    public function withApproved(bool $flag=true) : self
+    {
+        $this->_qb->andWhere('approved = :approved')
+                  ->setParameter('approved', $flag ? 1 : 0, Database::INTGER);
         return $this;
     }
 
@@ -87,7 +109,7 @@ class QuoteCollection extends Collection
     {
         $retval = 0;
         $qb = clone $this->_qb;
-        $qb->select('count(DISTINCT q.id) AS cnt');
+        $qb->select('count(DISTINCT q.quote_id) AS cnt');
         try {
             $row = $qb->execute()->fetchAssociative();
         } catch (\Throwable $e) {
