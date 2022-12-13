@@ -60,7 +60,7 @@ function DQ_do_upgrade($dvlp=false)
         // quote ID to int.
         $qb = $db->conn->createQueryBuilder();
         try {
-            $stmt = $qb->select('x.qid', 'q.quote_id')
+            $stmt = $qb->select('x.qid', 'q.qid')
                        ->distinct()
                        ->from($_TABLES['dailyquote_quoteXcat'], 'x')
                        ->leftJoin('x', $_TABLES['dailyquote_quotes'], 'q', 'q.id = x.qid')
@@ -74,7 +74,7 @@ function DQ_do_upgrade($dvlp=false)
                 try {
                     $db->conn->update(
                         $_TABLES['dailyquote_quoteXcat'],
-                        array('qid' => $A['quote_id']),
+                        array('qid' => $A['qid']),
                         array('qid' => $A['qid']),
                         array(Database::INTEGER, Database::STRING)
                     );

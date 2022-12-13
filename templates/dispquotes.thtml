@@ -24,10 +24,10 @@
     <div class="dq_quotelist_quote">
 {!if can_edit}
         <div style="float:right;">
-            <a href="{pi_url}/index.php?edit=quote&id={quote_id}">
+            <a href="{pi_url}/index.php?edit=quote&id={qid}">
                 <i class="uk-icon uk-icon-edit" title="{$LANG_ADMIN['edit']}" data-uk-tooltip></i>
             </a>
-            <a href="{site_admin_url}/plugins/dailyquote/index.php?delete=x&type=quote&id={quote_id}"
+            <a href="{site_admin_url}/plugins/dailyquote/index.php?delete=x&type=quote&id={qid}"
                 onclick="return confirm('{LANG_DQ['del_item_conf']}')">
                 <i class="uk-icon uk-icon-trash-o dq-icon-danger" title="{$LANG_ADMIN['delete']}" data-uk-tooltip></i>
             </a>
@@ -37,7 +37,7 @@
 {!if title}
         <p class="dq_title">{title}</p>
 {!endif}
-        <p>&quot;{quote}&quot;</p>
+        <p><blockquote style="font-size:larger;">{quote}</blockquote></p>
         <p class="dq_quotelist_attrib">
             {quoted}
 {!if source}&nbsp;--&nbsp;{source}{!endif}

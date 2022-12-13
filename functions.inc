@@ -71,37 +71,18 @@ define('DQ_URL',
     $_CONF['site_url'].'/'.$_CONF_DQ['pi_name']);
 
 
-/** Language file Include */
+// Load language file
 $langpath = __DIR__ . '/language';
-require_once "$langpath/english_utf-8.php";
-if (file_exists("$langpath/custom/english_utf-8.php")) {
-    include_once "$langpath/custom/english_utf-8.php";
-}
 $langfile = "{$_CONF['language']}.php";
-if (
-    $lang_file != 'english_utf-8.php' &&
-    file_exists("$langpath/$langfile")
-) {
-    $save = $LANG_DQ;
-    unset($LANG_DQ);
-    include_once "$langpath/$langfile";
-    if (file_exists("$langpath/custom/$langfile")) {
-        include_once "$langpath/custom/$langfile";
-    }
-    if ($LANG_DQ !== NULL) {
-        $LANG_DQ = array_merge($save, $LANG_DQ);
-    } else {
-        $LANG_DQ = $save;
-    }
-    unset($save);
+if (!is_file("$langpath/$langfile")) {
+    $langfile = 'english_utf-8.php';
 }
+require_once "$langpath/$langfile";
 
-
-/**
- * Import the batch upload function.
- */
-function USES_dailyquote_batch()
-{   require_once DQ_PI_PATH . '/batch.php'; }
+if (is_file("$langpath/custom/$langfile")) {
+    /** Include the custom language file, if any */
+    include_once "$langpath/custom/$langfile";
+}
 
 spl_autoload_register(function ($class)
 {
@@ -260,9 +241,9 @@ function plugin_getadminoption_dailyquote()
     if (SEC_hasRights('dailyquote.admin')) {
         $count = Database::getInstance()->getCount(
             $_TABLES['dailyquote_quotes'],
-            'enabled',
-            1,
-            Database::INTEGER
+            array('enabled', 'approved'),
+            array(1, 1),
+            array(Database::INTEGER, Database::INTEGER)
         );
         return array(
             $LANG_DQ['admin_menu'],
@@ -354,7 +335,7 @@ function plugin_getwhatsnew_dailyquote()
             //$items[] = '<a href="' . DQ_URL . '/index.php?qid=' . $row['id']
             //            . '" title="' . $quote . '">'
             //            . $quote_text . '</a>' . "\n";
-            $T->set_var('quote_link', DQ_URL . '/index.php?qid=' . $row['id']);
+            $T->set_var('quote_link', DQ_URL . '/index.php?qid=' . $row['qid']);
             $T->set_var('quote_title', $quote);
             $T->set_var('quote_text', $quote_text);
             $T->parse('output', 'block');
@@ -656,7 +637,7 @@ function phpblock_dailyquote_random($A=array(), $cat='') : string
 /**
  * Returns list of moderation values.
  *
- * The array returned contains (in order): the row 'id' label, main plugin
+ * The array returned contains (in order): the row 'qid' label, main plugin
  * table, moderation fields (comma seperated), and plugin submission table
  *
  * @return  array    Returns array of useful moderation values
@@ -666,7 +647,7 @@ function plugin_moderationvalues_dailyquote()
     global $_TABLES;
 
     return array(
-        'quote_id',
+        'qid',
         $_TABLES['dailyquote_quotes'],
         '',
         '',
@@ -690,7 +671,7 @@ function plugin_itemlist_dailyquote()
         $plugin = new Plugin();
         $plugin->submissionlabel = $_CONF_DQ['pi_display_name'];
         $plugin->getsubmissionssql =
-            "SELECT quote_id AS id, title,
+            "SELECT qid AS id, title,
                 FROM_UNIXTIME(dt) as date, source, uid
                 FROM {$_TABLES['dailyquote_quotes']}
                 WHERE approved = 0";
@@ -707,7 +688,7 @@ function plugin_itemlist_dailyquote()
  *
  * @return  integer     Number of submissions
  */
-function plugin_submissioncount_quotes() : int
+function plugin_submissioncount_dailyquote() : int
 {
     global $_TABLES;
 
@@ -749,7 +730,7 @@ function plugin_moderationapprove_dailyquote($id)
         Database::getInstance()->conn->update(
             $_TABLES['dailyquote_quotes'],
             array('approved' => 1),
-            array('quote_id' => $id),
+            array('qid' => $id),
             array(Database::INTEGER, Database::INTEGER)
         );
         DailyQuote\Cache::clear();
@@ -762,9 +743,8 @@ function plugin_moderationapprove_dailyquote($id)
 
 /**
  * Performs plugin exclusive work for items deleted by moderation.
- *
- * While moderation.php handles the actual removal from the submission
- * table, within this function we handle all other deletion-related tasks.
+ * Because this plugin doesn't use a separate submission table,
+ * the actual deletion is also handled here.
  *
  * @param   string  $id     Identifying string
  * @return  string          Any wanted HTML output
@@ -777,6 +757,15 @@ function plugin_moderationdelete_dailyquote($id)
     try {
         Database::getInstance()->conn->delete(
             $_TABLES['dailyquote_quoteXcat'],
+            array('qid' => $id),
+            array(Database::INTEGER)
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+    }
+    try {
+        Database::getInstance()->conn->delete(
+            $_TABLES['dailyquote_quotes'],
             array('qid' => $id),
             array(Database::INTEGER)
         );
@@ -797,6 +786,7 @@ function plugin_moderationdelete_dailyquote($id)
  */
 function plugin_savesubmission_dailyquote($A)
 {
+    echo __FUNCTION__ . ' deprecated';die;
     global $_TABLES, $_USER, $_CONF, $_CONF_DQ, $LANG12, $LANG_DQ;
 
     // Initialize error message.  If it's still empty at the end, then
@@ -838,17 +828,16 @@ function plugin_savesubmission_dailyquote($A)
         if ($A['mode'] == $LANG12[8] ||
             $A['mode'] == $LANG_ADMIN['save']) {     // mode = Submit
             // This is a user-submitted ad
-            //$A['id'] = COM_makeSid();
             $A['uid'] = $owner_id;
             $A['dt_add'] = time();
 
             $Q = new DailyQuote\Quote();
-            if ($Q->SaveSubmission($A) != '') {
+            if ($Q->saveSubmission($A) != '') {
                 return false;       // Catastrophic failure
             }
         }
 
-    }    // if $errormsg == ''
+    }
 
     // If still no error message, return to the home page with
     // the 'success' message.  Otherwise, redisplay the submission form
@@ -1202,10 +1191,11 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
     $qb->select('*')
        ->from($_TABLES['dailyquote_quotes']);
     if ($id == '*') {
-        $qb->where('enabled = 1');
+        $qb->where('enabled = 1')
+           ->andWhere('approved = 1');
     } else {
-        $qb->where('id = :id')
-           ->setParameter('id', $id, Database::STRING);
+        $qb->where('qid = :qid')
+           ->setParameter('qid', $id, Database::STRING);
     }
     try {
         $stmt = $qb->execute();
@@ -1218,7 +1208,7 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
             foreach ($properties as $p) {
                 switch ($p) {
                 case 'id':
-                    $props[$p] = $A['id'];
+                    $props[$p] = $A['qid'];
                     break;
                 case 'excerpt':
                 case 'description':
@@ -1241,7 +1231,7 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
                     $props[$p] = $A['title'] . ' ' . $A['quote'];
                     break;
                 case 'url':
-                    $props[$p] = DQ_URL . '/index.php?id=' . urlencode($A['id']);
+                    $props[$p] = DQ_URL . '/index.php?id=' . urlencode($A['qid']);
                     break;
                 default:
                     $props[$p] = isset($A[$p]) ? $A[$p] : NULL;
@@ -1361,5 +1351,3 @@ function DQ_getDocURL($file='', $doclang='english')
     }
     return $doc_url;
 }
-
-?>

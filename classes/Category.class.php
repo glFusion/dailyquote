@@ -13,6 +13,8 @@
 namespace DailyQuote;
 use glFusion\Database\Database;
 use glFusion\Log\Log;
+use glFusion\FieldList;
+use DailyQuote\Models\DataArray;
 
 
 /**
@@ -50,7 +52,7 @@ class Category
 
         if (is_array($id)) {
             // record already read
-            $this->setVars($id);
+            $this->setVars(new DataArray($id));
         } else {
             $id = (int)$id;
             if ($id > 0) {
@@ -83,7 +85,7 @@ class Category
         }
 
         if (is_array($row)) {
-            $this->setVars($row);
+            $this->setVars(new DataArray($row));
             return true;
         } else {
             return false;
@@ -97,15 +99,11 @@ class Category
      *
      * @param   array   $A  Array of values
      */
-    public function setVars($A)
+    public function setVars(DataArray $A) : self
     {
-        if (!is_array($A))
-            return;
-        if (is_array($A)) {
-            $this->id = (int)$A['id'];
-            $this->name = $A['name'];
-            $this->enabled = isset($A['enabled']) && $A['enabled'] == 1 ? 1 : 0;
-        }
+        $this->id = $A->getInt('id');
+        $this->name = $A->getString('name');
+        $this->enabled = $A->getInt('enabled');
         return $this;
     }
 
@@ -246,11 +244,11 @@ class Category
      * @param   array   $A  Array of values from $_POST or database
      * @return  string      Empty string on success, error message on failure
      */
-    public function Save($A = array())
+    public function Save(?DataArray $A=NULL) : string
     {
         global $_CONF, $_TABLES, $_USER, $MESSAGE, $LANG_DQ, $_CONF_DQ;
 
-        if (is_array($A) && !empty($A)) {
+        if (!empty($A)) {
             $this->setVars($A);
         }
         $db = Database::getInstance();
@@ -260,7 +258,7 @@ class Category
             if ($this->id == 0) {
                 $db->conn->insert(
                     $_TABLES[self::$TABLE],
-                    array('name' => $this->name, 'enabled' => 1),
+                    array('name' => $this->name, 'enabled' => $this->enabled),
                     array(Database::STRING, Database::INTEGER)
                 );
             } else {
@@ -294,12 +292,18 @@ class Category
         USES_lib_admin();
 
         $menu_arr = array (
-            array('url' => $_CONF['site_admin_url'],
-                    'text' => $LANG_ADMIN['admin_home']),
-            array('url' => DQ_ADMIN_URL . '/index.php?editcat=x',
-                    'text' => 'New Category'),
-            array('url' => DQ_ADMIN_URL,
-                  'text' => $LANG_DQ['user_menu2']),
+            array(
+                'url' => $_CONF['site_admin_url'],
+                'text' => $LANG_ADMIN['admin_home'],
+            ),
+            array(
+                'url' => DQ_ADMIN_URL . '/index.php?editcat=0',
+                'text' => 'New Category',
+            ),
+            array(
+                'url' => DQ_ADMIN_URL,
+                'text' => $LANG_DQ['user_menu2'],
+            ),
         );
         return $menu_arr;
     }
@@ -316,13 +320,33 @@ class Category
         global $_CONF_DQ, $LANG_DQ;
 
         $header_arr = array(      # display 'text' and use table field 'field'
-            array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
-            array('field' => 'enabled',
-                'text' => $LANG_DQ['enabled'], 'sort' => false),
-            array('text' => 'Category ID', 'field' => 'id', 'sort' => true),
-            array('text' => 'Category Name', 'field' => 'name', 'sort' => true),
-            array('text' => $LANG_ADMIN['delete'], 'field' => 'delete',
-                'sort' => false),
+            array(
+                'text' => $LANG_ADMIN['edit'],
+                'field' => 'edit',
+                'align' => 'center',
+                'sort' => false,
+            ),
+            array(
+                'field' => 'enabled',
+                'text' => $LANG_DQ['enabled'],
+                'sort' => false,
+            ),
+            array(
+                'text' => 'Category ID',
+                'field' => 'id',
+                'sort' => true,
+            ),
+            array(
+                'text' => 'Category Name',
+                'field' => 'name',
+                'sort' => true,
+            ),
+            array(
+                'text' => $LANG_ADMIN['delete'],
+                'field' => 'delete',
+                'align' => 'center',
+                'sort' => false,
+            ),
         );
 
         $defsort_arr = array('field' => 'name', 'direction' => 'desc');
@@ -342,14 +366,14 @@ class Category
         $form_arr = array();
         $retval = COM_createLink(
             $LANG_DQ['newcat'],
-            DQ_ADMIN_URL . '/index.php?editcat=x',
+            DQ_ADMIN_URL . '/index.php?editcat=0',
             array(
                 'class' => 'uk-button uk-button-success',
             )
         );
         USES_lib_admin();
         $retval .= ADMIN_list(
-            'dailyquote',
+            'dailyquote_admincats',
             array(__CLASS__, 'getListField'),
             $header_arr,
             $text_arr, $query_arr, $defsort_arr, '', '', '', $form_arr
@@ -404,7 +428,7 @@ class Category
         case 'edit':
             $retval .= COM_createLink(
                 '',
-                DQ_ADMIN_URL . "/index.php?editcat=x&amp;id={$A['id']}",
+                DQ_ADMIN_URL . "/index.php?editcat={$A['id']}",
                 array(
                     'class' => 'uk-icon uk-icon-edit',
                 )
@@ -421,14 +445,13 @@ class Category
 
         case 'delete':
             if ($A['id'] > 1) {
-                $retval = COM_createLink('',
-                    DQ_ADMIN_URL . '/index.php?delcat=x&id=' . $A['id'],
-                    array(
-                        'class' => 'uk-icon uk-icon-trash dq-icon-danger',
+                $retval = FieldList::delete(array(
+                    'delete_url' => DQ_ADMIN_URL . '/index.php?delcat=' . $A['id'],
+                    'attr' => array(
                         'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
                         'title' => $LANG_ADMIN['delete'],
-                    )
-                );
+                    ),
+                ) );
             }
             break;
         case 'name':

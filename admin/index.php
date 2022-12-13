@@ -29,52 +29,34 @@ if (!SEC_hasRights('dailyquote.admin,dailyquote.edit', 'OR')) {
     exit;
 }
 
-$action = '';
+$Request = DailyQuote\Models\Request::getInstance();
 $expected = array(
     'editquote', 'savequote', 'delquote',
     'editcat', 'savecat', 'delcat',
     'savemoderation', 'processbatch',
     'moderate',
-    'delete', 'delitem', 'validate', 'mode',
+    'delete', 'delbutton_x', 'delitem', 'validate', 'mode',
     'quotes', 'categories', 'batchform',
 );
-foreach($expected as $provided) {
-    if (isset($_POST[$provided])) {
-        $action = $provided;
-        $actionvar = $_POST[$provided];
-        break;
-    } elseif (isset($_GET[$provided])) {
-    	$action = $provided;
-        $actionvar = $_GET[$provided];
-        break;
-    }
-}
-
-$item_id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
-
-if (isset($_REQUEST['page'])) {
-    $page = COM_applyFilter($_REQUEST['page']);
-} else {
-    $page = $action;
-}
-
+list($action, $actionval) = $Request->getAction($expected);
+$qid = $Request->getInt('qid');
+$view = $Request->getString('view', $action);
 $content = '';      // initialize variable for page content
-$A = array();       // initialize array for form vars
 
 switch ($action) {
 case 'mode':
-    $page = $actionvar;
+    $view = $actionval;
     break;
 
 case 'savecat':
-    $C = new DailyQuote\Category($_POST['id']);
-    $C->Save($_POST);
-    $page = 'categories';
+    $C = new DailyQuote\Category($Request->getInt('id'));
+    $C->Save($Request);
+    echo COM_refresh(DQ_ADMIN_URL . '/index.php?categories');
     break;
 
 case 'savequote':
-    $Q = DailyQuote\Quote::getInstance($item_id);
-    $message = $Q->Save($_POST);
+    $Q = DailyQuote\Quote::getInstance($Request->getInt('qid'));
+    $message = $Q->Save($Request);
     if (!empty($message)) {
         COM_setMsg($message);
     }
@@ -83,63 +65,63 @@ case 'savequote':
 
 case 'savemoderation':
     // Save the quote to the prod table and delete from the queue
-    $Q = DailyQuote\Quote::getInstance($item_id);
-    $message = $Q->Save($_POST, 'dailyquote_quotes');
+    $Q = DailyQuote\Quote::getInstance($Request->getInt('qid'));
+    $Request['approved'] = 1;
+    $message = $Q->Save($Request);
     if (!empty($message)) {
         // Error saving
         COM_setMsg($message);
-    } else {
-        DB_delete($_TABLES['dailyquote_submission'], "id='" . DB_escapeString($item_id));
     }
     echo COM_refresh(DQ_ADMIN_URL);
     break;
 
 case 'delquote':
-    DailyQuote\Quote::Delete($item_id);
+    DailyQuote\Quote::Delete((int)$actionval);
     COM_refresh(DQ_ADMIN_URL);
     break;
 
-case 'delitem':
+case 'delbutton_x':
     // Handle multiple quote deletion
-    if (is_array($_POST['delitem'])) {
-        foreach ($_POST['delitem'] as $item) {
-            DailyQuote\Quote::Delete($item);
+    $items = $Request->getArray('delitem');
+    if (!empty($items)) {
+        foreach ($items as $item) {
+            DailyQuote\Quote::Delete((int)$item);
         }
-        $page = 'quotes';
     }
+    echo COM_refresh(DQ_ADMIN_URL);
     break;
 
 case 'delcat':
-    DailyQuote\Category::Delete($item_id);
-    $page = 'categories';
+    DailyQuote\Category::Delete($actionval);
+    echo COM_refresh(DQ_ADMIN_URL . '/index.php?categories');
     break;
 
 case 'processbatch':
     $content = DailyQuote\Batch::process();
-    $page = 'none';
+    $view = 'none';
     break;
 
 default:
-    $page = $action;
+    $view = $action;
     break;
 }
 
-switch ($page) {
+switch ($view) {
 case 'edit':
     // "edit" is here so this will work with submit.php
 case 'editquote':
-    $Q = DailyQuote\Quote::getInstance($item_id);
+    $Q = DailyQuote\Quote::getInstance((int)$actionval);
     $content .= $Q->Edit();
     break;
 
 case 'editcat':
-    $C = new DailyQuote\Category($item_id);
+    $C = new DailyQuote\Category((int)$actionval);
     $content .= $C->EditForm();
     break;
 
 //case 'editsubmission':
 case 'moderate':
-    $Q = DailyQuote\Quote::getInstance($item_id);
+    $Q = DailyQuote\Quote::getInstance((int)$qid);
     $Q->setTable('quotes');
     $Q->isNew = true;
     $content .= $Q->Edit($action);
@@ -161,20 +143,17 @@ case 'none':
     // Used if the action sets the entire page content
     break;
 
-case 'quotes':
 default:
-    $page = 'quotes';
+    $view = 'quotes';
     $content .= DailyQuote\Quote::adminList();
     break;
 }
 
-$display = COM_siteHeader();
+$display = DailyQuote\Menu::siteHeader();
 $display .= COM_startBlock($_CONF_DQ['pi_display_name'] . ' ver. ' . $_CONF_DQ['pi_version'], '',
                 COM_getBlockTemplate('_admin_block', 'header'));
-$display .= DailyQuote\Menu::Admin($page);
+$display .= DailyQuote\Menu::Admin($view);
 $display .= $content;
 $display .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
-$display .= COM_siteFooter();
+$display .= DailyQuote\Menu::siteFooter();
 echo $display;
-
-?>

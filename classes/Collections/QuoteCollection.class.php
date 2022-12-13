@@ -34,7 +34,7 @@ class QuoteCollection extends Collection
         $this->_qb->select('q.*')
                   ->distinct()
                   ->from($_TABLES['dailyquote_quotes'], 'q')
-                  ->leftJoin('q', $_TABLES['dailyquote_quoteXcat'], 'x', 'q.quote_id = x.qid')
+                  ->leftJoin('q', $_TABLES['dailyquote_quoteXcat'], 'x', 'q.qid = x.qid')
                   ->leftJoin('x', $_TABLES['dailyquote_cat'], 'c', 'x.cid = c.id')
                   ->where('q.enabled = 1')
                   ->andWhere('c.enabled = 1 OR c.enabled IS NULL');
@@ -50,7 +50,7 @@ class QuoteCollection extends Collection
      */
     public function withQuoteId(int $qid) : self
     {
-        $this->_qb->andWhere('quote_id = :qid')
+        $this->_qb->andWhere('qid = :qid')
                   ->setParameter('qid', $qid, Database::INTEGER);
         return $this;
     }
@@ -65,7 +65,7 @@ class QuoteCollection extends Collection
     public function withApproved(bool $flag=true) : self
     {
         $this->_qb->andWhere('approved = :approved')
-                  ->setParameter('approved', $flag ? 1 : 0, Database::INTGER);
+                  ->setParameter('approved', $flag ? 1 : 0, Database::INTEGER);
         return $this;
     }
 
@@ -109,7 +109,7 @@ class QuoteCollection extends Collection
     {
         $retval = 0;
         $qb = clone $this->_qb;
-        $qb->select('count(DISTINCT q.quote_id) AS cnt');
+        $qb->select('count(DISTINCT q.qid) AS cnt');
         try {
             $row = $qb->execute()->fetchAssociative();
         } catch (\Throwable $e) {
@@ -210,7 +210,7 @@ class QuoteCollection extends Collection
         $Quotes = array();
         $rows = $this->getRows();
         foreach ($rows as $row) {
-            $Quotes[$row['quote_id']] = Quote::fromArray($row);
+            $Quotes[$row['qid']] = Quote::fromArray($row);
         }
         return $Quotes;
     }

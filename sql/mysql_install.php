@@ -18,7 +18,7 @@ use Dailyquote\MO;
 
 // Main quote table
 $_SQL['dailyquote_quotes'] = "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
-  `quote_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `qid` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `quote` text DEFAULT NULL,
   `quoted` text DEFAULT NULL,
   `title` text DEFAULT NULL,
@@ -28,7 +28,7 @@ $_SQL['dailyquote_quotes'] = "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
   `uid` int(11) unsigned NOT NULL DEFAULT 1,
   `enabled` tinyint(1) unsigned NOT NULL DEFAULT 1,
   `approved` tinyint(1) unsigned NOT NULL DEFAULT 1,
-  PRIMARY KEY (`quote_id`),
+  PRIMARY KEY (`qid`),
   UNIQUE KEY `idx_quote` (`quote`(32))
 ) ENGINE=MyISAM";
 
@@ -59,7 +59,7 @@ $_SQL_UPGRADE = array(
     ),
     '0.4.0' => array(
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} DROP PRIMARY KEY",
-        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD quote_id int(11) unsigned not null auto_increment primary key first",
-        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD approved tinyint(1) unsigned not null default 1",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD qid int(11) unsigned not null auto_increment primary key first",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD approved tinyint(1) unsigned not null default 1 AFTER enabled",
     ),
 );

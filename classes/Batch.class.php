@@ -3,14 +3,17 @@
  * Batch add quotes to the database.  Similar to glFusion's user import.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2020-2022 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
- * @version     0.2.1
+ * @version     v0.4.0
+ * @since       v0.2.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace DailyQuote;
+use DailyQuote\Models\Request;
+use DailyQuote\Models\DataArray;
 
 
 /**
@@ -73,6 +76,7 @@ class Batch
         global $_TABLES, $_CONF, $LANG_DQ;
 
         $verbose_import = 1;
+        $Request = Request::getInstance();
 
         // First, upload the file
         USES_class_upload();
@@ -102,12 +106,7 @@ class Batch
         }
 
         // Get categories into a usable array
-        $cats = array();
-        if (isset($_POST['cat']) && is_array($_POST['cat'])) {
-            foreach ($_POST['cat'] as $key=>$val) {
-                $cats[$val] = '';
-            }
-        }
+        $cats = $Request->getArray('cat');
 
         // Following variables track import processing statistics
         $successes = 0;
@@ -130,8 +129,8 @@ class Batch
 
             // Fill empty fields with form values, if supplied
             foreach (array('title', 'source', 'sourcedate') as $elem) {
-                if (empty($$elem) && !empty($_POST[$elem]))
-                    $$elem= $_POST[$elem];
+                if (empty($$elem) && !empty($Request[$elem]))
+                    $$elem= $Request->getString($elem);
             }
 
             if ($verbose_import) {
@@ -153,17 +152,18 @@ class Batch
                 $Q = new Quote();
                 // Convert to hash for $Q->Save() function
                 $A = array(
-                    'id' => COM_makeSid(),
+                    'qid' => 0,
                     'quote' => $quote,
                     'quoted' => $quoted,
                     'title' => $title,
                     'source' => $source,
                     'sourcedate' => $sourcedate,
                     'enabled' => 1,
+                    'approved' => 1,
                     'categories' => $cats,
-                    'uid' => 0,
+                    'uid' => 1,
                 );
-                $message = $Q->Save($A);
+                $message = $Q->Save(DataArray::fromArray($A));
                 if ($message == '') {
                     if ($verbose_import) {
                         $retval .= "<br> $quote by <em>$quoted</em> successfully added.<br>\n";
@@ -187,5 +187,3 @@ class Batch
     }
 
 }
-
-?>
