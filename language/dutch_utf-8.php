@@ -1,15 +1,15 @@
 <?php
 /**
-*   Dutch language file for the DailyQuote plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.2.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Dutch language file for the DailyQuote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.4.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 
 $LANG_DQ = array(
@@ -168,10 +168,7 @@ $LANG_confignames['dailyquote'] = array(
     'indexdisplim'  => 'Limiteer op de index pagina',
     'searchdisplim' => 'Limiteer zoekrestultaten tot',
     'queue'         => 'Inzendingen van Gebruikers eerst Goedkeuren?',
-    'anonadd'       => 'Anonieme gebruikers kunnen quotes toevoegen?',
-    'loginadd'      => 'Ingelogde gebruikers kunnen quotes toevoegen?',
-    'loginaddcat'   => 'Ingelogde gebruikers kunnen Categorie&euml;n toevoegen?',
-    'loginbatch'    => 'Ingelogde gebruikers kunnen in batch quotes toevoegen?',
+    'submit_grp'    => 'Group allowed to submit quotes',
     'cb_enable'     => 'Centerblock Inschakelen?',
     'cb_pos'        => 'Centerblock Positie',
     'cb_home'       => 'Centerblock alleen op Startpagina?',
@@ -182,4 +179,3 @@ $LANG_confignames['dailyquote'] = array(
     'whatsnewdays'  => 'Aantal dagen dat een quote als "nieuw" wordt beschouwd',
     'email_admin'   => 'Notificatie E-mail naar Beheerder?',
 );
-?>

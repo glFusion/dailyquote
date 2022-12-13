@@ -1,15 +1,15 @@
 <?php
 /**
-*   English language file for the DailyQuote plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * English language file for the DailyQuote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.4.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 $LANG_DQ= array(
 'access_denied'     => 'Access Denied',
@@ -50,8 +50,6 @@ $LANG_DQ= array(
 'egtitle'           => 'Example .txt File:',
 'enableq'           => 'Enable?',
 'glsearchlabel'     => 'Quotes Listing',
-'indexintro'        => 'History is full of stories, rants, perspectives, truths, lies, facts, details, opinions, ordinances, etc. The stories told by the men and women who were there, as well as by those who were not, and their comments are items for display in the archives of humankind.',
-'indexintro_contrib' => 'Visit the museum and <a href="%s">contribute</a>.',
 'indexlink'         => 'Listings',
 'indextitle'        => 'Quote of the Day',
 'keyall'            => 'all of these words',
@@ -121,6 +119,7 @@ $LANG_DQ= array(
 'quotes_in_db'      => 'Quotes in the database',
 'any'               => 'Any',
 'contributor'       => 'Contributor',
+'contribute'        => 'Contribute',
 'category'          => 'Category',
 'email_subject'     => 'New Daily Quote Notification',
 'email_msg1'        => 'A new quotation has been submitted to your site.',
@@ -175,10 +174,7 @@ $LANG_confignames['dailyquote'] = array(
     'indexdisplim' => 'Limit display on index page',
     'searchdisplim' => 'Limit search results to',
     'queue' => 'Use submission queue?',
-    'anonadd' => 'Allow anonymous users to add quotes?',
-    'loginadd' => 'Allow logged-in users to add quotes?',
-    'loginaddcat' => 'Allow logged-in users to add categories?',
-    'loginbatch' => 'Allow logged-in users to batch-add quotes?',
+    'submit_grp' => 'Group allowed to submit quotes',
     'cb_enable' => 'Enable Centerblock?',
     'cb_pos' => 'Centerblock Position',
     'cb_home' => 'Centerblock on home page only?',
@@ -190,6 +186,3 @@ $LANG_confignames['dailyquote'] = array(
     'email_admin' => 'Notification Email to Admin?',
     'displayblocks'  => 'Display glFusion Blocks',
 );
-
-
-?>

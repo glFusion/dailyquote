@@ -573,11 +573,7 @@ function phpblock_dailyquote_dqmenu()
     $content .= $href . "<br />\n";
 
     // Link to the submission form
-    if (
-        ($_CONF_DQ['anonadd'] == '1' && $_USER['uid'] < 2) ||
-        ($_CONF_DQ['loginadd'] == '1' && $_USER['uid'] > 2) ||
-        SEC_hasRights('dailyquote.add')
-    ) {
+    if (SEC_inGroup($_CONF_DQ['submit_grp']) || SEC_hasRights('dailyquote.add')) {
         $href = COM_createLink(
             'Add a Quote',
             $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']
@@ -614,8 +610,7 @@ function phpblock_dailyquote_random($A=array(), $cat='') : string
     $retval = '';
 
     $Coll = new DailyQuote\Collections\QuoteCollection;
-    $Coll->withRandom()
-         ->withLimit(1);
+    $Coll->withRandom();
     $Quotes = $Coll->getObjects();
     $Quote = reset($Quotes);
     if (!empty($Quotes)) {
@@ -1266,6 +1261,34 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
     } else {
         return $retval;
     }
+}
+
+
+/**
+ * Gets all the groups in the glFusion groups table to prepare a selection list.
+ *
+ * @param   string  $grplist    Optional list of groups to include or exclude
+ * @param   string  $NOT        Set to "NOT" to exclude $grplist, blank to include it.
+ * @return  array       Array of (grp_name=>grp_id)
+ */
+function plugin_configmanager_select_submit_grp_dailyquote()
+{
+    global $_TABLES;
+
+    $A = array();
+    $db = Database::getInstance();
+    try {
+        $data = $db->conn->executeQuery(
+            "SELECT grp_id, grp_name FROM {$_TABLES['groups']}"
+        )->fetchAll(Database::ASSOCIATIVE);
+    } catch (\Exception $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $data = array();
+    }
+    foreach ($data as $row) {
+        $A[$row['grp_name']] = $row['grp_id'];
+    }
+    return $A;
 }
 
 

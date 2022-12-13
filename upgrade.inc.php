@@ -90,6 +90,22 @@ function DQ_do_upgrade($dvlp=false)
         } catch (\Throwable $e) {
             Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
         }
+
+        // Update the config for who can submit.
+        // Make sure to run only once (if called by dvlpupdate).
+        if (isset($_CONF_DQ['anonadd']) && isset($_CONF_DQ['loginadd'])) {
+            $idx = array_search('submit_grp', array_column($dailyquoteConfigData, 'name'));
+            if ($idx !== false) {       // make sure it's found
+                if ($_CONF_DQ['anonadd']) {
+                    $grp_id = 2;        // all users
+                } elseif ($_CONF_DQ['loginadd']) {
+                    $grp_id = 13;       // logged-in users
+                } else {
+                    $grp_id = 1;        // root users
+                }
+                $dailyquoteConfigData[$idx]['default_value'] = $grp_id;
+            }
+        }
         if (!DQ_do_set_version($current_ver)) return false;
     }
 

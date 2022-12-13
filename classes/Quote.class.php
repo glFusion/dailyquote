@@ -440,16 +440,17 @@ class Quote
     {
         global $_USER, $_CONF_DQ;
 
-        if (SEC_hasRights('dailyquote.edit'))
+        if (SEC_hasRights('dailyquote.edit')) {
             return 3;
+        }
 
         if ($new_item) {
             if (SEC_hasRights('dailyquote.submit')) {
                 $access = 3;
-            } elseif (COM_isAnonUser()) {
-                $access = $_CONF_DQ['anonadd'] == 1 ? 3 : 0;
+            } elseif (SEC_inGroup($_CONF_DQ['submit_grp'])) {
+                $access = 3;
             } else {
-                $access = $_CONF_DQ['loginadd'] == 1 ? 3 : 0;
+                $access = 2;
             }
         } else {
             $access = 2;
@@ -708,13 +709,14 @@ class Quote
             // user has submit right or submission queue is not being used
             $A['approved'] = 1;
             $email_admin = $_CONF_DQ['email_admin'] == 2 ? 1 : 0;
-        } elseif ((int)$_USER['uid'] > 1 && $_CONF_DQ['loginadd'] == 1) {
+        } elseif (SEC_inGroup($_CONF_DQ['submit_grp'])) {
             // user must go through the submission queue
             $A['approved'] = 0;
             $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
         }  else {
             return $LANG_DQ['access_denied'];
         }
+
         $A['dt'] = time();
         $msg = $this->Save($A);
 

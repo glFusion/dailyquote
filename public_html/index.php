@@ -40,11 +40,11 @@ function DQ_listQuotes($sort, $dir, $page)
     if (isset($Request['quoted'])) {
         $Coll->withAuthorName($Request->getString('quoted'));
     }
-    $numquotes = $Coll->getPageCount();
+    $numquotes = $Coll->getCount();
     $Quotes = $Coll->orderBy($sort, $dir)
                    ->withApproved(true)
                    ->setPage($page)
-                   ->createLimit()
+                   ->createPageLimit()
                    ->getObjects();
 
     // Display quotes if any to display
@@ -233,22 +233,8 @@ if (isset($Request['msg'])){
 // Check access.  Sort of borrowing the glFusion permissions, but not really.
 // If anonymous, can they view or add?  If logged in, can they add?
 // Viewing is assumend for logged in users.
-$access = 2;
-if (COM_isAnonUser()) {
-    if ($_CONF_DQ['anonadd'] == 1) {
-        $access = 3;
-    }
-} elseif ($_CONF_DQ['loginadd'] == 1) {
-    $access = 3;
-}
-
+$access = SEC_inGroup($_CONF_DQ['submit_grp']) ? 3 : 2;
 $T->set_var('indextitle', $LANG_DQ['indextitle']);
-$indexintro = $LANG_DQ['indexintro'];
-if ($access == 3) {
-    $indexintro .= ' ' . sprintf($LANG_DQ['indexintro_contrib'],
-        DQ_URL . '/index.php?edit');
-}
-
 $content = '';
 switch ($action) {
 case 'categories':
@@ -276,7 +262,7 @@ case 'edit':
     break;
 
 default:
-    $T->set_var('indexintro', $indexintro);
+    $T->set_var('can_contrib', $access == 3);
     $content .= DQ_listQuotes($sort, $dir, $page);
     break;
 }

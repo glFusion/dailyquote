@@ -1,15 +1,15 @@
 <?php
 /**
-*   English language file for the DailyQuote plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Spanish language file for the DailyQuote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.4.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 $LANG_DQ= array(
 'indexintro'        => 'La historia está llena de historias, diatribas, perspectivas, verdades, mentiras, hechos, detalles, opiniones, ordenanzas, etc. Las historias contadas por los hombres y mujeres que estuvieron allí, así como por los que no estuvieron, y sus comentarios son elementos. para exhibir en los archivos de la humanidad.',
@@ -60,10 +60,7 @@ $LANG_confignames['dailyquote'] = array(
     'indexdisplim' => 'Limit display on index page',
     'searchdisplim' => 'Limit search results to',
     'queue' => 'Use submission queue?',
-    'anonadd' => 'Allow anonymous users to add quotes?',
-    'loginadd' => 'Allow logged-in users to add quotes?',
-    'loginaddcat' => 'Allow logged-in users to add categories?',
-    'loginbatch' => 'Allow logged-in users to batch-add quotes?',
+    'submit_grp' => 'Group allowed to submit quotes',
     'cb_enable' => 'Enable Centerblock?',
     'cb_pos' => 'Centerblock Position',
     'cb_home' => 'Centerblock on home page only?',
@@ -75,6 +72,3 @@ $LANG_confignames['dailyquote'] = array(
     'email_admin' => 'Notification Email to Admin?',
     'displayblocks'  => 'Display glFusion Blocks',
 );
-
-
-?>

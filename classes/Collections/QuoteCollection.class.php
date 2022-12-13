@@ -15,6 +15,7 @@ namespace DailyQuote\Collections;
 use glFusion\Database\Database;
 use glFusion\Log\Log;
 use DailyQuote\Quote;
+use DailyQuote\Cache;
 
 
 /**
@@ -101,25 +102,31 @@ class QuoteCollection extends Collection
 
 
     /**
-     * Get the total number of quotes to be shown on a page.
+     * Get the total number of quotes matching the criteria.
+     * The collection is cloned so the select part query can be re-used.
      *
-     * @return  integer     Quotes to show on a page
+     * @return  integer     Total number of quotes
      */
-    public function getPageCount() : int
+    public function getCount() : int
     {
-        $retval = 0;
         $qb = clone $this->_qb;
         $qb->select('count(DISTINCT q.qid) AS cnt');
-        try {
-            $row = $qb->execute()->fetchAssociative();
-        } catch (\Throwable $e) {
-            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
-            $row = false;
-        }
-        if (is_array($row)) {
-            $retval = (int)$row['cnt'];
-        } else {
+        $cache_key = md5($qb->getSQL() . json_encode($qb->getParameters()));
+        $retval = Cache::get($cache_key);
+        if ($retval === NULL) {
             $retval = 0;
+            try {
+                $row = $qb->execute()->fetchAssociative();
+            } catch (\Throwable $e) {
+                Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+                $row = false;
+            }
+            if (is_array($row)) {
+                $retval = (int)$row['cnt'];
+            } else {
+                $retval = 0;
+            }
+            Cache::set($cache_key, $retval, $this->cache_tags);
         }
         return $retval;
     }
@@ -191,7 +198,7 @@ class QuoteCollection extends Collection
      *
      * @return  string      LIMIT clause
      */
-    public function createLimit() : self
+    public function createPageLimit() : self
     {
         $displim = $this->getDisplayLimit();
         $startlimit = ($displim * $this->page) - $displim;
@@ -230,6 +237,21 @@ class QuoteCollection extends Collection
         $baseurl = DQ_URL . '/index.php?sort=' . $sort. '&dir=' . $dir;
         $numpages = ceil($total_quotes / $displim);
         return COM_printPageNavigation($baseurl, $this->page, $numpages);
+    }
+
+
+    /**
+     * Use this to order by RAND().
+     *
+     * @return  object  $this
+     */
+    public function withRandom() : self
+    {
+        $this->_useCache = false;
+        $total = $this->getCount();
+        $rand = mt_rand(0,$total - 1);
+        $this->withLimit($rand, 1)->orderBy('qid', 'ASC');
+        return $this;
     }
 
 }
