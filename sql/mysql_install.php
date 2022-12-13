@@ -28,8 +28,9 @@ $_SQL['dailyquote_quotes'] = "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
   `uid` int(11) unsigned NOT NULL DEFAULT 1,
   `enabled` tinyint(1) unsigned NOT NULL DEFAULT 1,
   `approved` tinyint(1) unsigned NOT NULL DEFAULT 1,
+  `hash` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY (`qid`),
-  UNIQUE KEY `idx_quote` (`quote`(32))
+  UNIQUE KEY `idx_hash` (`hash`)
 ) ENGINE=MyISAM";
 
 // Categories Table
@@ -61,5 +62,9 @@ $_SQL_UPGRADE = array(
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} DROP PRIMARY KEY",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD qid int(11) unsigned not null auto_increment primary key first",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD approved tinyint(1) unsigned not null default 1 AFTER enabled",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD hash varchar(32)",
+        "UPDATE {$_TABLES['dailyquote_quotes']} SET hash = MD5(quote)",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} DROP KEY `idx_quote`",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD UNIQUE `idx_hash` (`hash`)",
     ),
 );

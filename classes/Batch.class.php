@@ -136,7 +136,7 @@ class Batch
             if ($verbose_import) {
                 $msg = "<br><b>Working on quote=$quote, quoted=$quoted, " .
                     "title=$title, source=$source, " .
-                    "and sourcedate=$sourcedate</b><br>\n";
+                    "sourcedate=$sourcedate</b><br>\n";
                 $retval .= $msg;
                 COM_errorLog($msg, 1);
             }
@@ -171,7 +171,7 @@ class Batch
                     $successes++;
                 } else {
                     if ($verbose_import) {
-                        $retval .= "<br>The quote, &quot;$quote,&quot; already exists in our database.<br>\n";
+                        $retval .= "<br>" . $message . "<br>\n";
                     }
                     $failures++;
                 }
@@ -182,7 +182,7 @@ class Batch
 
         $report = sprintf($LANG_DQ['msg2'], $successes, $failures);
         $retval .= "<p align=\"center\" style=\"font-weight: bold; color: red;\">" .
-        $report . "</p>";
+            $report . "</p>";
         return $retval;
     }
 

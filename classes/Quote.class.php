@@ -602,6 +602,7 @@ class Quote
             'enabled' => $this->isEnabled(),
             'uid' => $this->uid,
             'approved' => $this->approved,
+            'hash' => md5($this->quote),
         );
         $types = array(
             Database::STRING,
@@ -612,6 +613,7 @@ class Quote
             Database::INTEGER,
             Database::INTEGER,
             Database::INTEGER,
+            Database::STRING,
         );
         $db = Database::getInstance();
         try {
@@ -631,9 +633,12 @@ class Quote
                     $types
                 );
             }
+        } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            return $LANG_DQ['dup_quote'];
         } catch (\Throwable $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
-            return 'An error occurred inserting the quote';
+            return $LANG_DQ['db_error'];
         }
 
         // Delete all lookup records for this quote to make sure we
@@ -646,7 +651,7 @@ class Quote
             );
         } catch (\Throwable $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
-            // just keep going
+            // just keep going, not fatal
         }
 
         // Now, add records to the lookup table to link the categories
@@ -656,15 +661,6 @@ class Quote
         if (empty($cats)) {
             $cats[] = 1;
         }
-
-        /*if (
-            !isset($A['categories']) ||
-            !is_array($A['categories']) ||
-            empty($A['categories'])
-        ) {
-            // Set to static Miscellaneous category.
-            $A['categories'] = array(1 => 1);
-        }*/
         $values = array();
         foreach($cats as $cat_id) {
             $cat_id = (int)$cat_id;
@@ -674,13 +670,15 @@ class Quote
             $value_str = implode(',', $values);
             try {
                 $db->conn->executeStatement(
-                    "INSERT IGNORE INTO {$_TABLES['dailyquote_quoteXcat']}
+                    "INSERT INTO {$_TABLES['dailyquote_quoteXcat']}
                     (qid, cid)
                     VALUES $value_str"
                 );
+            } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+                // Do nothing, don't care about duplicates here
             } catch (\Throwable $e) {
                 Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
-                // not fatal
+                // Keep going, not fatal
             }
         }
         Cache::clear();

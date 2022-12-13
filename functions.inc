@@ -157,7 +157,7 @@ function plugin_showstats_dailyquote($showsitestats)
                 ON q.id = x.qid
             LEFT JOIN {$_TABLES['dailyquote_cat']} c
                 ON x.cid = c.id
-            WHERE q.enabled= '1' AND c.enabled = '1'
+            WHERE q.enabled= 1 AND c.enabled = 1 AND q.approved = 1
             GROUP BY quoted
             ORDER BY 2 DESC, 1 ASC
             LIMIT 10"

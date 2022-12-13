@@ -98,6 +98,7 @@ case 'delcat':
 
 case 'processbatch':
     $content = DailyQuote\Batch::process();
+    // Don't refresh in order to show the import results.
     $view = 'none';
     break;
 
