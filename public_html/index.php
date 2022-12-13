@@ -13,7 +13,6 @@
 
 /** Import core glFusion functions */
 require_once('../lib-common.php');
-use DailyQuote\MO;
 $Request = DailyQuote\Models\Request::getInstance();
 
 /**
@@ -26,7 +25,7 @@ $Request = DailyQuote\Models\Request::getInstance();
  */
 function DQ_listQuotes($sort, $dir, $page)
 {
-    global $_TABLES, $_CONF, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
+    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
         $LANG_ADMIN;
 
     $Coll = new DailyQuote\Collections\QuoteCollection;
@@ -54,28 +53,18 @@ function DQ_listQuotes($sort, $dir, $page)
 
     // Set up sorting options
     $sortby_opts = array(
-        'dt' => MO::_('Date'),
-        'quote' => MO::_('Quotation'),
-        'quoted' => MO::_('Person Quoted'),
+        'dt' => $LANG_DQ['date'],
+        'quote' => $LANG_DQ['quotation'],
+        'quoted' => $LANG_DQ['quoted'],
     );
     $sortby = '';
     foreach ($sortby_opts as $key=>$value) {
         $sel = $sort == $key ? ' selected="selected"' : '';
         $sortby .= "<option value=\"$key\" $sel>$value</option>\n";
     }
-    $T->set_var(array(
-        'sortby_opts' => $sortby,
-        'submit' => MO::_('Sort'),
-        'pi_url' => DQ_URL,
-        'lang_sortby' => MO::_('Sort Quotations by'),
-        'lang_ascending' => MO::_('Ascending'),
-        'lang_descending' => MO::_('Descending'),
-        'lang_sort' => MO::_('Sort'),
-        'lang_edit' => MO::_('Edit'),
-        'lang_del_item_conf' => MO::_('Do you really want to delete this item?'),
-        'lang_delete' => MO::_('Delete'),
-        'lang_subm_by' => MO::_('Submitted By'),
-    ) );
+    $T->set_var('sortby_opts', $sortby);
+    $T->set_var('submit', $LANG_DQ['sort']);
+    $T->set_var('pi_url', DQ_URL);
     if ($dir == 'ASC') {
         $T->set_var('asc_sel', 'selected="selected"');
     } else {
@@ -104,7 +93,7 @@ function DQ_listQuotes($sort, $dir, $page)
         if ($Quote->getUid() > 1) {
             $username = DQ_linkProfile($Quote->getUid(), $Quote->getUsername());
         } else {
-            $username = MO::_('Anonymous');
+            $username = $LANG_DQ['anonymous'];
         }
 
         $dt = new Date($Quote->getDate(), $_CONF['timezone']);
@@ -141,11 +130,10 @@ function DQ_listQuotes($sort, $dir, $page)
                 COM_createImage(
                     $_CONF['layout_url'] .
                             "/images/admin/delete.$_IMAGE_TYPE",
-                    MO::_('Delete Quote'),
+                    $LANG_DQ['del_quote'],
                     array(
                         'onclick'=>'return confirm(\'' .
-                            MO::_('Do you really want to delete this item?') .
-                            '\');',
+                            $LANG_DQ['del_item_conf'] . '\');',
                         'class'=> 'tooltip',
                     )
                 ),
@@ -167,7 +155,7 @@ function DQ_listQuotes($sort, $dir, $page)
  */
 function DQ_listCategories()
 {
-    global $_TABLES, $_CONF;
+    global $_TABLES, $_CONF, $LANG_DQ;
 
     $retval = '';
 
@@ -178,7 +166,7 @@ function DQ_listCategories()
 
     $result = DB_query($sql);
     if (!$result){
-        $retval = MO::_('An error occurred while retrieving category list.');
+        $retval = $LANG_DQ['caterror'];
         glFusion\Log\Log::write('system', Log::ERROR, 'An error occured while retrieving list of categories');
         return $retval;
     }
@@ -246,7 +234,7 @@ if (isset($Request['msg'])){
 // If anonymous, can they view or add?  If logged in, can they add?
 // Viewing is assumend for logged in users.
 $access = SEC_inGroup($_CONF_DQ['submit_grp']) ? 3 : 2;
-$T->set_var('indextitle', MO::_('Quote of the Day'));
+$T->set_var('indextitle', $LANG_DQ['indextitle']);
 $content = '';
 switch ($action) {
 case 'categories':

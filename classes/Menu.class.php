@@ -30,40 +30,35 @@ class Menu
      */
     public static function Admin(string $view='') : string
     {
-        global $_CONF;
+        global $_CONF, $LANG_ADMIN, $LANG_DQ;
 
         $menu_arr = array();
 
-        $help = array(
-            'dailyquote' => MO::_("To modify or delete a quotation, click on that item's edit icon below. To create a new quotation, click on \'New Quote\' above."),
-            'categories' => MO::_('From this page you can edit and enable/disable categories.'),
-            'batchform' => MO::_('Upload a text file containing quotes.'),
-        );
-        if (isset($help[$view])) {
-            $hlp_text = $help[$view];
+        if (isset($LANG_DQ['hlp_admin_' . $view])) {
+            $hlp_text = $LANG_DQ['hlp_admin_' . $view];
         } else {
-            $hlp_text = $help['dailyquote'];
+            $hlp_text = $LANG_DQ['hlp_admin_dailyquote'];
         }
 
         $menu_arr = array(
             array(
-                'text' => MO::_('Quotes'),
+                'text' => $LANG_DQ['glsearchlabel'],
                 'url' => DQ_ADMIN_URL . '/index.php?quotes=x',
                 'active' => $view == 'quotes',
             ),
             array(
-                'text' => MO::_('Categories'),
+                'text' => $LANG_DQ['manage_cats'],
                 'url' => DQ_ADMIN_URL . '/index.php?categories=x',
                 'active' => $view == 'categories',
             ),
             array(
-                'text' => MO::_('Import Quotes'),
                 'url' => DQ_ADMIN_URL . '/index.php?batchform=x',
+                'text' => $LANG_DQ['batchaddlink'],
                 'active' => $view == 'batchform',
             ),
             array(
-                'text' => MO::_('Admin Home'),
                 'url' => $_CONF['site_admin_url'],
+                'text' => $LANG_ADMIN['admin_home'],
             ),
         );
         return ADMIN_createMenu(

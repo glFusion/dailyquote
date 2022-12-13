@@ -3,7 +3,7 @@
  * Class to handle quote categories.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
  * @version     v0.2.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -68,9 +68,8 @@ class Category
      * Read a category record from the database.
      *
      * @param   string  $id     Category ID to read (required)
-     * @return  boolean     True if found, False if not
      */
-    public function Read(int $id) : bool
+    public function Read($id)
     {
         global $_TABLES;
 
@@ -114,7 +113,7 @@ class Category
      *
      * @return  array       Array of Category objects
      */
-    public static function getAll() : array
+    public static function getAll()
     {
         global $_TABLES;
         static $Cats = NULL;
@@ -149,7 +148,7 @@ class Category
      *
      * @return  integer     DB record ID
      */
-    public function getID() : int
+    public function getID()
     {
         return (int)$this->id;
     }
@@ -160,7 +159,7 @@ class Category
      *
      * @return  string      Category name
      */
-    public function getName() : string
+    public function getName()
     {
         return $this->name;
     }
@@ -171,7 +170,7 @@ class Category
      *
      * @return  boolean     1 if enabled, 0 if disabled
      */
-    public function isEnabled() : bool
+    public function isEnabled()
     {
         return $this->enabled ? 1 : 0;
     }
@@ -206,7 +205,7 @@ class Category
      *
      * @param   string  $id     Category ID to delete
      */
-    public static function Delete(int $id) : void
+    public static function Delete($id)
     {
         global $_TABLES;
 
@@ -247,7 +246,7 @@ class Category
      */
     public function Save(?DataArray $A=NULL) : string
     {
-        global $_CONF, $_TABLES, $_USER, $MESSAGE, $_CONF_DQ;
+        global $_CONF, $_TABLES, $_USER, $MESSAGE, $LANG_DQ, $_CONF_DQ;
 
         if (!empty($A)) {
             $this->setVars($A);
@@ -276,7 +275,7 @@ class Category
             return '';
         } catch (\Throwable $e) {
             Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
-            return MO::_('There was an error updating the category.');
+            return 'There was an error updating the category.';
         }
     }
 
@@ -286,24 +285,24 @@ class Category
      *
      * @return  string      HTML for menu block
      */
-    public function AdminMenu() : string
+    public function AdminMenu()
     {
-        global $_CONF, $LANG_ADMIN;
+        global $_CONF, $LANG_ADMIN, $LANG_DQ;
 
         USES_lib_admin();
 
         $menu_arr = array (
             array(
-                'text' => MO::_('Admin Home'),
                 'url' => $_CONF['site_admin_url'],
+                'text' => $LANG_ADMIN['admin_home'],
             ),
             array(
-                'text' => MO::_('New Category'),
-                'url' => DQ_ADMIN_URL . '/index.php?editcat=x',
+                'url' => DQ_ADMIN_URL . '/index.php?editcat=0',
+                'text' => 'New Category',
             ),
             array(
-                'text' => MO::_('Manage Quotes'),
                 'url' => DQ_ADMIN_URL,
+                'text' => $LANG_DQ['user_menu2'],
             ),
         );
         return $menu_arr;
@@ -315,23 +314,22 @@ class Category
      *
      * @return  string  HTML for list
      */
-    public static function adminList() : string
+    public static function adminList()
     {
         global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
         global $_CONF_DQ, $LANG_DQ;
 
         $header_arr = array(      # display 'text' and use table field 'field'
             array(
-                'text' => MO::_('Edit'),
+                'text' => $LANG_ADMIN['edit'],
                 'field' => 'edit',
-                'sort' => false,
                 'align' => 'center',
+                'sort' => false,
             ),
             array(
-                'text' => MO::_('Enabled'),
                 'field' => 'enabled',
+                'text' => $LANG_DQ['enabled'],
                 'sort' => false,
-                'align' => 'center',
             ),
             array(
                 'text' => 'Category ID',
@@ -389,7 +387,7 @@ class Category
      *
      * @return  string      HTML for the form
      */
-    public function EditForm() : string
+    public function EditForm()
     {
         global $_CONF, $LANG_DQ, $_CONF_DQ;
 
@@ -420,7 +418,7 @@ class Category
      * @param   array   $icon_arr   Array of standard icons
      * @return  string              HTML to properly display field value
      */
-    public static function getListField($fieldname, $fieldvalue, $A, $icon_arr) : string
+    public static function getListField($fieldname, $fieldvalue, $A, $icon_arr)
     {
         global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN;
 
@@ -519,3 +517,4 @@ class Category
 
 }
 
+?>
