@@ -3,7 +3,7 @@
  * Table names and other global configuraiton values.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
  * @version     v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -27,7 +27,6 @@ $_TABLES['dailyquote_quoteXcat']   = $DQ_prefix . 'quoteXcat';
 // Static configuration items
 $_CONF_DQ['pi_version'] = '0.3.0';
 $_CONF_DQ['pi_name'] = 'dailyquote';
-$_CONF_DQ['gl_version'] = '1.7.7';
-$_CONF_DQ['pi_url'] = 'http://www.leegarner.com';
 $_CONF_DQ['pi_display_name'] = DailyQuote\MO::_('Daily Quotes');
-
+$_CONF_DQ['gl_version'] = '2.0.0';
+$_CONF_DQ['pi_url'] = 'https://glfusion.org';

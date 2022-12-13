@@ -3,17 +3,19 @@
  * Class to handle product collections.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2022 Lee Garner
+ * @copyright   Copyright (c) 2022 Lee Garner
  * @package     dailyquote
- * @version     v1.5.0
- * @since       v1.5.0
+ * @version     v0.3.0
+ * @since       v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace DailyQuote\Collections;
 use glFusion\Database\Database;
+use glFusion\Log\Log;
 use DailyQuote\Quote;
+use DailyQuote\Cache;
 
 
 /**
@@ -33,17 +35,38 @@ class QuoteCollection extends Collection
         $this->_qb->select('q.*')
                   ->distinct()
                   ->from($_TABLES['dailyquote_quotes'], 'q')
-                  ->leftJoin('q', $_TABLES['dailyquote_quoteXcat'], 'x', 'q.quote_id = x.qid')
+                  ->leftJoin('q', $_TABLES['dailyquote_quoteXcat'], 'x', 'q.qid = x.qid')
                   ->leftJoin('x', $_TABLES['dailyquote_cat'], 'c', 'x.cid = c.id')
                   ->where('q.enabled = 1')
                   ->andWhere('c.enabled = 1 OR c.enabled IS NULL');
     }
 
 
+    /**
+     * Limit results to a single quote ID.
+     * Really no different than calling Quote::getInstance($qid).
+     *
+     * @param   integer $qid    Quote ID
+     * @return  object  $this
+     */
     public function withQuoteId(int $qid) : self
     {
-        $this->_qb->andWhere('quote_id = :qid')
+        $this->_qb->andWhere('qid = :qid')
                   ->setParameter('qid', $qid, Database::INTEGER);
+        return $this;
+    }
+
+
+    /**
+     * Get only approved or un-approved quotes.
+     *
+     * @param   boolean $flag   True for approved, False for unapproved
+     * @return  object  $this
+     */
+    public function withApproved(bool $flag=true) : self
+    {
+        $this->_qb->andWhere('approved = :approved')
+                  ->setParameter('approved', $flag ? 1 : 0, Database::INTEGER);
         return $this;
     }
 
@@ -79,25 +102,31 @@ class QuoteCollection extends Collection
 
 
     /**
-     * Get the total number of quotes to be shown on a page.
+     * Get the total number of quotes matching the criteria.
+     * The collection is cloned so the select part query can be re-used.
      *
-     * @return  integer     Quotes to show on a page
+     * @return  integer     Total number of quotes
      */
-    public function getPageCount() : int
+    public function getCount() : int
     {
-        $retval = 0;
         $qb = clone $this->_qb;
-        $qb->select('count(DISTINCT q.id) AS cnt');
-        try {
-            $row = $qb->execute()->fetchAssociative();
-        } catch (\Throwable $e) {
-            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
-            $row = false;
-        }
-        if (is_array($row)) {
-            $retval = (int)$row['cnt'];
-        } else {
+        $qb->select('count(DISTINCT q.qid) AS cnt');
+        $cache_key = md5($qb->getSQL() . json_encode($qb->getParameters()));
+        $retval = Cache::get($cache_key);
+        if ($retval === NULL) {
             $retval = 0;
+            try {
+                $row = $qb->execute()->fetchAssociative();
+            } catch (\Throwable $e) {
+                Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+                $row = false;
+            }
+            if (is_array($row)) {
+                $retval = (int)$row['cnt'];
+            } else {
+                $retval = 0;
+            }
+            Cache::set($cache_key, $retval, $this->cache_tags);
         }
         return $retval;
     }
@@ -169,7 +198,7 @@ class QuoteCollection extends Collection
      *
      * @return  string      LIMIT clause
      */
-    public function createLimit() : self
+    public function createPageLimit() : self
     {
         $displim = $this->getDisplayLimit();
         $startlimit = ($displim * $this->page) - $displim;
@@ -188,7 +217,7 @@ class QuoteCollection extends Collection
         $Quotes = array();
         $rows = $this->getRows();
         foreach ($rows as $row) {
-            $Quotes[$row['quote_id']] = Quote::fromArray($row);
+            $Quotes[$row['qid']] = Quote::fromArray($row);
         }
         return $Quotes;
     }
@@ -208,6 +237,21 @@ class QuoteCollection extends Collection
         $baseurl = DQ_URL . '/index.php?sort=' . $sort. '&dir=' . $dir;
         $numpages = ceil($total_quotes / $displim);
         return COM_printPageNavigation($baseurl, $this->page, $numpages);
+    }
+
+
+    /**
+     * Use this to order by RAND().
+     *
+     * @return  object  $this
+     */
+    public function withRandom() : self
+    {
+        $this->_useCache = false;
+        $total = $this->getCount();
+        $rand = mt_rand(0,$total - 1);
+        $this->withLimit($rand, 1)->orderBy('qid', 'ASC');
+        return $this;
     }
 
 }

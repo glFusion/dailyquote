@@ -3,9 +3,9 @@
  * Common functions for the DailyQuote plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2016 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
- * @version     0.2.0
+ * @version     0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -14,6 +14,7 @@
 /** Import core glFusion functions */
 require_once('../lib-common.php');
 use DailyQuote\MO;
+$Request = DailyQuote\Models\Request::getInstance();
 
 /**
  * Displays the quotes listing.
@@ -29,21 +30,23 @@ function DQ_listQuotes($sort, $dir, $page)
         $LANG_ADMIN;
 
     $Coll = new DailyQuote\Collections\QuoteCollection;
+    $Request = DailyQuote\Models\Request::getInstance();
 
-    if (isset($_REQUEST['id'])) {
-        $Coll->withQuoteId($_REQUEST['id']);
+    if (isset($Request['id'])) {
+        $Coll->withQuoteId($Request->getInt('id'));
     }
-    if (isset($_REQUEST['cat'])) {
-        $Coll->withCategoryId($_REQUEST['cat']);
+    if (isset($Request['cat'])) {
+        $Coll->withCategoryId($Request->getInt('cat'));
     }
-    if (isset($_REQUEST['quoted'])) {
-        $Coll->withAuthorName($_REQUEST['quoted']);
+    if (isset($Request['quoted'])) {
+        $Coll->withAuthorName($Request->getString('quoted'));
     }
-    $numquotes = $Coll->getPageCount();
+    $numquotes = $Coll->getCount();
     $Quotes = $Coll->orderBy($sort, $dir)
-                 ->setPage($page)
-                 ->createLimit()
-                 ->getObjects();
+                   ->withApproved(true)
+                   ->setPage($page)
+                   ->createPageLimit()
+                   ->getObjects();
 
     // Display quotes if any to display
     $T = new Template(DQ_PI_PATH . '/templates');
@@ -105,15 +108,17 @@ function DQ_listQuotes($sort, $dir, $page)
         }
 
         $dt = new Date($Quote->getDate(), $_CONF['timezone']);
-        if (isset($_REQUEST['query'])) {
-            $title = COM_highlightQuery($Quote->getTitle(), $_REQUEST['query']);
-            $quote = COM_highlightQuery($Quote->getQuote(), $_REQUEST['query']);
+        if (isset($Request['query'])) {
+            $title = COM_highlightQuery($Quote->getTitle(), $Request->getString('query'));
+            $quote = COM_highlightQuery($Quote->getQuote(), $Request->getString('query'));
         } else {
             $title = $Quote->getTitle();
             $quote = $Quote->getQuote();
         }
+        $title = htmlspecialchars($title);
+        $quote = htmlspecialchars($quote);
         $T->set_var(array(
-            'quote_id'      => $Quote->getID(),
+            'qid'           => $Quote->getID(),
             'title'         => $title,
             'quote'         => $quote,
             'quoted'        => DailyQuote\Quote::GoogleLink($Quote->getQuoted()),
@@ -174,7 +179,7 @@ function DQ_listCategories()
     $result = DB_query($sql);
     if (!$result){
         $retval = MO::_('An error occurred while retrieving category list.');
-        COM_errorLog($retval, 1);
+        glFusion\Log\Log::write('system', Log::ERROR, 'An error occured while retrieving list of categories');
         return $retval;
     }
 
@@ -216,59 +221,32 @@ $expected = array(
     'savesubmission',
     'categories', 'quotes', 'edit',
 );
-foreach($expected as $provided) {
-    if (isset($_POST[$provided])) {
-        $action = $provided;
-        $actionval = $_POST[$provided];
-        break;
-    } elseif (isset($_GET[$provided])) {
-    	$action = $provided;
-        $actionval = $_GET[$provided];
-        break;
-    }
-}
+list($action, $actionval) = $Request->getAction($expected);
 
 // Retrieve and sanitize provided parameters
-$mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : 'quotes';
-$qid = isset($_REQUEST['qid']) ? (int)$_REQUEST['qid'] : 0;
-$cid = isset($_REQUEST['cid']) ? (int)$_REQUEST['cid'] : 0;
-$sort = isset($_GET['sort']) ? $_GET['sort'] : 'dt';
-$dir = isset($_GET['dir']) ? $_GET['dir'] : 'ASC';
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($page < 1) $page = 1;
+$mode = $Request->getString('mode', 'quotes');
+$qid = $Request->getInt('qid');
+$cid = $Request->getInt('cid');
+$sort = $Request->getString('sort', 'dt');
+$dir = $Request->getString('dir', 'ASC');
+$page = $Request->getInt('page', 1);
 
-$display = DQ_siteHeader();
+$display = DailyQuote\Menu::siteHeader();
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
 //$T->set_file('page', 'dqheader.thtml');
 $T->set_file('page', 'index.thtml');
 $T->set_var('pi_url', DQ_URL);
 
-if (isset($_GET['msg'])){
-    $msg = "msg" . $_GET['msg'];
+if (isset($Request['msg'])){
+    $msg = "msg" . $Request->getInt('msg');
     $T->set_var('msg', $LANG_DQ[$msg]);
 }
 
 // Check access.  Sort of borrowing the glFusion permissions, but not really.
 // If anonymous, can they view or add?  If logged in, can they add?
 // Viewing is assumend for logged in users.
-$access = 2;
-if (COM_isAnonUser()) {
-    if ($_CONF_DQ['anonadd'] == 1) {
-        $access = 3;
-    }
-} elseif ($_CONF_DQ['loginadd'] == 1) {
-    $access = 3;
-}
-
+$access = SEC_inGroup($_CONF_DQ['submit_grp']) ? 3 : 2;
 $T->set_var('indextitle', MO::_('Quote of the Day'));
-$indexintro = MO::_('History is full of stories, rants, perspectives, truths, lies, facts, details, opinions, ordinances, etc. The stories told by the men and women who were there, as well as by those who were not, and their comments are items for display in the archives of humankind.');
-if ($access == 3) {
-    $indexintro .= ' ' . sprintf(
-        MO::_('Visit the museum and <a href="%s">contribute</a>.'),
-        DQ_URL . '/index.php?edit'
-    );
-}
-
 $content = '';
 switch ($action) {
 case 'categories':
@@ -277,23 +255,26 @@ case 'categories':
 
 case 'savesubmission':
     $Q = new DailyQuote\Quote();
-    $message = $Q->SaveSubmission($_POST);
-    if (empty($message)) $message = sprintf($LANG12[25], $_CONF_DQ['pi_name']);
-    LGLIB_storeMessage($message);
+    $message = $Q->saveSubmission($Request);
+    if (empty($message)) {
+        $message = sprintf($LANG12[25], $_CONF_DQ['pi_name']);
+    }
+    COM_setMsg($message);
     COM_refresh(DQ_URL);
     break;
 
 case 'edit':
-    $q_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $q_id = $Request->getInt('id');
     $Q = DailyQuote\Quote::getInstance($q_id);
-    if ($q_id == 0 || !$Q->isNew()) {
+    if ($Q->isNew()) {
+        $content .= $Q->Edit('submit');
+    } else {
         $content .= $Q->Edit();
     }
     break;
 
 default:
-    $T->set_var('indexintro', $indexintro);
-    $T->set_var('randomquote', DQ_random_quote($qid, $cid));
+    $T->set_var('can_contrib', $access == 3);
     $content .= DQ_listQuotes($sort, $dir, $page);
     break;
 }
@@ -301,7 +282,5 @@ default:
 $T->set_var('content', $content);
 $T->parse('output','page');
 $display .= $T->finish($T->get_var('output'));
-$display .= DQ_siteFooter();
+$display .= DailyQuote\Menu::siteFooter();
 echo $display;
-
-?>

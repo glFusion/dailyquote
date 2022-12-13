@@ -74,24 +74,13 @@ $dailyquoteConfigData = array(
         'group' => 'dailyquote',
     ),
     array(
-        'name' => 'anonadd',
-        'default_value' => 0,
+        'name' => 'submit_grp',
+        'default_value' => 13,
         'type' => 'select',
         'subgroup' => 0,
         'fieldset' => 0,
         'selection_array' => 0,
         'sort' => 40,
-        'set' => true,
-        'group' => 'dailyquote',
-    ),
-    array(
-        'name' => 'loginadd',
-        'default_value' => 1,
-        'type' => 'select',
-        'subgroup' => 0,
-        'fieldset' => 0,
-        'selection_array' => 0,
-        'sort' => 50,
         'set' => true,
         'group' => 'dailyquote',
     ),
@@ -173,18 +162,7 @@ $dailyquoteConfigData = array(
         'set' => true,
         'group' => 'dailyquote',
     ),
-    array(
-        'name' => 'cb_enable',
-        'default_value' => 0,
-        'type' => 'select',
-        'subgroup' => 0,
-        'fieldset' => 10,
-        'selection_array' => 0,
-        'sort' => 10,
-        'set' => true,
-        'group' => 'dailyquote',
-    ),
-    array(
+e   array(
         'name' => 'cb_pos',
         'default_value' => 2,
         'type' => 'select',
@@ -236,9 +214,7 @@ function plugin_initconfig_dailyquote($group_id = 0)
             _addConfigItem($cfgItem);
         }
     } else {
-        COM_errorLog('initconfig error: DailyQuote config group already exists');
+        glFusion\Log\Log::write('system', Log::ERROR, 'initconfig error: DailyQuote config group already exists');
     }
     return true;
 }
-
-?>

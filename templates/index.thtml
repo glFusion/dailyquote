@@ -1,5 +1,7 @@
 {# begin {templatelocation} #}
-      <p style="text-align: center; font-weight: bold; color: red;">{msg}</p>
+{!if msg}
+      <div class="uk-alert uk-alert-danger">{msg}</div>
+{!endif}
       <div style="float:right;">
         <a href="{site_url}/dailyquote/index.php">
           <img src="{site_url}/dailyquote/images/dailyquote.png" 
@@ -8,8 +10,5 @@
       </div>
 
       <h1>{indextitle}</h1>
-      <p>
-        {indexintro}
-      </p>
 {content}
 {# end {templatelocation} #}

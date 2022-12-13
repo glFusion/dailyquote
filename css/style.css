@@ -9,25 +9,47 @@
 }
 
 .dq_quotelist {
-    width: 85%;
+/*    width: 85%;*/
     margin: auto;
 }
-.dq_quotelist_quote {
-    margin-top: 1rem;
+.dailyquote blockquote {
+	font-family: Georgia, serif;
+	position: relative;
+	margin: 0.0em;
+	padding: 0.5em 3em 0.5em 2.5em;
+	border-left: none !important;
+	font-size: larger;
 }
-.dq_quotelist_attrib {
+.dailyquote blockquote:before {
+	font-family: Georgia, serif;
+	position: absolute;
+	font-size: 4em;
+	line-height: 1;
+	top: 0;
+	left: 0;
+	content: "\201C";
+}
+.dailyquote blockquote:after {
+	font-family: Georgia, serif;
+	position: absolute;
+	/*display: block; /*don't use this, it raised the quote too high from the bottom - defeated line-height? */
+	float:right;
+	font-size:4em;
+	line-height: 1;
+	right:0;
+	bottom:-0.5em;
+	content: "\201D";
+}
+.dailyquote footer {
     text-align: right;
     font-style: italic;
+	font-size: 75%;
 }
-.dq_quotelist_quote .dq_submitter {
-    text-align: right;
-    font-size: 75%;
-    font-style: italic;
-}
-.dq_quotelist_quote .dq_title {
+.dailyquote > * > .dq_title {
     text-align: left;
     font-weight: bold;
-    text-decoration: underline;
+	margin-bottom: 0;
+    /*text-decoration: underline;*/
 }
 .dq_random.dq_quoted {
     text-align: right;

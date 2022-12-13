@@ -16,47 +16,29 @@
         </form>
     </div>
 
-    <div>
-        {google_paging}
-    </div>
-
+	<div class="uk-container dailyquote">
 <!-- BEGIN QuoteRow -->
-    <div class="dq_quotelist_quote">
-{!if can_edit}
-        <div style="float:right;">
-            <a href="{pi_url}/index.php?edit=quote&id={quote_id}">
-                <i class="uk-icon uk-icon-edit" title="{lang_edit}" data-uk-tooltip></i>
-            </a>
-            <a href="{site_admin_url}/plugins/dailyquote/index.php?delete=x&type=quote&id={quote_id}"
-                onclick="return confirm('{lang_del_item_conf}')">
-                <i class="uk-icon uk-icon-trash-o dq-icon-danger" title="{lang_delete}" data-uk-tooltip></i>
-            </a>
-        </div>
-{!endif}
-
+	<div class="uk-panel uk-panel-box uk-margin">
 {!if title}
-        <p class="dq_title">{title}</p>
+			<p class="dq_title">{title}</p>
 {!endif}
-        <p>&quot;{quote}&quot;</p>
-        <p class="dq_quotelist_attrib">
-            {quoted}
+			<blockquote>{quote}</blockquote>
+		<footer>
+		<!--<p class="dq_quotelist_attrib">-->
+			{quoted}
 {!if source}&nbsp;--&nbsp;{source}{!endif}
 {!if sourcedate}&nbsp;&nbsp;({sourcedate}){!endif}
-        </p>
-        <p class="dq_submitter">
-            {lang_subm_by}:&nbsp;{contr}&nbsp;/&nbsp;{datecontr}
+		<br />
+			{lang_subm_by}:&nbsp;{contr}&nbsp;/&nbsp;{datecontr}
 {!if catname}
-            &nbsp;&nbsp;:&nbsp;<span class="dq_catname">{catname}</span>
+			&nbsp;&nbsp;:&nbsp;<span class="dq_catname">{catname}</span>
 {!endif}
-        </p>
+		</footer>
+	</div>
 {!if adblock}
-        <p>{adblock}</p>
+	<p>{adblock}</p>
 {!endif}
-        <hr />
-    </div>
 <!-- END QuoteRow -->
-    <div>
-        {google_paging}
-    </div>
+	<div>{google_paging}</div>
 </div>
 {# end {templatelocation} #}

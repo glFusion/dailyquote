@@ -19,7 +19,9 @@
 require_once '../../../lib-common.php';
 if (!SEC_inGroup('Root')) {
     // Someone is trying to illegally access this page
-    COM_errorLog("Someone has tried to access the DailyQuote Development Code Upgrade Routine without proper permissions.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: " . $_SERVER['REMOTE_ADDR'],1);
+    glFusion\Log\Log::write('system', Log::ERROR,
+        "Someone has tried to access the DailyQuote Development Code Upgrade Routine without proper permissions.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: " . $_SERVER['REMOTE_ADDR']
+    );
     COM_404();
     exit;
 }
@@ -39,5 +41,3 @@ if (function_exists('CACHE_clear')) {
 }
 header('Location: '.$_CONF['site_admin_url'].'/plugins.php?msg=600');
 exit;
-
-?>

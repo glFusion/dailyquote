@@ -120,6 +120,19 @@ abstract class Collection
 
 
     /**
+     * Turn caching on or off per query.
+     *
+     * @param   boolean $useCache   True to use the cache (default)
+     * @return  object  $this
+     */
+    public function withCache(bool $useCache=true) : self
+    {
+        $this->_useCache = $useCache;
+        return $this;
+    }
+
+
+    /**
      * Add an orderby clause.
      *
      * @param   string  $fld    Field to use for ordering
@@ -130,20 +143,7 @@ abstract class Collection
     {
         $dir = strtoupper($dir);
         $dir = $dir == 'ASC' ? 'ASC' : 'DESC';
-        $this->_qb->addOrderBy(Database::getInstance()->conn->quoteIdentifier($fld), $dir);
-        return $this;
-    }
-
-
-    /**
-     * Use this to order by RAND().
-     *
-     * @return  object  $this
-     */
-    public function withRandom() : self
-    {
-        $this->_useCache = false;
-        $this->_qb->addOrderBy('RAND()');
+        $this->_qb->addOrderBy($this->_db->conn->quoteIdentifier($fld), $dir);
         return $this;
     }
 
@@ -231,6 +231,7 @@ abstract class Collection
     public function getRows() : array
     {
         $rows = $this->tryCache('rows');
+        $rows = NULL;
         if (is_array($rows)) {
             return $rows;
         }

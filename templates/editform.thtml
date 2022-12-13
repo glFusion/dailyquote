@@ -7,6 +7,7 @@
 	{hidden_vars}
 	<input type="hidden" name="type" value="{pi_name}" />
 	<input type="hidden" name="uid" value="{uid}" />
+	<input type="hidden" name="qid" value="{qid}">
 	<input type="hidden" name="id" value="{id}" />
 	<input type="hidden" name="{gltoken_name}" value="{gltoken}" />
 
@@ -47,6 +48,7 @@
 	</div>
 
 {!if is_admin}
+	<input type="hidden" name="approved" value="{approved}" />
 	<div class="uk-form-row uk-margin">
 		<label class="uk-form-label" for="enabled">{lang_enabled}:</label>
 		<div class="uk-form-controls">
@@ -61,7 +63,7 @@
 		<label class="uk-form-label">{lang_choosecat}:</label>
 		<div class="uk-form-controls">
 <!-- BEGIN CatSelect -->
-				<input class="uk-checkbox" type="checkbox" name="categories[{cat_id}]" value="1" {cat_sel} />&nbsp;{cat_name}&nbsp;&nbsp;
+		<input type="checkbox" name="categories[]" value="{cat_id}" {cat_sel} />&nbsp;{cat_name}&nbsp;&nbsp;
 <!-- END CatSelect -->
 			<p>{lang_catreadme}</p>
 		</div>
@@ -76,9 +78,9 @@
 				value="{lang_delete}"
 				onclick="return confirm('{lang_confirm_delitem}');">{lang_delete}</button>
 {!endif}
-			<a class="uk-button uk-button-default" href="{site_admin_url}/plugins/dailyquote/index.php?quotes"
-				onclick="javascript: document.location.href='{cancel_url}'">{lang_cancel}</a>
+			<a class="uk-button" href="{cancel_url}">{$LANG_ADMIN['cancel']}</a>
 		</div>
 	</div>
+>>>>>>> develop
 </form>
 {# end {templatelocation} #}

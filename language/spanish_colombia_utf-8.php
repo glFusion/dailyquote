@@ -1,18 +1,132 @@
 <?php
 /**
-*   English language file for the DailyQuote plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Spanish language file for the DailyQuote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.4.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 $LANG_DQ= array(
 'indexintro'        => 'La historia está llena de historias, diatribas, perspectivas, verdades, mentiras, hechos, detalles, opiniones, ordenanzas, etc. Las historias contadas por los hombres y mujeres que estuvieron allí, así como por los que no estuvieron, y sus comentarios son elementos. para exhibir en los archivos de la humanidad.',
+'access_denied' => 'Access Denied',
+'access_denied_msg' => 'You do not have Access to this page. Your user name and IP have been recorded.',
+'access_denied_msg1' => 'Only Authorized Users have Access to this Page. Your user name and IP have been recorded.',
+'enabled' => 'Enabled',
+'absentfile' => 'Error: You must specify a file to upload.',
+'addformlink' => 'Add a Quote',
+'addquote' => 'Add Your Quotation Here',
+'source' => 'Source',
+'sourcedate' => 'Source Date',
+'addtitle' => 'Title',
+'admin_menu' => 'Daily Quote',
+'adminintro' => 'From this page you may enable, disable, or configure various dailyquote settings.',
+'admintitle' => 'Quote of the Day Configuration',
+'anonymous' => 'Anonymous',
+'ascending' => 'ascending order',
+'descending' => 'descending order',
+'batchadd' => 'Quotations',
+'batchaddlink' => 'Batch Add Quotes',
+'batchaddtitle' => 'Add Your Quotations Here',
+'batchcatinstr' => 'You may specify a category if you wish it to be applied to all quotes in the batch. Otherwise there will be no category set. This may be altered later from the quote administration page.',
+'batchsrcinstr' => 'Similarily, you may specify a title, source, and a date for that source if you wish it to be applied to all quotes in the batch that have null title, source, and/or source date fields.',
+'instr_catform' => 'Enter a name for the category and check the box to enable it for use.',
+'batchsubmit' => 'Import Quotes',
+'cat' => 'Category',
+'category_name' => 'Category Name',
+'categories' => 'Categories',
+'caterror' => 'Error occurred while retrieving category list',
+'cathead' => 'The following quotes appear under the &quot;%s&quot; category:',
+'catindexlink' => 'Categories',
+'catreadme' => 'The default category will be &quot;Miscellaneous&quot; if no other category selection is made',
+'choosecat' => 'Choose one or more categories',
+'date' => 'Date',
+'dateformat' => '(Date Format YYYY-MM-DD)',
+'disperror' => 'Error occurred while retrieving quote list',
+'editlink' => 'Edit',
+'egtitle' => 'Example .txt File:',
+'enableq' => 'Enable?',
+'glsearchlabel' => 'Quotes Listing',
+'indexlink' => 'Listings',
+'indextitle' => 'Quote of the Day',
+'keyall' => 'all of these words',
+'keyany' => 'any of these words',
+'keyphrase' => 'exact phrase',
+'limit' => 'Limit To',
+'line0' => 'Text file format: quote&lt;tab&gt;person quoted&lt;tab&gt;title&lt;tab&gt;source&lt;tab&gt;source date. The file extension must be &quot;.txt&quot;',
+'line1' => 'Notice line 1 contains values for source and source date. Lines 2 through 5 have only the tabs to indicate the fields. Where the field is left empty nothing will be displayed. This also applies to the title field.',
+'line3' => 'Notice line 3 leaves the name field empty. It will be set to its default, &quot;Unknown.&quot;',
+'line5' => 'Notice line 5 contains values for the first 3 fields and uses no tabs for the remaining blank fields. This is acceptable as long as those unmarked fields occur at the end of the line.',
+'managelink' => 'Manage Quotes',
+'misc' => 'Miscellaneous',
+'missing_req_fields' => 'Required fields are missing',
+'msg2' => 'Done processing. Imported %d and encountered %d failures',
+'dup_quote' => 'The quote already exists in the database.',
+'db_error' => 'An error occurred, check the system log.',
+'newempty' => 'No new quotes',
+'newquote' => 'New Quote',
+'newcat' => 'New Category',
+'nomarks' => 'Please do not enclose your quotation inside quotation marks. Any quotations within your quotation should be contained within single quotation marks. There should not be any double quotation marks anywhere in the text that you have typed or pasted into this space. The only required field is the quotation field.',
+'noquotes' => 'Number of quotes in our repository',
+'numresultstxt' => 'Results Returned',
+'quotation' => 'Quotation',
+'quoted' => 'Person Quoted',
+'quote' => 'Quote',
+'randomboxtitle' => 'Quote of the Day',
+'required' => 'This item is required',
+'searchlabel' => 'Search For',
+'searchlink' => 'Search Quotes',
+'searchmsg1' => 'No search terms entered. Please try again.',
+'searchmsg2' => 'No results to display. Please try again.',
+'searchtitle' => 'Search the Daily Quote Database',
+'sort' => 'Sort',
+'sortby' => 'Sort Quotations by',
+'sortopt3' => 'category',
+'sortopt4' => 'contributor',
+'sortopt5' => 'source',
+'sortopt6' => 'title',
+'sortopt7' => 'all',
+'sortopt8' => 'date',
+'hlp_srcdate' => 'e.g.: "1817-05-29" or "May 29, 1817" or simply "1817".',
+'hlp_source' => 'Name of book, magazine, etc.',
+'hlp_title' => 'Brief title or summary',
+'StatsMsg1' => 'Top Ten Most Quoted Personalities',
+'StatsMsg2' => 'It appears there are no personalities quoted for the Daily Quote plugin on this site.',
+'StatsMsg3' => 'Most Quoted',
+'StatsMsg4' => 'Quotes',
+'subm_by' => 'Submitted by',
+'submitquote' => 'Submit Quote',
+'reset' => 'Reset',
+'tabs' => 'Notice that the tabs are marked here by the regex \t for the sake of the example. Please use the tab button on your keyboard to create tabs.',
+'title' => 'Title',
+'txterror' => 'You have an error in your text file. Ensure that the &quot;quotation&quot; field is not null on any line, i.e., no line should begin with a tab character.',
+'type' => 'Type',
+'unknown' => 'Unknown',
+'user_menu2' => 'Manage Quotes',
+'whatsnewlabel' => 'Quotes',
+'whatsnewperiod' => ' last %s days',
+'hlp_admin_dailyquote' => 'To modify or delete a quotation, click on that item\'s edit icon below. To create a new quotation, click on "New Quote" above.',
+'hlp_admin_categories' => 'From this page you can edit and enable/disable categories.',
+'hlp_admin_batchform' => 'Upload a text file containing quotes.',
+'manage_cats' => 'Manage Categories',
+'submit' => 'Submit',
+'del_quote' => 'Delete Quote',
+'del_item_conf' => 'Do you really want to delete this item?',
+'quotes_in_db' => 'Quotes in the database',
+'any' => 'Any',
+'contributor' => 'Contributor',
+'contribute' => 'Contribute',
+'category' => 'Category',
+'email_subject' => 'New Daily Quote Notification',
+'email_msg1' => 'A new quotation has been submitted to your site.',
+'email_msg2' => 'Please visit <a href="https://gldev.leegarner.com/moderation.php">https://gldev.leegarner.com/moderation.php</a> to approve or reject.',
+'confirm_delitem' => 'Are you sure you want to delete this item?',
+'err_saving_cat' => 'Error saving category',
+'untitled' => 'Untitled',
 );
 
 
@@ -43,28 +157,18 @@ $LANG_fs['dailyquote'] = array(
     'fs_permissions' => 'Default Permissions',
 );
 
-// Note: entries 0, 1, and 12 are the same as in $LANG_configselects['Core']
-$LANG_configselects['dailyquote'] = array(
-    0 => array('True' => 1, 'False' => 0),
-    1 => array('True' => TRUE, 'False' => FALSE),
-    3 => array('Yes' => 1, 'No' => 0),
-    4 => array('On' => 1, 'Off' => 0),
-    5 => array('Top of Page' => 1, 'Below Featured Article' => 2, 'Bottom of Page' => 3),
-    9 => array('Never' => 0, 'If Submission Queue' => 1, 'Always' => 2),
-    10 => array('5' => 5, '10' => 10, '25' => 25, '50' => 50),
-    12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3),
-    13 => array('None' => 0, 'Left' => 1, 'Right' => 2, 'Both' => 3),
+$LANG_configSelect['dailyquote'] = array(
+    0 => array(1 => 'True', 0 => 'False'),
+    5 => array(0 => 'None', 1 => 'Top of Page', 2 => 'Below Featured Article', 3 => 'Bottom of Page'),
+    9 => array(0 => 'Never', 1 => 'If Submission Queue', 2 => 'Always'),
+    13 => array(0 => 'None', 1 => 'Left', 2 => 'Right', 3 => 'Both'),
 );
 
 $LANG_confignames['dailyquote'] = array(
     'indexdisplim' => 'Limit display on index page',
     'searchdisplim' => 'Limit search results to',
     'queue' => 'Use submission queue?',
-    'anonadd' => 'Allow anonymous users to add quotes?',
-    'loginadd' => 'Allow logged-in users to add quotes?',
-    'loginaddcat' => 'Allow logged-in users to add categories?',
-    'loginbatch' => 'Allow logged-in users to batch-add quotes?',
-    'cb_enable' => 'Enable Centerblock?',
+    'submit_grp' => 'Group allowed to submit quotes',
     'cb_pos' => 'Centerblock Position',
     'cb_home' => 'Centerblock on home page only?',
     'cb_replhome' => 'Centerblock replaces home page?',
@@ -75,6 +179,3 @@ $LANG_confignames['dailyquote'] = array(
     'email_admin' => 'Notification Email to Admin?',
     'displayblocks'  => 'Display glFusion Blocks',
 );
-
-
-?>

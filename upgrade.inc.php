@@ -31,6 +31,7 @@ function DQ_do_upgrade($dvlp=false)
 {
     global $_CONF_DQ, $_TABLES, $_PLUGIN_INFO, $dailyquoteConfigData;
 
+    $cfg = \config::get_instance();
     $db = Database::getInstance();
     if (isset($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
         if (is_array($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
@@ -60,7 +61,7 @@ function DQ_do_upgrade($dvlp=false)
         // quote ID to int.
         $qb = $db->conn->createQueryBuilder();
         try {
-            $stmt = $qb->select('x.qid', 'q.quote_id')
+            $stmt = $qb->select('x.qid', 'q.qid')
                        ->distinct()
                        ->from($_TABLES['dailyquote_quoteXcat'], 'x')
                        ->leftJoin('x', $_TABLES['dailyquote_quotes'], 'q', 'q.id = x.qid')
@@ -74,7 +75,7 @@ function DQ_do_upgrade($dvlp=false)
                 try {
                     $db->conn->update(
                         $_TABLES['dailyquote_quoteXcat'],
-                        array('qid' => $A['quote_id']),
+                        array('qid' => $A['qid']),
                         array('qid' => $A['qid']),
                         array(Database::INTEGER, Database::STRING)
                     );
@@ -90,6 +91,27 @@ function DQ_do_upgrade($dvlp=false)
         } catch (\Throwable $e) {
             Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
         }
+
+        // Update the config for who can submit.
+        // Make sure to run only once (if called by dvlpupdate).
+        if (isset($_CONF_DQ['anonadd']) && isset($_CONF_DQ['loginadd'])) {
+            $idx = array_search('submit_grp', array_column($dailyquoteConfigData, 'name'));
+            if ($idx !== false) {       // make sure it's found
+                if ($_CONF_DQ['anonadd']) {
+                    $grp_id = 2;        // all users
+                } elseif ($_CONF_DQ['loginadd']) {
+                    $grp_id = 13;       // logged-in users
+                } else {
+                    $grp_id = 1;        // root users
+                }
+                $dailyquoteConfigData[$idx]['default_value'] = $grp_id;
+            }
+        }
+        if (isset($_CONF_DQ['cb_enable']) && $_CONF_DQ['cb_enable'] == 0) {
+            // Leverating cb_pos to infer cb_enable
+            $cfg->set('cb_pos', 0, 'dailyquote');
+        }
+
         if (!DQ_do_set_version($current_ver)) return false;
     }
 
@@ -105,13 +127,14 @@ function DQ_do_upgrade($dvlp=false)
     // any of the update functions, e.g. code-only updates
     if (!COM_checkVersion($current_ver, $installed_ver)) {
         if (!DQ_do_set_version($installed_ver)) {
-            COM_errorLog($_CONF_DQ['pi_display_name'] .
-                    " Error performing final update $current_ver to $installed_ver");
+            Log::write('system', Log::ERROR,
+                $_CONF_DQ['pi_display_name'] . " Error performing final update $current_ver to $installed_ver"
+            );
             return false;
         }
     }
     CTL_clearCache($_CONF_DQ['pi_name']);
-    COM_errorLog("Succesfully updated the {$_CONF_DQ['pi_name']} plugin!",1);
+    Log::write('system', Log::INFO, "Succesfully updated the {$_CONF_DQ['pi_name']} plugin!");
     return true;
 }
 
@@ -195,10 +218,12 @@ function DQ_remove_old_files()
     $paths = array(
         // private/plugins/dailyquote
         __DIR__ => array(
-	    'templates/batchaddform.uikit.thtml',
-	    'templates/catform.uikit.thtml',
-	    'templates/dispquotes.uikit.thtml',
-	    'templates/editform.uikit.thtml',
+            'templates/batchaddform.uikit.thtml',
+            'templates/catform.uikit.thtml',
+            'templates/dispquotes.uikit.thtml',
+            'templates/editform.uikit.thtml',
+            // v0.4.0
+            'batch.php',
         ),
         // public_html/dailyquote
         $_CONF['path_html'] . 'dailyquote' => array(

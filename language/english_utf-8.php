@@ -1,15 +1,15 @@
 <?php
 /**
-*   English language file for the DailyQuote plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2009 Lee Garner <lee@leegarner.com>
-*   @package    dailyquote
-*   @version    0.1.0
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * English language file for the DailyQuote plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009 Lee Garner <lee@leegarner.com>
+ * @package     dailyquote
+ * @version     v0.4.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php 
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 $LANG_DQ= array(
 'access_denied'     => 'Access Denied',
@@ -50,8 +50,6 @@ $LANG_DQ= array(
 'egtitle'           => 'Example .txt File:',
 'enableq'           => 'Enable?',
 'glsearchlabel'     => 'Quotes Listing',
-'indexintro'        => 'History is full of stories, rants, perspectives, truths, lies, facts, details, opinions, ordinances, etc. The stories told by the men and women who were there, as well as by those who were not, and their comments are items for display in the archives of humankind.',
-'indexintro_contrib' => 'Visit the museum and <a href="%s">contribute</a>.',
 'indexlink'         => 'Listings',
 'indextitle'        => 'Quote of the Day',
 'keyall'            => 'all of these words',
@@ -67,6 +65,8 @@ $LANG_DQ= array(
 'misc'              => 'Miscellaneous',
 'missing_req_fields' => 'Required fields are missing',
 'msg2'              => 'Done processing. Imported %d and encountered %d failures',
+'dup_quote'         => 'The quote already exists in the database.',
+'db_error'          => 'An error occurred, check the system log.',
 'newempty'              => 'No new quotes',
 'newquote'          => 'New Quote',
 'newcat'            => 'New Category',
@@ -119,6 +119,7 @@ $LANG_DQ= array(
 'quotes_in_db'      => 'Quotes in the database',
 'any'               => 'Any',
 'contributor'       => 'Contributor',
+'contribute'        => 'Contribute',
 'category'          => 'Category',
 'email_subject'     => 'New Daily Quote Notification',
 'email_msg1'        => 'A new quotation has been submitted to your site.',
@@ -156,28 +157,18 @@ $LANG_fs['dailyquote'] = array(
     'fs_permissions' => 'Default Permissions',
 );
 
-// Note: entries 0, 1, and 12 are the same as in $LANG_configselects['Core']
-$LANG_configselects['dailyquote'] = array(
-    0 => array('True' => 1, 'False' => 0),
-    1 => array('True' => TRUE, 'False' => FALSE),
-    3 => array('Yes' => 1, 'No' => 0),
-    4 => array('On' => 1, 'Off' => 0),
-    5 => array('Top of Page' => 1, 'Below Featured Article' => 2, 'Bottom of Page' => 3),
-    9 => array('Never' => 0, 'If Submission Queue' => 1, 'Always' => 2),
-    10 => array('5' => 5, '10' => 10, '25' => 25, '50' => 50),
-    12 => array('No access' => 0, 'Read-Only' => 2, 'Read-Write' => 3),
-    13 => array('None' => 0, 'Left' => 1, 'Right' => 2, 'Both' => 3),
+$LANG_configSelect['dailyquote'] = array(
+    0 => array(1 => 'True', 0 => 'False'),
+    5 => array(0 => 'None', 1 => 'Top of Page', 2 => 'Below Featured Article', 3 => 'Bottom of Page'),
+    9 => array(0 => 'Never', 1 => 'If Submission Queue', 2 => 'Always'),
+    13 => array(0 => 'None', 1 => 'Left', 2 => 'Right', 3 => 'Both'),
 );
 
 $LANG_confignames['dailyquote'] = array(
     'indexdisplim' => 'Limit display on index page',
     'searchdisplim' => 'Limit search results to',
     'queue' => 'Use submission queue?',
-    'anonadd' => 'Allow anonymous users to add quotes?',
-    'loginadd' => 'Allow logged-in users to add quotes?',
-    'loginaddcat' => 'Allow logged-in users to add categories?',
-    'loginbatch' => 'Allow logged-in users to batch-add quotes?',
-    'cb_enable' => 'Enable Centerblock?',
+    'submit_grp' => 'Group allowed to submit quotes',
     'cb_pos' => 'Centerblock Position',
     'cb_home' => 'Centerblock on home page only?',
     'cb_replhome' => 'Centerblock replaces home page?',
@@ -188,6 +179,3 @@ $LANG_confignames['dailyquote'] = array(
     'email_admin' => 'Notification Email to Admin?',
     'displayblocks'  => 'Display glFusion Blocks',
 );
-
-
-?>
