@@ -1,62 +1,45 @@
 {# begin {templatelocation} #}
 <div class="dq_quotelist">
-    <div>
-        <form  action="{pi_url}/index.php" method="get" class="uk-form uk-form-horizontal">
-            <label for="sort">{$LANG_DQ['sortby']}:&nbsp;&nbsp;</label>
-                <select name="sort">
-                    {sortby_opts}
-                </select>
-                <select name="dir">
-                    <option value="ASC" {asc_sel}>{$LANG_DQ['ascending']}</option>
-                    <option value="DESC" {desc_sel}>{$LANG_DQ['descending']}</option>
-                </select>
-                <button name="submit" type="submit" class="uk-button uk-button-primary" style="float:inherit;">
-                    {$LANG_DQ['sort']}
-              </button>
-        </form>
-    </div>
+	<div style="margin-bottom:1em;">
+		<form  action="{pi_url}/index.php" method="get" class="uk-form uk-form-horizontal">
+			<label for="sort">{$LANG_DQ['sortby']}:&nbsp;&nbsp;</label>
+				<select name="sort">
+					{sortby_opts}
+				</select>
+				<select name="dir">
+					<option value="ASC" {asc_sel}>{$LANG_DQ['ascending']}</option>
+					<option value="DESC" {desc_sel}>{$LANG_DQ['descending']}</option>
+				</select>
+				<button name="submit" type="submit" class="uk-button uk-button-primary" style="float:inherit;">
+					{$LANG_DQ['sort']}
+			  </button>
+		<a style="float:right" class="uk-button uk-button-success" href="{pi_url}/index.php?edit">{$LANG_DQ['contribute']}</a>
+		</form>
+	</div>
 
-    <div>
-        {google_paging}
-    </div>
-
+	<div class="uk-container dailyquote">
 <!-- BEGIN QuoteRow -->
-    <div class="dq_quotelist_quote">
-{!if can_edit}
-        <div style="float:right;">
-            <a href="{pi_url}/index.php?edit=quote&id={qid}">
-                <i class="uk-icon uk-icon-edit" title="{$LANG_ADMIN['edit']}" data-uk-tooltip></i>
-            </a>
-            <a href="{site_admin_url}/plugins/dailyquote/index.php?delete=x&type=quote&id={qid}"
-                onclick="return confirm('{LANG_DQ['del_item_conf']}')">
-                <i class="uk-icon uk-icon-trash-o dq-icon-danger" title="{$LANG_ADMIN['delete']}" data-uk-tooltip></i>
-            </a>
-        </div>
-{!endif}
-
+	<div class="uk-panel uk-panel-box uk-margin">
 {!if title}
-        <p class="dq_title">{title}</p>
+			<p class="dq_title">{title}</p>
 {!endif}
-        <p><blockquote style="font-size:larger;">{quote}</blockquote></p>
-        <p class="dq_quotelist_attrib">
-            {quoted}
+			<blockquote>{quote}</blockquote>
+		<footer>
+		<!--<p class="dq_quotelist_attrib">-->
+			{quoted}
 {!if source}&nbsp;--&nbsp;{source}{!endif}
 {!if sourcedate}&nbsp;&nbsp;({sourcedate}){!endif}
-        </p>
-        <p class="dq_submitter">
-            {$LANG_DQ['subm_by']}:&nbsp;{contr}&nbsp;/&nbsp;{datecontr}
+		<br />
+			{$LANG_DQ['subm_by']}:&nbsp;{contr}&nbsp;/&nbsp;{datecontr}
 {!if catname}
-            &nbsp;&nbsp;:&nbsp;<span class="dq_catname">{catname}</span>
+			&nbsp;&nbsp;:&nbsp;<span class="dq_catname">{catname}</span>
 {!endif}
-        </p>
+		</footer>
+	</div>
 {!if adblock}
-        <p>{adblock}</p>
+	<p>{adblock}</p>
 {!endif}
-        <hr />
-    </div>
 <!-- END QuoteRow -->
-    <div>
-        {google_paging}
-    </div>
+	<div>{google_paging}</div>
 </div>
 {# end {templatelocation} #}
