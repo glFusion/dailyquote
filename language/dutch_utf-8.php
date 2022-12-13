@@ -124,6 +124,12 @@ $LANG_DQ = array(
 'confirm_delitem'    => 'Weet je zeker dat je dit item wilt verwijderen?',
 'err_saving_cat'    => 'Error saving category',
 'untitled'          => 'Untitled',
+'instr_catform' => 'Enter a name for the category and check the box to enable it for use.',
+'dup_quote' => 'The quote already exists in the database.',
+'db_error' => 'An error occurred, check the system log.',
+'newcat' => 'New Category',
+'required' => 'This item is required',
+'contribute' => 'Contribute',
 );
 
 // GL Interface Messages
@@ -152,16 +158,11 @@ $LANG_fs['dailyquote'] = array(
     'fs_permissions' => 'Standaard Instellingen',
 );
 
-// Note: entries 0, 1, and 12 are the same as in $LANG_configselects['Core']
-$LANG_configselects['dailyquote'] = array(
-    0  => array('True' => 1, 'False' => 0),
-    1  => array('True' => TRUE, 'False' => FALSE),
-    3  => array('Ja' => 1, 'Nee' => 0),
-    4  => array('Aan' => 1, 'Uit' => 0),
-    5  => array('Bovenaan de Pagina' => 1, 'Na Hoofdartikel' => 2, 'Onderaan de Pagina' => 3),
-    9  => array('Nooit' => 0, 'Bij Goedkeuring' => 1, 'Altijd' => 2),
-    10 => array('5' => 5, '10' => 10, '25' => 25, '50' => 50),
-    12 => array('Geen toegang' => 0, 'Alleen lezen' => 2, 'Read-Write' => 3)
+$LANG_configSelect['dailyquote'] = array(
+    0  => array(1 => 'True', 0 => 'False'),
+    5  => array(0 => 'Nooit', 1 => 'Bovenaan de Pagina', 2 => 'Na Hoofdartikel', 3 => 'Onderaan de Pagina'),
+    9  => array(0 => 'Nooit', 1 => 'Bij Goedkeuring', 2 => 'Altijd'),
+    13 => array(0 => 'None', 1 => 'Left', 2 => 'Right', 3 => 'Both'),
 );
 
 $LANG_confignames['dailyquote'] = array(
@@ -169,7 +170,6 @@ $LANG_confignames['dailyquote'] = array(
     'searchdisplim' => 'Limiteer zoekrestultaten tot',
     'queue'         => 'Inzendingen van Gebruikers eerst Goedkeuren?',
     'submit_grp'    => 'Group allowed to submit quotes',
-    'cb_enable'     => 'Centerblock Inschakelen?',
     'cb_pos'        => 'Centerblock Positie',
     'cb_home'       => 'Centerblock alleen op Startpagina?',
     'cb_replhome'   => 'Centerblock de Startpagina vervangen?',
@@ -178,4 +178,5 @@ $LANG_confignames['dailyquote'] = array(
     'whatsnew'      => 'Toon Quotes in "What\'s New" block?',
     'whatsnewdays'  => 'Aantal dagen dat een quote als "nieuw" wordt beschouwd',
     'email_admin'   => 'Notificatie E-mail naar Beheerder?',
+    'displayblocks' => 'Display glFusion Blocks',
 );
