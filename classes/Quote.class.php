@@ -588,7 +588,7 @@ class Quote
 
         $access = $this->hasAccess(3, $this->isNew());
         if (!$access) {
-            COM_errorLog("User {$_USER['username']} tried to illegally submit or edit quote {$this->qid}.");
+            Log::write('system', Log::ERROR, "User {$_USER['username']} tried to illegally submit or edit quote {$this->qid}.");
             return $MESSAGE[31];
         }
 

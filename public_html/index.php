@@ -167,7 +167,7 @@ function DQ_listCategories()
     $result = DB_query($sql);
     if (!$result){
         $retval = $LANG_DQ['caterror'];
-        COM_errorLog("An error occured while retrieving list of categories",1);
+        glFusion\Log\Log::write('system', Log::ERROR, 'An error occured while retrieving list of categories');
         return $retval;
     }
 

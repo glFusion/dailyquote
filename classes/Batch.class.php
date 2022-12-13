@@ -138,7 +138,7 @@ class Batch
                     "title=$title, source=$source, " .
                     "sourcedate=$sourcedate</b><br>\n";
                 $retval .= $msg;
-                COM_errorLog($msg, 1);
+                glFusion\Log\Log::write('system', Log::INFO, $msg);
             }
 
             // prepare import for database

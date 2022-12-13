@@ -140,7 +140,7 @@ function plugin_install_dailyquote()
     $pi_display_name    = $_CONF_DQ['pi_display_name'];
     $pi_version         = $_CONF_DQ['pi_version'];
 
-    COM_errorLog("Attempting to install the $pi_display_name plugin", 1);
+    glFusion\Log\Log::write('system', Log::INFO, "Attempting to install the $pi_display_name plugin");
 
     $ret = INSTALLER_install($INSTALL_plugin[$pi_name]);
     if ($ret > 0) {
@@ -213,5 +213,3 @@ function plugin_autouninstall_dailyquote_X()
     );
     return $out;
 }
-
-?>

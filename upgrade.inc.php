@@ -105,13 +105,14 @@ function DQ_do_upgrade($dvlp=false)
     // any of the update functions, e.g. code-only updates
     if (!COM_checkVersion($current_ver, $installed_ver)) {
         if (!DQ_do_set_version($installed_ver)) {
-            COM_errorLog($_CONF_DQ['pi_display_name'] .
-                    " Error performing final update $current_ver to $installed_ver");
+            Log::write('system', Log::ERROR,
+                $_CONF_DQ['pi_display_name'] . " Error performing final update $current_ver to $installed_ver"
+            );
             return false;
         }
     }
     CTL_clearCache($_CONF_DQ['pi_name']);
-    COM_errorLog("Succesfully updated the {$_CONF_DQ['pi_name']} plugin!",1);
+    Log::write('system', Log::INFO, "Succesfully updated the {$_CONF_DQ['pi_name']} plugin!");
     return true;
 }
 
@@ -195,10 +196,10 @@ function DQ_remove_old_files()
     $paths = array(
         // private/plugins/dailyquote
         __DIR__ => array(
-	    'templates/batchaddform.uikit.thtml',
-	    'templates/catform.uikit.thtml',
-	    'templates/dispquotes.uikit.thtml',
-	    'templates/editform.uikit.thtml',
+            'templates/batchaddform.uikit.thtml',
+            'templates/catform.uikit.thtml',
+            'templates/dispquotes.uikit.thtml',
+            'templates/editform.uikit.thtml',
         ),
         // public_html/dailyquote
         $_CONF['path_html'] . 'dailyquote' => array(

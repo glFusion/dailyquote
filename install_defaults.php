@@ -236,9 +236,7 @@ function plugin_initconfig_dailyquote($group_id = 0)
             _addConfigItem($cfgItem);
         }
     } else {
-        COM_errorLog('initconfig error: DailyQuote config group already exists');
+        glFusion\Log\Log::write('system', Log::ERROR, 'initconfig error: DailyQuote config group already exists');
     }
     return true;
 }
-
-?>

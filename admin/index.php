@@ -24,7 +24,9 @@ if (!in_array('dailyquote', $_PLUGINS)) {
 // Only let admin users access this page
 if (!SEC_hasRights('dailyquote.admin,dailyquote.edit', 'OR')) {
     // Someone is trying to illegally access this page
-    COM_errorLog("Someone has tried to illegally access the dailyquote Admin page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR",1);
+    glFusion\Log\Log::write('system', Log::ERROR,
+        "Someone has tried to illegally access the dailyquote Admin page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR"
+    );
     COM_404();
     exit;
 }
