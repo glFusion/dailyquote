@@ -31,6 +31,7 @@ function DQ_do_upgrade($dvlp=false)
 {
     global $_CONF_DQ, $_TABLES, $_PLUGIN_INFO, $dailyquoteConfigData;
 
+    $cfg = \config::get_instance();
     $db = Database::getInstance();
     if (isset($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
         if (is_array($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
@@ -106,6 +107,11 @@ function DQ_do_upgrade($dvlp=false)
                 $dailyquoteConfigData[$idx]['default_value'] = $grp_id;
             }
         }
+        if (isset($_CONF_DQ['cb_enable']) && $_CONF_DQ['cb_enable'] == 0) {
+            // Leverating cb_pos to infer cb_enable
+            $cfg->set('cb_pos', 0, 'dailyquote');
+        }
+
         if (!DQ_do_set_version($current_ver)) return false;
     }
 

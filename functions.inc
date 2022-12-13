@@ -463,8 +463,10 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
 
     // If centerblock not enabled, or just for homepage and
     // we're not on the homepage, just return
-    if ($_CONF_DQ['cb_enable'] == 0 ||
-            ($CONF_DQ['cb_homepage'] == 1 && ($page > 1 || $topic != '')) ) {
+    if (
+        $_CONF_DQ['cb_pos'] ==  0 ||
+        ($CONF_DQ['cb_home'] == 1 && ($page > 1 || $topic != ''))
+    ) {
         return '';
     }
 
