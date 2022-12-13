@@ -200,6 +200,8 @@ function DQ_remove_old_files()
             'templates/catform.uikit.thtml',
             'templates/dispquotes.uikit.thtml',
             'templates/editform.uikit.thtml',
+            // v0.4.0
+            'batch.php',
         ),
         // public_html/dailyquote
         $_CONF['path_html'] . 'dailyquote' => array(
