@@ -452,7 +452,7 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
     // we're not on the homepage, just return
     if (
         $_CONF_DQ['cb_pos'] ==  0 ||
-        ($CONF_DQ['cb_home'] == 1 && ($page > 1 || $topic != ''))
+        ($_CONF_DQ['cb_home'] == 1 && ($page > 1 || $topic != ''))
     ) {
         return '';
     }
