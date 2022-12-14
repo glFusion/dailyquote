@@ -1,5 +1,5 @@
 {# begin {templatelocation} #}
-<h2>{$LANG_DQ['egtitle']}</h2>
+<h2>{lang_egtitle}:</h2>
 <center>
     <div style="width: 600px; border: solid 1px; background-color: #FFFFFF; color: #000000; padding: 5px; overflow: auto;text-align:left;">
         <ol>
@@ -12,11 +12,11 @@
 </center>
 <p>
     <ul>
-        <li>{$LANG_DQ['line0']}</li>
-        <li>{$LANG_DQ['tabs']}</li>
-        <li>{$LANG_DQ['line3']}</li>
-        <li>{$LANG_DQ['line1']}</li>
-        <li>{$LANG_DQ['line5']}</li>
+        <li>{lang_rule1}</li>
+        <li>{lang_rule2}</li>
+        <li>{lang_rule3}</li>
+        <li>{lang_rule4}</li>
+        <li>{lang_rule5}</li>
     </ul>
 </p>
 {# end {templatelocation} #}

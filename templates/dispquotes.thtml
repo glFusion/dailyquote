@@ -1,21 +1,20 @@
 {# begin {templatelocation} #}
 <div class="dq_quotelist">
-	<div style="margin-bottom:1em;">
-		<form  action="{pi_url}/index.php" method="get" class="uk-form uk-form-horizontal">
-			<label for="sort">{$LANG_DQ['sortby']}:&nbsp;&nbsp;</label>
-				<select name="sort">
-					{sortby_opts}
-				</select>
-				<select name="dir">
-					<option value="ASC" {asc_sel}>{$LANG_DQ['ascending']}</option>
-					<option value="DESC" {desc_sel}>{$LANG_DQ['descending']}</option>
-				</select>
-				<button name="submit" type="submit" class="uk-button uk-button-primary" style="float:inherit;">
-					{$LANG_DQ['sort']}
-			  </button>
-		<a style="float:right" class="uk-button uk-button-success" href="{pi_url}/index.php?edit">{$LANG_DQ['contribute']}</a>
-		</form>
-	</div>
+    <div>
+        <form  action="{pi_url}/index.php" method="get" class="uk-form uk-form-horizontal">
+            <label for="sort">{lang_sortby}:&nbsp;&nbsp;</label>
+                <select name="sort">
+                    {sortby_opts}
+                </select>
+                <select name="dir">
+                    <option value="ASC" {asc_sel}>{lang_ascending}</option>
+                    <option value="DESC" {desc_sel}>{lang_descending}</option>
+                </select>
+                <button name="submit" type="submit" class="uk-button uk-button-primary" style="float:inherit;">
+                    {lang_sort}
+              </button>
+        </form>
+    </div>
 
 	<div class="uk-container dailyquote">
 <!-- BEGIN QuoteRow -->
@@ -30,7 +29,7 @@
 {!if source}&nbsp;--&nbsp;{source}{!endif}
 {!if sourcedate}&nbsp;&nbsp;({sourcedate}){!endif}
 		<br />
-			{$LANG_DQ['subm_by']}:&nbsp;{contr}&nbsp;/&nbsp;{datecontr}
+			{lang_subm_by}:&nbsp;{contr}&nbsp;/&nbsp;{datecontr}
 {!if catname}
 			&nbsp;&nbsp;:&nbsp;<span class="dq_catname">{catname}</span>
 {!endif}

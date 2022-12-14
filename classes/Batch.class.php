@@ -59,6 +59,23 @@ class Batch
         $T->set_var(array(
             'action_url' => DQ_ADMIN_URL .'/index.php',
             'catlist'   => $catlist,
+            'lang_batchaddtitle' => MO::_('Add Your Quotations Here'),
+            'lang_batchadd' => MO::_('Quotations'),
+            'lang_batchcatinstr' => MO::_('You may specify a category if you wish it to be applied to all quotes in the batch.') .
+                MO::_('Otherwise there will be no category set. This may be altered later from the quote administration page.'),
+            'lang_cat' => MO::_('Category'),
+            'lang_batchsrcinstr' => MO::_('Similarily, you may specify a title, source, and a date for that source if you wish it to be applied to all quotes in the batch that have null title, source, and/or source date fields.'),
+            'lang_addtitle' => MO::_('Title'),
+            'lang_source' => MO::_('Source'),
+            'lang_sourcedate' => MO::_('Source Date'),
+            'lang_dateformat' => MO::_('(Date Format YYYY-MM-DD)'),
+            'lang_batchsubmit' => MO::_('Import Quotes'),
+            'lang_rule1' => MO::_('Text file format: quote&lt;tab&gt;person quoted&lt;tab&gt;title&lt;tab&gt;source&lt;tab&gt;source date. The file extension must be &quot;.txt&quot;'),
+            'lang_rule2' => MO::_('Notice that the tabs are marked here by the regex \t for the sake of the example. Please use the tab button on your keyboard to create tabs.'),
+            'lang_rule3' => MO::_('Notice line 1 contains values for source and source date. Lines 2 through 5 have only the tabs to indicate the fields. Where the field is left empty nothing will be displayed. This also applies to the title field.'),
+            'lang_rule4' => MO::_('Notice line 3 leaves the name field empty. It will be set to its default, &quot;Unknown.&quot;'),
+            'lang_rule5' => MO::_('Notice line 5 contains values for the first 3 fields and uses no tabs for the remaining blank fields. This is acceptable as long as those unmarked fields occur at the end of the line.'),
+            'lang_egtitle' => MO::_('Example .txt File'),
         ) );
         $T->parse('output','page');
         $retval .= $T->finish($T->get_var('output'));
@@ -73,7 +90,7 @@ class Batch
     */
     public static function process()
     {
-        global $_TABLES, $_CONF, $LANG_DQ;
+        global $_TABLES, $_CONF;
 
         $verbose_import = 1;
         $Request = Request::getInstance();
@@ -102,7 +119,7 @@ class Batch
         $retval = '';
         $handle = @fopen($filename,'r');
         if (empty($handle)) {
-            return $LANG_DQ['absentfile'];
+            return MO::_('Error: You must specify a file to upload.');
         }
 
         // Get categories into a usable array
@@ -143,9 +160,10 @@ class Batch
 
             // prepare import for database
             if ($quote == '') {
-                $retval = "<p align=\"center\" style=\"font-weight: bold; color: red;\">" . $LANG_DQ['txterror'] . "</p>";
+                $retval = '<p align="center" style="font-weight:bold; color:red;">' .
+                    MO::_('You have an error in your text file. Ensure that the &quot;quotation&quot; field is not null on any line, i.e., no line should begin with a tab character.') . '</p>';
                 if ($verbose_import) {
-                    $retval .= "<br>The &quot;quote&quot; field cannot be blank.<br>\n";
+                    $retval .= '<br>' . MO::_('The &quot;quote&quot; field cannot be blank.') . "<br>\n";
                 }
                 $failures++;
             } else {
@@ -180,9 +198,13 @@ class Batch
         fclose($handle);
         unlink($filename);
 
-        $report = sprintf($LANG_DQ['msg2'], $successes, $failures);
-        $retval .= "<p align=\"center\" style=\"font-weight: bold; color: red;\">" .
-            $report . "</p>";
+        $report = sprintf(
+            MO::_('Done processing. Imported %d and encountered %d failures'),
+            $successes,
+            $failures
+        );
+        $retval .= '<p align="center" style="font-weight:bold; color:red;">' .
+            $report . '</p>';
         return $retval;
     }
 
