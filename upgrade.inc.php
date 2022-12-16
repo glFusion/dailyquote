@@ -11,7 +11,7 @@
  * @filesource
  */
 
-global $_CONF, $_CONF_DQ, $_SQL_UPGRADE;
+global $_CONF, $_SQL_UPGRADE;
 
 /** Include the default configuration values */
 require_once __DIR__ . '/install_defaults.php';
@@ -29,17 +29,17 @@ use glFusion\Log\Log;
  */
 function DQ_do_upgrade($dvlp=false)
 {
-    global $_CONF_DQ, $_TABLES, $_PLUGIN_INFO, $dailyquoteConfigData;
+    global $_TABLES, $_PLUGIN_INFO, $dailyquoteConfigData;
 
     $cfg = \config::get_instance();
     $db = Database::getInstance();
-    if (isset($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
-        if (is_array($_PLUGIN_INFO[$_CONF_DQ['pi_name']])) {
+    if (isset($_PLUGIN_INFO[Config::PI_NAME])) {
+        if (is_array($_PLUGIN_INFO[Config::PI_NAME])) {
             // glFusion > 1.6.5
-            $current_ver = $_PLUGIN_INFO[$_CONF_DQ['pi_name']]['pi_version'];
+            $current_ver = $_PLUGIN_INFO[Config::PI_NAME]['pi_version'];
         } else {
             // legacy
-            $current_ver = $_PLUGIN_INFO[$_CONF_DQ['pi_name']];
+            $current_ver = $_PLUGIN_INFO[Config::PI_NAME];
         }
     } else {
         return false;
@@ -94,12 +94,12 @@ function DQ_do_upgrade($dvlp=false)
 
         // Update the config for who can submit.
         // Make sure to run only once (if called by dvlpupdate).
-        if (isset($_CONF_DQ['anonadd']) && isset($_CONF_DQ['loginadd'])) {
+        if (Config::isset('anonadd') && Config::isset('loginadd'])) {
             $idx = array_search('submit_grp', array_column($dailyquoteConfigData, 'name'));
             if ($idx !== false) {       // make sure it's found
-                if ($_CONF_DQ['anonadd']) {
+                if (Config::get('anonadd')) {
                     $grp_id = 2;        // all users
-                } elseif ($_CONF_DQ['loginadd']) {
+                } elseif (Config::get('loginadd')) {
                     $grp_id = 13;       // logged-in users
                 } else {
                     $grp_id = 1;        // root users
@@ -107,7 +107,7 @@ function DQ_do_upgrade($dvlp=false)
                 $dailyquoteConfigData[$idx]['default_value'] = $grp_id;
             }
         }
-        if (isset($_CONF_DQ['cb_enable']) && $_CONF_DQ['cb_enable'] == 0) {
+        if (Config::isset('cb_enable') && Config::get('cb_enable') == 0) {
             // Leverating cb_pos to infer cb_enable
             $cfg->set('cb_pos', 0, 'dailyquote');
         }
@@ -128,13 +128,13 @@ function DQ_do_upgrade($dvlp=false)
     if (!COM_checkVersion($current_ver, $installed_ver)) {
         if (!DQ_do_set_version($installed_ver)) {
             Log::write('system', Log::ERROR,
-                $_CONF_DQ['pi_display_name'] . " Error performing final update $current_ver to $installed_ver"
+                Config::get('pi_display_name') . " Error performing final update $current_ver to $installed_ver"
             );
             return false;
         }
     }
-    CTL_clearCache($_CONF_DQ['pi_name']);
-    Log::write('system', Log::INFO, "Succesfully updated the {$_CONF_DQ['pi_name']} plugin!");
+    CTL_clearCache(Config::PI_NAME);
+    Log::write('system', Log::INFO, "Succesfully updated the {Config::PI_NAME} plugin!");
     return true;
 }
 
@@ -148,7 +148,7 @@ function DQ_do_upgrade($dvlp=false)
  */
 function DQ_do_upgrade_sql(string $version, bool $dvlp=false) : bool
 {
-    global $_CONF_DQ, $_SQL_UPGRADE;
+    global $_SQL_UPGRADE;
 
     // If no sql statements passed in, return success
     if (empty($_SQL_UPGRADE[$version])) {
@@ -157,9 +157,9 @@ function DQ_do_upgrade_sql(string $version, bool $dvlp=false) : bool
 
     $db = Database::getInstance();
     // Execute SQL now to perform the upgrade
-    Log::write('system', Log::INFO, "--Updating {$_CONF_DQ['pi_name']} to version $version");
+    Log::write('system', Log::INFO, "--Updating {Config::PI_NAME} to version $version");
     foreach ($_SQL_UPGRADE[$version] as $sql) {
-        Log::write('system', Log::DEBUG, "{$_CONF_DQ['pi_name']} $version update: Executing SQL => $sql");
+        Log::write('system', Log::DEBUG, "{Config::PI_NAME} $version update: Executing SQL => $sql");
         try {
             $db->conn->executeStatement($sql);
         } catch (\Throwable $e) {
@@ -181,17 +181,17 @@ function DQ_do_upgrade_sql(string $version, bool $dvlp=false) : bool
  */
 function DQ_do_set_version($ver)
 {
-    global $_TABLES, $_CONF_DQ;
+    global $_TABLES;
 
     try {
         Database::getInstance()->conn->update(
             $_TABLES['plugins'],
             array(
-                'pi_version' => $_CONF_DQ['pi_version'],
-                'pi_gl_version' =>$_CONF_DQ['gl_version'],
-                'pi_homepage' => $_CONF_DQ['pi_url'],
+                'pi_version' => Config::get('pi_version'),
+                'pi_gl_version' => Config::get('gl_version'),
+                'pi_homepage' => Config::get('pi_url'),
             ),
-            array('pi_name' => $_CONF_DQ['pi_name']),
+            array('pi_name' => Config::PI_NAME),
             array(
                 Database::STRING,
                 Database::STRING,

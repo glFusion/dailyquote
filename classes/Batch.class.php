@@ -29,7 +29,7 @@ class Batch
     */
     public static function form()
     {
-        global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ;
+        global $_TABLES, $_CONF, $LANG_DQ;
 
         $retval = '';
 

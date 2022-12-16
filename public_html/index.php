@@ -13,7 +13,9 @@
 
 /** Import core glFusion functions */
 require_once('../lib-common.php');
-$Request = DailyQuote\Models\Request::getInstance();
+use DailyQuote\Config;
+use DailyQuote\Models\Request;
+$Request = Request::getInstance();
 
 /**
  * Displays the quotes listing.
@@ -25,7 +27,7 @@ $Request = DailyQuote\Models\Request::getInstance();
  */
 function DQ_listQuotes($sort, $dir, $page)
 {
-    global $_TABLES, $_CONF, $LANG_DQ, $_CONF_DQ, $_USER, $_IMAGE_TYPE,
+    global $_TABLES, $_CONF, $LANG_DQ, $_USER, $_IMAGE_TYPE,
         $LANG_ADMIN;
 
     $Coll = new DailyQuote\Collections\QuoteCollection;
@@ -64,7 +66,7 @@ function DQ_listQuotes($sort, $dir, $page)
     }
     $T->set_var('sortby_opts', $sortby);
     $T->set_var('submit', $LANG_DQ['sort']);
-    $T->set_var('pi_url', DQ_URL);
+    $T->set_var('pi_url', Config::get('url'));
     if ($dir == 'ASC') {
         $T->set_var('asc_sel', 'selected="selected"');
     } else {
@@ -85,7 +87,7 @@ function DQ_listQuotes($sort, $dir, $page)
         foreach ($Cats as $Cat) {
             $catnames[] = COM_createLink(
                 $Cat->getName(),
-                DQ_URL . '?cat=' . $Cat->getID()
+                Config::get('url') . '?cat=' . $Cat->getID()
             );
         }
         $catlist = join(',' , $catnames);
@@ -121,7 +123,7 @@ function DQ_listQuotes($sort, $dir, $page)
         ) );
 
         if(SEC_hasRights('dailyquote.edit')) {
-            $editlink = '<a href="' . DQ_ADMIN_URL .
+            $editlink = '<a href="' . Config::get('admin_url') .
                         '/index.php?edit=quote&id='.$Quote->getID() . '">';
             $icon_url = "{$_CONF['layout_url']}/images/edit.$_IMAGE_TYPE";
             $editlink .= COM_createImage($icon_url, $LANG_ADMIN['edit']);
@@ -137,7 +139,7 @@ function DQ_listQuotes($sort, $dir, $page)
                         'class'=> 'tooltip',
                     )
                 ),
-                DQ_ADMIN_URL . '/index.php?delete=x&xtype=quote&id='.$Quote->getID()
+                Config::get('admin_url') . '/index.php?delete=x&xtype=quote&id='.$Quote->getID()
             );
             $T->set_var('editlink', $editlink);
         }
@@ -181,7 +183,7 @@ function DQ_listCategories()
     while ($row = DB_fetchArray($result)) {
         $T->set_block('page', 'CatRow', 'cRow');
         $T->set_var(array(
-            'pi_url'    => DQ_URL . '/index.php',
+            'pi_url'    => Config::get('url') . '/index.php',
             'cat_id'    => $row['id'],
             'dispcat'   => $row['name'],
             'cell_width' => (int)(100 / $col),
@@ -223,7 +225,12 @@ $display = DailyQuote\Menu::siteHeader();
 $T = new Template($_CONF['path'] . 'plugins/dailyquote/templates');
 //$T->set_file('page', 'dqheader.thtml');
 $T->set_file('page', 'index.thtml');
-$T->set_var('pi_url', DQ_URL);
+$T->set_var(array(
+    'pi_url' => Config::get('url'),
+    'indextitle' => $LANG_DQ['indextitle'],
+    'pi_icon' => plugin_geticon_dailyquote(),
+    'is_admin' => plugin_ismoderator_dailyquote(),
+) );
 
 if (isset($Request['msg'])){
     $msg = "msg" . $Request->getInt('msg');
@@ -233,8 +240,7 @@ if (isset($Request['msg'])){
 // Check access.  Sort of borrowing the glFusion permissions, but not really.
 // If anonymous, can they view or add?  If logged in, can they add?
 // Viewing is assumend for logged in users.
-$access = SEC_inGroup($_CONF_DQ['submit_grp']) ? 3 : 2;
-$T->set_var('indextitle', $LANG_DQ['indextitle']);
+$access = SEC_inGroup(Config::get('submit_grp')) ? 3 : 2;
 $content = '';
 switch ($action) {
 case 'categories':
@@ -245,10 +251,10 @@ case 'savesubmission':
     $Q = new DailyQuote\Quote();
     $message = $Q->saveSubmission($Request);
     if (empty($message)) {
-        $message = sprintf($LANG12[25], $_CONF_DQ['pi_name']);
+        $message = sprintf($LANG12[25], Config::PI_NAME);
     }
     COM_setMsg($message);
-    COM_refresh(DQ_URL);
+    COM_refresh(Config::get('url') . '/index.php');
     break;
 
 case 'edit':

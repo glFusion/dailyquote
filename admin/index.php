@@ -20,6 +20,7 @@ if (!in_array('dailyquote', $_PLUGINS)) {
     COM_404();
     exit;
 }
+use DailyQuote\Config;
 
 // Only let admin users access this page
 if (!SEC_hasRights('dailyquote.admin,dailyquote.edit', 'OR')) {
@@ -153,8 +154,11 @@ default:
 }
 
 $display = DailyQuote\Menu::siteHeader();
-$display .= COM_startBlock($_CONF_DQ['pi_display_name'] . ' ver. ' . $_CONF_DQ['pi_version'], '',
-                COM_getBlockTemplate('_admin_block', 'header'));
+$display .= COM_startBlock(
+    Config::get('pi_display_name') . ' ver. ' . Config::get('pi_version'),
+    '',
+    COM_getBlockTemplate('_admin_block', 'header')
+);
 $display .= DailyQuote\Menu::Admin($view);
 $display .= $content;
 $display .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));

@@ -1,13 +1,15 @@
 {# begin {templatelocation} #}
 {!if msg}
-      <div class="uk-alert uk-alert-danger">{msg}</div>
+	<div class="uk-alert uk-alert-danger">{msg}</div>
 {!endif}
-      <div style="float:right;">
-        <a href="{site_url}/dailyquote/index.php">
-          <img src="{site_url}/dailyquote/images/dailyquote.png" 
-            border="0" width="48" height="48" />
-        </a>
-      </div>
+	<div style="float:right;">
+		<a href="{site_url}/dailyquote/index.php"><img src="{pi_icon}" border="0" width="48" height="48" /></a>
+	</div>
+{!if is_admin}
+	<div class="floatright">
+		<a class="uk-button uk-button-mini uk-button-danger" href="{site_url}/admin/plugins/dailyquote/index.php">{$LANG_DQ['admin']}</a>
+	</div>
+{!endif}
 
       <h1>{indextitle}</h1>
 {content}
