@@ -83,11 +83,9 @@ class Menu
      */
     public static function siteHeader(string $title='', string $meta='') : string
     {
-        global $_CONF_DQ;
-
         $retval = '';
 
-        switch($_CONF_DQ['displayblocks']) {
+        switch(Config::get('displayblocks')) {
         case 2:     // right only
         case 0:     // none
             $retval .= COM_siteHeader('none', $title, $meta);
@@ -109,11 +107,9 @@ class Menu
      */
     public static function siteFooter() : string
     {
-        global $_CONF_DQ;
-
         $retval = '';
 
-        switch($_CONF_DQ['displayblocks']) {
+        switch(Config::get('displayblocks')) {
         case 2 : // right only
         case 3 : // left and right
             $retval .= COM_siteFooter(true);

@@ -25,8 +25,6 @@ $_TABLES['dailyquote_cat']         = $DQ_prefix . 'category';
 $_TABLES['dailyquote_quoteXcat']   = $DQ_prefix . 'quoteXcat';
 
 // Static configuration items
-$_CONF_DQ['pi_version'] = '0.3.0';
-$_CONF_DQ['pi_name'] = 'dailyquote';
-$_CONF_DQ['pi_display_name'] = DailyQuote\MO::_('Daily Quotes');
-$_CONF_DQ['gl_version'] = '2.0.0';
-$_CONF_DQ['pi_url'] = 'https://glfusion.org';
+use DailyQuote\Config;
+Config::set('pi_version', '0.3.0');
+Config::get('gl_version', '2.0.0');

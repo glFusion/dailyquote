@@ -48,7 +48,7 @@ class Category
      */
     public function __construct($id=0)
     {
-        global $_CONF, $_CONF_DQ;
+        global $_CONF;
 
         if (is_array($id)) {
             // record already read
@@ -247,7 +247,7 @@ class Category
      */
     public function Save(?DataArray $A=NULL) : string
     {
-        global $_CONF, $_TABLES, $_USER, $MESSAGE, $_CONF_DQ;
+        global $_CONF, $_TABLES, $_USER, $MESSAGE;
 
         if (!empty($A)) {
             $this->setVars($A);
@@ -318,7 +318,7 @@ class Category
     public static function adminList() : string
     {
         global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS;
-        global $_CONF_DQ, $LANG_DQ;
+        global $LANG_DQ;
 
         $header_arr = array(      # display 'text' and use table field 'field'
             array(
@@ -391,7 +391,7 @@ class Category
      */
     public function EditForm() : string
     {
-        global $_CONF, $LANG_DQ, $_CONF_DQ;
+        global $_CONF, $LANG_DQ;
 
         $retval = '';
 
@@ -422,7 +422,7 @@ class Category
      */
     public static function getListField($fieldname, $fieldvalue, $A, $icon_arr) : string
     {
-        global $_CONF, $LANG_ACCESS, $LANG_DQ, $_CONF_DQ, $LANG_ADMIN;
+        global $_CONF, $LANG_ACCESS, $LANG_DQ, $LANG_ADMIN;
 
         $retval = '';
 

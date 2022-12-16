@@ -20,6 +20,8 @@ require_once __DIR__ . '/functions.inc';
 /** Import plugin database definition */
 require_once __DIR__ . '/sql/mysql_install.php';
 
+use DailyQuote\Config;
+
 /** Plugin installation options
  * @global array $INSTALL_plugin['dailyquote']
  */
@@ -31,11 +33,11 @@ $INSTALL_plugin['dailyquote'] = array(
     ),
     'plugin' => array(
         'type'  => 'plugin',
-        'name'  => $_CONF_DQ['pi_name'],
-        'ver'   => $_CONF_DQ['pi_version'],
-        'gl_ver' => $_CONF_DQ['gl_version'],
-        'url'   => $_CONF_DQ['pi_url'],
-        'display' => $_CONF_DQ['pi_display_name'],
+        'name'  => Config::PI_NAME,
+        'ver'   => Config::get('pi_version'),
+        'gl_ver' => Config::get('gl_version'),
+        'url'   => Config::get('pi_url'),
+        'display' => Config::get('pi_display_name'),
     ),
     array(
         'type'  => 'table',
@@ -114,7 +116,7 @@ $INSTALL_plugin['dailyquote'] = array(
     array(
         'type'  => 'block',
         'name'  => 'dailyquote_dgmenu',
-        'title' => $_CONF_DQ['pi_display_name'],
+        'title' => Config::get('pi_display_name'),
         'phpblockfn' => 'phpblock_dailyquote_dqmenu',
         'block_type' => 'phpblock',
         'group_id' => 'admin_group_id',
@@ -134,11 +136,11 @@ $INSTALL_plugin['dailyquote'] = array(
  */
 function plugin_install_dailyquote()
 {
-    global $INSTALL_plugin, $_CONF_DQ;
+    global $INSTALL_plugin;
 
-    $pi_name            = $_CONF_DQ['pi_name'];
-    $pi_display_name    = $_CONF_DQ['pi_display_name'];
-    $pi_version         = $_CONF_DQ['pi_version'];
+    $pi_name            = Config::PI_NAME;
+    $pi_display_name    = Config::get('pi_display_name');
+    $pi_version         = Config::get('pi_version');
 
     glFusion\Log\Log::write('system', Log::INFO, "Attempting to install the $pi_display_name plugin");
 
@@ -152,36 +154,22 @@ function plugin_install_dailyquote()
 
 
 /**
- * Plugin-specific post-installation function.
- * Copies the admin documentation.
- */
-function plugin_postinstall_dailyquote()
-{
-    global $_CONF, $_CONF_DQ;
-
-    $filepath = "{$_CONF['path']}/plugins/{$_CONF_DQ['pi_name']}";
-
-    // Try to copy admin documentation.
-    @copy($filepath .'/docs/'. $_CONF_DQ['pi_name'].'.html',
-            $_CONF['path_html'].'/docs/'.$_CONF_DQ['pi_name'].'.html');
-}
-
-
-/**
  * Loads the configuration records for the Online Config Manager.
  *
  * @return  boolean     true = proceed with install, false = an error occured
  */
 function plugin_load_configuration_dailyquote()
 {
-    global $_CONF, $_CONF_DQ, $_TABLES;
+    global $_CONF, $_TABLES;
 
-    require_once $_CONF['path'].'plugins/'.$_CONF_DQ['pi_name'].'/install_defaults.php';
+    require_once __DIR__ . '/install_defaults.php';
 
     // Get the admin group ID that was saved previously.
-    $group_id = (int)DB_getItem($_TABLES['groups'], 'grp_id',
-            "grp_name='{$_CONF_DQ['pi_name']} Admin'");
-
+    $group_id = (int)DB_getItem(
+        $_TABLES['groups'],
+        'grp_id',
+        "grp_name='" . Config::PI_NAME . " Admin'"
+    );
     return plugin_initconfig_dailyquote($group_id);
 }
 

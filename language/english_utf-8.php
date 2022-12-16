@@ -127,6 +127,7 @@ $LANG_DQ= array(
 'confirm_delitem'   => 'Are you sure you want to delete this item?',
 'err_saving_cat'    => 'Error saving category',
 'untitled'          => 'Untitled',
+'admin'             => 'Admin',
 );
 
 

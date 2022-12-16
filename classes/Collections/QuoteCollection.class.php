@@ -16,6 +16,7 @@ use glFusion\Database\Database;
 use glFusion\Log\Log;
 use DailyQuote\Quote;
 use DailyQuote\Cache;
+use DailyQuote\Config;
 
 
 /**
@@ -183,9 +184,7 @@ class QuoteCollection extends Collection
      */
     public function getDisplayLimit()
     {
-        global $_CONF_DQ;
-
-        $displim = (int)$_CONF_DQ['indexdisplim'];
+        $displim = (int)Config::get('indexdisplim');
         if ($displim <= 0) {
             $displim = 15;
         }

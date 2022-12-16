@@ -15,9 +15,6 @@ if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
 }
 
-/** @global array $_CONF_DQ */
-global $_CONF_DQ;
-
 spl_autoload_register(function ($class)
 {
     $prefix = 'DailyQuote';
@@ -49,14 +46,7 @@ use DailyQuote\MO;
 use glFusion\Database\Database;
 use glFusion\Log\Log;
 use DailyQuote\Models\DataArray;
-
-//  Check and see if we need to load the plugin configuration
-if (!isset($_CONF_DQ['quoteperpage'])) {
-    /** Import configuration-handling class */
-    require_once $_CONF['path_system'] . 'classes/config.class.php';
-    $dq_config = config::get_instance();
-    $_CONF_DQ= $dq_config->get_config('dailyquote');
-}
+use DailyQuote\Config;
 
 /** Additional config items and table definitions are added here */
 require_once __DIR__ . '/dailyquote.php';
@@ -66,10 +56,10 @@ if (file_exists(__DIR__ . '/config.php')) {
 }
 
 define('DQ_PI_PATH', __DIR__);
-define('DQ_ADMIN_URL',
-    $_CONF['site_url'].'/admin/plugins/'.$_CONF_DQ['pi_name']);
+define('DQ_ADMIN_URL', 
+    $_CONF['site_url'].'/admin/plugins/'.Config::PI_NAME);
 define('DQ_URL',
-    $_CONF['site_url'].'/'.$_CONF_DQ['pi_name']);
+    $_CONF['site_url'].'/'. Config::PI_NAME);
 
 if (is_file("$langpath/custom/$langfile")) {
     /** Include the custom language file, if any */
@@ -84,10 +74,10 @@ if (is_file("$langpath/custom/$langfile")) {
  */
 function plugin_getmenuitems_dailyquote()
 {
-    global $_CONF, $_CONF_DQ;
+    global $_CONF;
 
     $menuitems = array(
-        $_CONF_DQ['pi_display_name'] => DQ_URL . '/index.php',
+        Config::get('pi_display_name') => Config::get('url') . '/index.php',
     );
     return $menuitems;
 }
@@ -117,7 +107,7 @@ function plugin_getheaderjs_dailyquote()
  */
 function plugin_showstats_dailyquote($showsitestats)
 {
-    global $_CONF, $_USER, $_TABLES, $_CONF_DQ;
+    global $_CONF, $_USER, $_TABLES;
 
     USES_lib_admin();
 
@@ -158,7 +148,7 @@ function plugin_showstats_dailyquote($showsitestats)
 
         while ($A = $stmt->fetchAssociative()) {
             $T->set_var('item_url',
-                        "{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/index.php?quoted=" . $A['quoted']);
+                        "{$_CONF['site_url']}/{Config::PI_NAME}/index.php?quoted=" . $A['quoted']);
             $T->set_var('item_text', $A['quoted']);
             $T->set_var('item_stat', $A['COUNT(*)']);
             $T->parse('stat_row','statrow',true);
@@ -197,13 +187,13 @@ function plugin_statssummary_dailyquote()
  */
 function plugin_cclabel_dailyquote()
 {
-    global $_CONF, $_CONF_DQ;
+    global $_CONF;
 
     if (SEC_hasRights('dailyquote.admin')) {
         return array(
-            $_CONF_DQ['pi_display_name'],
-            DQ_ADMIN_URL . '/index.php',
-            DQ_URL . '/images/dailyquote.png'
+            Config::get('pi_display_name'),
+            Config::get('url') . '/index.php',
+            plugin_geticon_dailyquote()
         );
     } else {
         return '';
@@ -218,7 +208,7 @@ function plugin_cclabel_dailyquote()
  */
 function plugin_getadminoption_dailyquote()
 {
-    global $_CONF, $_TABLES, $_CONF_DQ;
+    global $_CONF, $_TABLES;
 
     if (SEC_hasRights('dailyquote.admin')) {
         $count = Database::getInstance()->getCount(
@@ -229,7 +219,7 @@ function plugin_getadminoption_dailyquote()
         );
         return array(
             MO::_('Daily Quotes'),
-            DQ_ADMIN_URL . '/index.php',
+            Config::get('admin_url') . '/index.php',
             $count
         );
     } else {
@@ -258,16 +248,16 @@ function plugin_searchtypes_dailyquote()
  */
 function plugin_whatsnewsupported_dailyquote()
 {
-    global $_CONF, $_CONF_DQ;
+    global $_CONF;
 
-    if ($_CONF_DQ['whatsnew'] == '0') {
+    if (!Config::get('whatsnew')) {
         return false;
     } else {
         return array(
             MO::_('Quotes'),
             sprintf(
                 MO::_('last %s days'),
-                $_CONF_DQ['whatsnewdays']
+                Config::get('whatsnewdays')
             )
         );
     }
@@ -281,9 +271,9 @@ function plugin_whatsnewsupported_dailyquote()
  */
 function plugin_getwhatsnew_dailyquote()
 {
-    global $_TABLES, $_CONF, $_CONF_DQ;
+    global $_TABLES, $_CONF;
 
-    $days = (int)$_CONF_DQ['whatsnewdays'];
+    $days = (int)Config::get('whatsnewdays');
 
     $db = Database::getInstance();
     $qb = $db->conn->createQueryBuilder();
@@ -307,7 +297,7 @@ function plugin_getwhatsnew_dailyquote()
         $nrows = false;
     }
     if ($stmt && $nrows > 0) {
-        $T = new Template(DQ_PI_PATH . '/templates');
+        $T = new Template(Config::get('path') . '/templates');
         $T->set_file('block', 'blk_whatsnew.thtml');
         while ($row = $stmt->fetchAssociative()) {
             $quote = htmlspecialchars($row['quote']);
@@ -317,10 +307,7 @@ function plugin_getwhatsnew_dailyquote()
             } else {
                 $quote_text = $row['quote'];
             }
-            //$items[] = '<a href="' . DQ_URL . '/index.php?qid=' . $row['id']
-            //            . '" title="' . $quote . '">'
-            //            . $quote_text . '</a>' . "\n";
-            $T->set_var('quote_link', DQ_URL . '/index.php?qid=' . $row['qid']);
+            $T->set_var('quote_link', Config::get('url') . '/index.php?qid=' . $row['qid']);
             $T->set_var('quote_title', $quote);
             $T->set_var('quote_text', $quote_text);
             $T->parse('output', 'block');
@@ -340,8 +327,7 @@ function plugin_getwhatsnew_dailyquote()
  */
 function plugin_chkVersion_dailyquote()
 {
-    global $_CONF_DQ;
-    return $_CONF_DQ['pi_version'];
+    return Config::get('pi_version');
 }
 
 
@@ -352,31 +338,29 @@ function plugin_chkVersion_dailyquote()
  */
 function plugin_autouninstall_dailyquote()
 {
-    global $_CONF_DQ;
-
     $out = array (
         'tables'    => array(
-            $_CONF_DQ['pi_name']. '_quotes',
-            $_CONF_DQ['pi_name']. '_submission',
-            $_CONF_DQ['pi_name']. '_cat',
-            $_CONF_DQ['pi_name']. '_quoteXcat',
+            Config::PI_NAME. '_quotes',
+            Config::PI_NAME. '_submission',
+            Config::PI_NAME. '_cat',
+            Config::PI_NAME. '_quoteXcat',
         ),
         'groups'    => array(
-            $_CONF_DQ['pi_name'] . ' Admin',
+            Config::PI_NAME . ' Admin',
         ),
         'features'  => array(
-            $_CONF_DQ['pi_name'] . '.add',
-            $_CONF_DQ['pi_name'] . '.edit',
-            $_CONF_DQ['pi_name'] . '.view',
-            $_CONF_DQ['pi_name'] . '.submit',
-            $_CONF_DQ['pi_name'] . '.admin',
+            Config::PI_NAME . '.add',
+            Config::PI_NAME . '.edit',
+            Config::PI_NAME . '.view',
+            Config::PI_NAME . '.submit',
+            Config::PI_NAME . '.admin',
         ),
         'php_blocks' => array(
-            'phpblock_' . $_CONF_DQ['pi_name'] . '_dqmenu',
-            'phpblock_' . $_CONF_DQ['pi_name'] . '_random',
+            'phpblock_' . Config::PI_NAME . '_dqmenu',
+            'phpblock_' . Config::PI_NAME . '_random',
         ),
         'vars'      => array(
-            $_CONF_DQ['pi_name'] . '_gid',
+            Config::PI_NAME . '_gid',
         )
     );
     return $out;
@@ -426,9 +410,9 @@ function DQ_linkProfile($uid, $username)
  */
 function DQ_catlink($catid, $catname)
 {
-    global $_CONF, $_TABLES, $_CONF_DQ;
+    global $_CONF, $_TABLES;
 
-    $retval = "<a href=\"{$_CONF['site_url']}/{$_CONF_DQ['pi_name']}/index.php?cat=$catid\">$catname</a>";
+    $retval = "<a href=\"{$_CONF['site_url']}/{Config::PI_NAME}/index.php?cat=$catid\">$catname</a>";
     return $retval;
 }
 
@@ -443,16 +427,16 @@ function DQ_catlink($catid, $catname)
  */
 function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
 {
-    global $_CONF, $_USER, $_TABLES, $PHP_SELF, $_CONF_DQ;
+    global $_CONF, $_USER, $_TABLES, $PHP_SELF;
 
     $retval = '';
-    $img_dir = $_CONF['layout_url'] . '/' . $_CONF_DQ['pi_name'] . '/image_set';
+    $img_dir = $_CONF['layout_url'] . '/' . Config::PI_NAME . '/image_set';
 
     // If centerblock not enabled, or just for homepage and
     // we're not on the homepage, just return
     if (
-        $_CONF_DQ['cb_pos'] ==  0 ||
-        ($_CONF_DQ['cb_home'] == 1 && ($page > 1 || $topic != ''))
+        Config::get('cb_pos') ==  0 ||
+        (Config::get('cb_home') == 1 && ($page > 1 || $topic != ''))
     ) {
         return '';
     }
@@ -463,12 +447,12 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
     }
 
     // Get the centerblock position.  May be overridden later.
-    $cntrblkpos = $_CONF_DQ['cb_pos'];
+    $cntrblkpos = Config::get('cb_pos');
 
     // If we're not supposed to replace the homepage, then return.
     // Otherwise, do so.  When $where is zero we're at the homepage.
     if ($where == 0 && $topic == '') {
-        if (!$_CONF_DQ['cb_replhome']) {
+        if (!Config::get('cb_replhome')) {
             return '';
         } else {
             $cntrblkpos = 0;
@@ -493,7 +477,7 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
         $wherevalues,
         $wheretypes
     );
-    if ($story_count == 0 && $_CONF_DQ['cb_pos'] == 2) {
+    if ($story_count == 0 && Config::get('cb_pos') == 2) {
         // If the centerblock comes after the featured story, and there
         // are no stories, put the centerblock at the top.
         $cntrblkpos = 1;
@@ -514,7 +498,7 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
         $retval = COM_siteHeader();
     }
 
-    $T = new Template(DQ_PI_PATH . '/templates');
+    $T = new Template(Config::get('path') . '/templates');
     $T->set_file('page', 'centerblock.thtml');
     $T->set_var(array(
         'dispquote'     => $Q->getQuote(),
@@ -538,7 +522,7 @@ function plugin_centerblock_dailyquote($where=1,$page=1,$topic ='')
  */
 function phpblock_dailyquote_dqmenu()
 {
-    global $_TABLES, $_CONF, $_USER, $_CONF_DQ;
+    global $_TABLES, $_CONF, $_USER;
 
     $content = '';
     $db = Database::getInstance();
@@ -547,7 +531,7 @@ function phpblock_dailyquote_dqmenu()
     $count = $db->getCount($_TABLES['dailyquote_quotes'], 'enabled', '1', Database::INTEGER);
     $href = COM_createLink(
         MO::_('Listings') . "&nbsp;($count)",
-        DQ_URL . '/index.php'
+        Config::get('url') . '/index.php'
     );
     $content .= $href . "<br />\n";
 
@@ -556,7 +540,7 @@ function phpblock_dailyquote_dqmenu()
     if ($count > '0') {
         $href = COM_createLink(
             MO::_('Categories') . "&nbsp;($count)",
-            DQ_URL . '/index.php?mode=categories'
+            Config::get('url') . '/index.php?mode=categories'
         );
         $content .= $href . "<br />\n";
     }
@@ -564,15 +548,15 @@ function phpblock_dailyquote_dqmenu()
     //link to the search form
     $href = COM_createLink(
         MO::_('Search Quotes'),
-        DQ_URL . '/index.php?quoted='
+        Config::get('url') . '/index.php?quoted='
     );
     $content .= $href . "<br />\n";
 
     // Link to the submission form
-    if (SEC_inGroup($_CONF_DQ['submit_grp']) || SEC_hasRights('dailyquote.add')) {
+    if (SEC_inGroup(Config::get('submit_grp')) || SEC_hasRights('dailyquote.add')) {
         $href = COM_createLink(
             MO::_('Add a Quote'),
-            $_CONF['site_url'].'/submit.php?type='.$_CONF_DQ['pi_name']
+            $_CONF['site_url'].'/submit.php?type='.Config::PI_NAME
         );
         $content .= $href . "<br />\n";
     }
@@ -581,14 +565,14 @@ function phpblock_dailyquote_dqmenu()
         // Link to the manage quotes page
         $href = COM_createLink(
             MO::_('Manage Quotes'),
-            DQ_ADMIN_URL . '/index.php'
+            Config::get('admin_url') . '/index.php'
         );
         $content .= $href . "<br />\n";
 
         // Link to the category management page
         $href = COM_createLink(
             MO::_('Manage Categories'),
-            DQ_ADMIN_URL . '/index.php?mode=categories'
+            Config::get('admin_url') . '/index.php?mode=categories'
         );
         $content .= $href . "<br />\n";
     }
@@ -605,7 +589,7 @@ function phpblock_dailyquote_dqmenu()
  */
 function phpblock_dailyquote_random($A=array(), $cat='') : string
 {
-    global $_CONF, $_CONF_DQ;
+    global $_CONF;
 
     $retval = '';
 
@@ -614,7 +598,7 @@ function phpblock_dailyquote_random($A=array(), $cat='') : string
     $Quotes = $Coll->getObjects();
     $Quote = reset($Quotes);
     if (!empty($Quotes)) {
-        $T = new Template(DQ_PI_PATH . '/templates');
+        $T = new Template(Config::get('path') . '/templates');
         $T->set_file('page', 'blk_random.thtml');
         $T->set_var(array(
             'randomquote'   => $Quote->getQuote(),
@@ -660,11 +644,11 @@ function plugin_moderationvalues_dailyquote()
  */
 function plugin_itemlist_dailyquote()
 {
-    global $_TABLES, $_CONF_DQ;
+    global $_TABLES;
 
     if (plugin_ismoderator_dailyquote()) {
         $plugin = new Plugin();
-        $plugin->submissionlabel = $_CONF_DQ['pi_display_name'];
+        $plugin->submissionlabel = Config::get('pi_display_name');
         $plugin->getsubmissionssql =
             "SELECT qid AS id, title,
                 FROM_UNIXTIME(dt) as date, source, uid
@@ -706,7 +690,11 @@ function plugin_submissioncount_dailyquote() : int
  */
 function plugin_ismoderator_dailyquote()
 {
-    return SEC_hasRights('dailyquote.admin');
+    $is_mod = NULL;
+    if ($is_mod === NULL) {
+        $is_mod = SEC_hasRights('dailyquote.admin');
+    }
+    return $is_mod;
 }
 
 
@@ -781,7 +769,7 @@ function plugin_moderationdelete_dailyquote($id)
  */
 function plugin_savesubmission_dailyquote($A)
 {
-    global $_TABLES, $_USER, $_CONF, $_CONF_DQ, $LANG12;
+    global $_TABLES, $_USER, $_CONF, $LANG12;
     echo __FUNCTION__ . ' deprecated';die;
 
     // Initialize error message.  If it's still empty at the end, then
@@ -804,19 +792,19 @@ function plugin_savesubmission_dailyquote($A)
 
     // If this user is an authorized submitter, or we're not using the
     // submission queue, then put it directly into the quotes table.
-    if (SEC_hasRights($_CONF_DQ['pi_name']. '.submit')) {
+    if (SEC_hasRights(Config::PI_NAME. '.submit')) {
         //$table = 'dailyquote_quotes';
         $msg = '02';    // "has been saved" message
         $email_admin = 0;
-    } elseif ($_CONF_DQ['queue'] == 0) {
+    } elseif (Config::get('queue') == 0) {
         // Same tables as above, but set $email_admin
         //$table = 'dailyquote_quotes';
         $msg = '02';    // "has been saved" message
-        $email_admin = $_CONF_DQ['email_admin'] == 2 ? 1 : 0;
+        $email_admin = Config::get('email_admin') == 2 ? 1 : 0;
     } else {
         //$table = 'dailyquote_submission';
         $msg = '01';    // "added to queue" message
-        $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
+        $email_admin = Config::get('email_admin') > 0 ? 1 : 0;
     }
 
     if ($errmsg == '') {        // Only save if no errors so far
@@ -840,7 +828,7 @@ function plugin_savesubmission_dailyquote($A)
     if ($errmsg == '') {
         // Send notification, if configured
         if ($email_admin == 1) {
-            $T = new Template(DQ_PI_PATH . '/templates');
+            $T = new Template(Config::get('path') . '/templates');
             $T->set_file('msg', 'email_admin.thtml');
             $T->set_var(array(
                 'title'     => $A['title'],
@@ -856,7 +844,7 @@ function plugin_savesubmission_dailyquote($A)
             );
         }
         return COM_refresh($_CONF['site_url']
-                    . "/index.php?msg=$msg&amp;plugin=". $_CONF_DQ['pi_name']);
+                    . "/index.php?msg=$msg&amp;plugin=". Config::PI_NAME);
     } else {
         // An error occurred, return to the submission form
         $display = COM_siteHeader();
@@ -891,7 +879,7 @@ function plugin_geticon_dailyquote()
  */
 function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
 {
-    global $_CONF, $_TABLES, $_CONF_DQ;
+    global $_CONF, $_TABLES;
 
     $quote = '';
     switch ($op) {
@@ -971,11 +959,11 @@ function plugin_autotags_dailyquote($op, $content = '', $autotag = '')
         } // switch ($op)
 
         if ($quote) {
-            if (!is_file(DQ_PI_PATH . '/templates/autotags/'.$template.'.thtml')) {
+            if (!is_file(Config::get('path') . '/templates/autotags/'.$template.'.thtml')) {
                 // Revert back to default template if an invalid one is provided.
                 $template = 'default';
             }
-            $T = new Template(DQ_PI_PATH . '/templates/autotags');
+            $T = new Template(Config::get('path') . '/templates/autotags');
             $T->set_file('block', $template . '.thtml');
             $T->set_var(array(
                 'quote'     => $quote->getQuote(),
@@ -1044,7 +1032,7 @@ function plugin_enablestatechange_dailyquote($enabled)
  */
 function plugin_getconfigelementhelp_dailyquote($option, $doclang='english')
 {
-    global $_CONF, $_CONF_DQ;
+    global $_CONF;
 
     $doc_url = DQ_getDocURL('config', $doclang);
     if (empty($doc_url)) {
@@ -1114,8 +1102,6 @@ function plugin_user_move_dailyquote($origUID, $destUID)
  */
 function plugin_getheadercss_dailyquote()
 {
-    global $_CONF_DQ;
-
     // When looking for CSS files, we'll check in this order:
     //  1. plugin/custom
     //  2. plugin (default distribution version)
@@ -1229,7 +1215,7 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
                     $props[$p] = $A['title'] . ' ' . $A['quote'];
                     break;
                 case 'url':
-                    $props[$p] = DQ_URL . '/index.php?id=' . urlencode($A['qid']);
+                    $props[$p] = Config::get('url') . '/index.php?id=' . urlencode($A['qid']);
                     break;
                 default:
                     $props[$p] = isset($A[$p]) ? $A[$p] : NULL;
@@ -1307,7 +1293,7 @@ function plugin_configmanager_select_submit_grp_dailyquote()
  */
 function DQ_random_quote(?int $qid=NULL, ?int $cid=NULL)
 {
-    global $_CONF, $_CONF_DQ;
+    global $_CONF;
 
     $Coll = new DailyQuote\Collections\QuoteCollection;
     if (empty($qid)) {
@@ -1321,7 +1307,7 @@ function DQ_random_quote(?int $qid=NULL, ?int $cid=NULL)
         return '';
     }
     $Quote = reset($Quotes);
-    $T = new Template($_CONF['path'] . 'plugins/' . $_CONF_DQ['pi_name'] . '/templates');
+    $T = new Template($_CONF['path'] . 'plugins/' . Config::PI_NAME . '/templates');
     $T->set_file('page', 'randomquotebox.thtml');
     $T->set_var(array(
         'site_url'  => $_CONF['site_url'],
@@ -1353,9 +1339,9 @@ function DQ_random_quote(?int $qid=NULL, ?int $cid=NULL)
  */
 function DQ_getDocURL($file='', $doclang='english')
 {
-    global $_CONF, $_CONF_DQ;
+    global $_CONF;
 
-    $doc_path = $_CONF['path_html'] . $_CONF_DQ['pi_name'] .
+    $doc_path = $_CONF['path_html'] . Config::PI_NAME .
                 "/docs/$doclang/";
     $doc_url = '';
 
@@ -1364,16 +1350,16 @@ function DQ_getDocURL($file='', $doclang='english')
         if (!file_exists($doc_path . $file)) {
             $doclang = 'english';
         }
-        $doc_url = DQ_URL . "/docs/$doclang/$file";
+        $doc_url = Config::get('url') . "/docs/$doclang/$file";
          if (!is_file($doc_path . $file)) {
             $doclang = 'english';
         }
-        $doc_url = DQ_URL . "/docs/$doclang/$file";
+        $doc_url = Config::get('url') . "/docs/$doclang/$file";
     } else {
         if (!is_dir($doc_path)) {
             $doclang = 'english';
         }
-        $doc_url = DQ_URL . "/docs/$doclang/";
+        $doc_url = Config::get('url') . "/docs/$doclang/";
     }
     return $doc_url;
 }

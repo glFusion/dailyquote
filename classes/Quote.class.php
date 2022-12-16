@@ -439,7 +439,7 @@ class Quote
      */
     public static function Access(bool $new_item = false) : int
     {
-        global $_USER, $_CONF_DQ;
+        global $_USER;
 
         if (SEC_hasRights('dailyquote.edit')) {
             return 3;
@@ -448,7 +448,7 @@ class Quote
         if ($new_item) {
             if (SEC_hasRights('dailyquote.submit')) {
                 $access = 3;
-            } elseif (SEC_inGroup($_CONF_DQ['submit_grp'])) {
+            } elseif (SEC_inGroup(Config::get('submit_grp'))) {
                 $access = 3;
             } else {
                 $access = 2;
@@ -488,7 +488,7 @@ class Quote
      */
     public function Edit($mode='edit', $A=array())
     {
-        global $_TABLES, $_CONF, $_USER, $_CONF_DQ,
+        global $_TABLES, $_CONF, $_USER,
             $LANG12, $_SYSTEM;
 
         $retval = '';
@@ -534,7 +534,7 @@ class Quote
         $T->set_var(array(
             'gltoken_name'  => CSRF_TOKEN,
             'gltoken'       => SEC_createToken(),
-            'pi_name'       => $_CONF_DQ['pi_name'],
+            'pi_name'       => Config::PI_NAME,
             'action_url'    => $action_url,
             'saveaction'    => $saveaction,
             'saveoption'    => $saveoption,
@@ -594,13 +594,13 @@ class Quote
      */
     public function Save(DataArray $A) : string
     {
-        global $_CONF, $_TABLES, $_USER, $MESSAGE, $_CONF_DQ;
+        global $_CONF, $_TABLES, $_USER, $MESSAGE;
 
         if (!empty($A)) {
             $this->setVars($A);
         }
 
-        if ($this->uid == '') {
+        if ($this->uid < 1) {
             // this is new quote from admin, set default values
             $uid = $_USER['uid'];
         }
@@ -718,19 +718,19 @@ class Quote
      */
     public function saveSubmission(DataArray $A) : string
     {
-        global $_CONF_DQ, $_USER, $_CONF;
+        global $_USER, $_CONF;
 
         if (SEC_hasRights('dailyquote.submit')) {
             $A['approved'] = 1;
             $email_admin = 0;
-        } elseif ($_CONF_DQ['queue'] == 0) {
+        } elseif (Config::get('queue') == 0) {
             // user has submit right or submission queue is not being used
             $A['approved'] = 1;
-            $email_admin = $_CONF_DQ['email_admin'] == 2 ? 1 : 0;
-        } elseif (SEC_inGroup($_CONF_DQ['submit_grp'])) {
+            $email_admin = Config::get('email_admin') == 2 ? 1 : 0;
+        } elseif (SEC_inGroup(Config::get('submit_grp'))) {
             // user must go through the submission queue
             $A['approved'] = 0;
-            $email_admin = $_CONF_DQ['email_admin'] > 0 ? 1 : 0;
+            $email_admin = Config::get('email_admin') > 0 ? 1 : 0;
         }  else {
             return MO::_('Access Denied');
         }
@@ -805,14 +805,13 @@ class Quote
      */
     public static function GoogleLink($Quoted)
     {
-        global $_CONF, $_CONF_DQ;
+        global $_CONF;
 
         if ($Quoted == '') {
             $retval = MO::_('Unknown');
         } elseif (
-            $_CONF_DQ['google_link'] == 0 ||
-            !isset($_CONF_DQ['google_url']) ||
-            empty($_CONF_DQ['google_url'])
+            Config::get('google_link') == 0 ||
+            empty(Config::get('google_url'))
         ) {
             //do if based on setting
             $retval = $Quoted;
@@ -820,7 +819,7 @@ class Quote
             $gname = urlencode(trim($Quoted));
             $retval = COM_createLink(
                 $Quoted,
-                sprintf($_CONF_DQ['google_url'], $_CONF['iso_lang'], $gname),
+                sprintf(Config::get('google_url'), $_CONF['iso_lang'], $gname),
                 array(
                     'target' => '_blank',
                     'rel' => 'nofollow',
@@ -851,7 +850,7 @@ class Quote
      */
     public static function adminList()
     {
-        global $_CONF, $_TABLES, $_CONF_DQ;
+        global $_CONF, $_TABLES;
 
         $retval = '';
 
@@ -944,7 +943,7 @@ class Quote
      */
     public static function getListField($fieldname, $fieldvalue, $A, $icon_arr)
     {
-        global $_CONF, $_CONF_DQ;
+        global $_CONF;
 
         $retval = '';
 
