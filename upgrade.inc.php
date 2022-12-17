@@ -20,6 +20,8 @@ require_once __DIR__ . "/sql/mysql_install.php";
 
 use glFusion\Database\Database;
 use glFusion\Log\Log;
+use DailyQuote\Config;
+
 
 /**
  * Perform the upgrade starting at the current version.
@@ -86,7 +88,7 @@ function DQ_do_upgrade($dvlp=false)
         }
         try {
             $db->conn->executeStatement(
-                "ALTER TABLE {$_TABLES['dailyquote_quoteXcat']} CHANGE qid qid int(11) unsigned not null"
+                "ALTER TABLE {$_TABLES['dailyquote_quoteXcat']} CHANGE qid qid mediumint unsigned not null"
             );
         } catch (\Throwable $e) {
             Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
@@ -94,7 +96,7 @@ function DQ_do_upgrade($dvlp=false)
 
         // Update the config for who can submit.
         // Make sure to run only once (if called by dvlpupdate).
-        if (Config::isset('anonadd') && Config::isset('loginadd'])) {
+        if (Config::isset('anonadd') && Config::isset('loginadd')) {
             $idx = array_search('submit_grp', array_column($dailyquoteConfigData, 'name'));
             if ($idx !== false) {       // make sure it's found
                 if (Config::get('anonadd')) {
@@ -179,7 +181,7 @@ function DQ_do_upgrade_sql(string $version, bool $dvlp=false) : bool
  * @param   string  $ver    New version to set
  * @return  boolean         True on success, False on failure
  */
-function DQ_do_set_version($ver)
+function DQ_do_set_version(string $ver) : bool
 {
     global $_TABLES;
 

@@ -27,4 +27,4 @@ $_TABLES['dailyquote_quoteXcat']   = $DQ_prefix . 'quoteXcat';
 // Static configuration items
 use DailyQuote\Config;
 Config::set('pi_version', '0.3.0');
-Config::get('gl_version', '2.0.0');
+Config::set('gl_version', '2.0.0');
