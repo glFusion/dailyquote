@@ -73,9 +73,21 @@ final class Config
      * @param   string  $key    Key
      * @return  boolean     True if defined
      */
-    public function isset(string $key) : bool
+    public function _isset(string $key) : bool
     {
         return array_key_exists($key, $this->properties);
+    }
+
+
+    /**
+     * See if a particular config key is defined.
+     *
+     * @param   string  $key    Key
+     * @return  boolean     True if defined
+     */
+    public static function isset(string $key) : bool
+    {
+        return self::getInstance()->_isset($key);
     }
 
 
