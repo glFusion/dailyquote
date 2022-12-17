@@ -37,7 +37,7 @@ class QuoteCollection extends Collection
                   ->distinct()
                   ->from($_TABLES['dailyquote_quotes'], 'q')
                   ->leftJoin('q', $_TABLES['dailyquote_quoteXcat'], 'x', 'q.qid = x.qid')
-                  ->leftJoin('x', $_TABLES['dailyquote_cat'], 'c', 'x.cid = c.id')
+                  ->leftJoin('x', $_TABLES['dailyquote_cat'], 'c', 'x.cid = c.cid')
                   ->where('q.enabled = 1')
                   ->andWhere('c.enabled = 1 OR c.enabled IS NULL');
     }
@@ -248,7 +248,11 @@ class QuoteCollection extends Collection
     {
         $this->_useCache = false;
         $total = $this->getCount();
-        $rand = mt_rand(0,$total - 1);
+        if ($total > 1) {
+            $rand = mt_rand(0,$total - 1);
+        } else {
+            $rand = 0;
+        }
         $this->withLimit($rand, 1)->orderBy('qid', 'ASC');
         return $this;
     }
