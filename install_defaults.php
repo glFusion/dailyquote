@@ -162,7 +162,7 @@ $dailyquoteConfigData = array(
         'set' => true,
         'group' => 'dailyquote',
     ),
-e   array(
+    array(
         'name' => 'cb_pos',
         'default_value' => 2,
         'type' => 'select',
