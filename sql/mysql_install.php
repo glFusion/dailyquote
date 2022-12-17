@@ -18,14 +18,14 @@ use Dailyquote\MO;
 
 // Main quote table
 $_SQL['dailyquote_quotes'] = "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
-  `qid` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `qid` mediumint unsigned NOT NULL AUTO_INCREMENT,
   `quote` text DEFAULT NULL,
   `quoted` text DEFAULT NULL,
   `title` text DEFAULT NULL,
   `source` text DEFAULT NULL,
   `sourcedate` varchar(16) DEFAULT NULL,
   `dt` int(11) unsigned DEFAULT 0,
-  `uid` int(11) unsigned NOT NULL DEFAULT 1,
+  `uid` mediumint unsigned NOT NULL DEFAULT 1,
   `enabled` tinyint(1) unsigned NOT NULL DEFAULT 1,
   `approved` tinyint(1) unsigned NOT NULL DEFAULT 1,
   `hash` varchar(32) NOT NULL DEFAULT '',
@@ -35,7 +35,7 @@ $_SQL['dailyquote_quotes'] = "CREATE TABLE {$_TABLES['dailyquote_quotes']} (
 
 // Categories Table
 $_SQL['dailyquote_cat'] = "CREATE TABLE {$_TABLES['dailyquote_cat']} (
-  id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  cid mediumint UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(64) NOT NULL,
   enabled TINYINT(1) UNSIGNED NOT NULL default '1',
   UNIQUE idx_name (`name`(10))
@@ -43,8 +43,8 @@ $_SQL['dailyquote_cat'] = "CREATE TABLE {$_TABLES['dailyquote_cat']} (
 
 // Lookup Table
 $_SQL['dailyquote_quoteXcat'] = "CREATE TABLE {$_TABLES['dailyquote_quoteXcat']} (
-  qid VARCHAR(40) NOT NULL,
-  cid INT(11) UNSIGNED NOT NULL,
+  qid mediumint unsigned NOT NULL,
+  cid mediumint unsigned NOT NULL,
   PRIMARY KEY(qid,cid)
 ) ENGINE=MyISAM";
 
@@ -60,11 +60,14 @@ $_SQL_UPGRADE = array(
     ),
     '0.4.0' => array(
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} DROP PRIMARY KEY",
-        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD qid int(11) unsigned not null auto_increment primary key first",
-        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD approved tinyint(1) unsigned not null default 1 AFTER enabled",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD mediumint unsigned NOT NULL auto_increment PRIMARY KEY FIRST",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD approved tinyint(1) unsigned DEFAULT 1 AFTER enabled",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD hash varchar(32)",
         "UPDATE {$_TABLES['dailyquote_quotes']} SET hash = MD5(quote)",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} DROP KEY `idx_quote`",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD UNIQUE `idx_hash` (`hash`)",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} CHANGE uid uid mediumint unsigned not null",
+        "ALTER TABLE {$_TABLES['dailyquote_cat']} CHANGE id cid mediumint unsigned not null",
+        "ALTER TABLE {$_TABLES['dailyquote_quoteXcat']} CHANGE cid cid mediumint unsigned not null",
     ),
 );

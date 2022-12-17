@@ -29,7 +29,7 @@ class Category
 
     /** Category ID.
      * @var integer */
-    public $id = 0;
+    public $cid = 0;
 
     /** Category Name.
      * @var string */
@@ -44,21 +44,21 @@ class Category
     /**
      * Constructor.
      *
-     * @param   string  $id     Category ID to retrieve, blank for new record
+     * @param   string  $cid     Category ID to retrieve, blank for new record
      */
-    public function __construct($id=0)
+    public function __construct($cid=0)
     {
         global $_CONF;
 
-        if (is_array($id)) {
+        if (is_array($cid)) {
             // record already read
-            $this->setVars(new DataArray($id));
+            $this->setVars(new DataArray($cid));
         } else {
-            $id = (int)$id;
-            if ($id > 0) {
-                $this->Read($id);
+            $cid = (int)$cid;
+            if ($cid > 0) {
+                $this->Read($cid);
             } else {
-                $this->id = 0;
+                $this->cid = 0;
             }
         }
     }
@@ -67,16 +67,16 @@ class Category
     /**
      * Read a category record from the database.
      *
-     * @param   string  $id     Category ID to read (required)
+     * @param   string  $cid    Category ID to read (required)
      */
-    public function Read($id)
+    public function Read($cid)
     {
         global $_TABLES;
 
         try {
             $row = Database::getInstance()->conn->executeQuery(
                 "SELECT * FROM {$_TABLES[self::$TABLE]} WHERE id = ?",
-                array($id),
+                array($cid),
                 array(Database::INTEGER)
             )->fetchAssociative();
         } catch (\Throwable $e) {
@@ -101,7 +101,7 @@ class Category
      */
     public function setVars(DataArray $A) : self
     {
-        $this->id = $A->getInt('id');
+        $this->cid = $A->getInt('cid');
         $this->name = $A->getString('name');
         $this->enabled = $A->getInt('enabled');
         return $this;
@@ -133,7 +133,7 @@ class Category
                 }
                 if ($stmt) {
                     while ($A = $stmt->fetchAssociative()) {
-                        $Cats[$A['id']] = new self($A);
+                        $Cats[$A['cid']] = new self($A);
                     }
                 }
                 Cache::set($key, $Cats, array('categories'));
@@ -150,7 +150,7 @@ class Category
      */
     public function getID()
     {
-        return (int)$this->id;
+        return (int)$this->cid;
     }
 
 
@@ -180,9 +180,9 @@ class Category
      * Update the 'enabled' value for a category.
      *
      * @param   integer $newval     New value to set (1 or 0)
-     * @param   string  $id         Category ID.
+     * @param   string  $cid         Category ID.
      */
-    public static function toggleEnabled(int $newval, int $id) : void
+    public static function toggleEnabled(int $newval, int $cid) : void
     {
         global $_TABLES;
 
@@ -191,7 +191,7 @@ class Category
             Database::getInstance()->conn->update(
                 $_TABLES[self::$TABLE],
                 array('enabled' => $newval),
-                array('id' => $id),
+                array('cid' => $cid),
                 array(Database::INTEGER, Database::INTEGER)
             );
         } catch (\Throwable $e) {
@@ -203,22 +203,22 @@ class Category
     /**
      * Delete a category.
      *
-     * @param   string  $id     Category ID to delete
+     * @param   string  $cid     Category ID to delete
      */
-    public static function Delete($id)
+    public static function Delete($cid)
     {
         global $_TABLES;
 
-        $id = (int)$id;
+        $cid = (int)$cid;
 
         // Can't delete category 1
-        if ($id == 1) return;
+        if ($cid == 1) return;
 
         $db = Database::getInstance();
         try {
             $db->conn->delete(
                 $_TABLES[self::$TABLE],
-                array('id' => $id),
+                array('cid' => $cid),
                 array(Database::INTEGER)
             );
         } catch (\Throwable $e) {
@@ -229,7 +229,7 @@ class Category
         try {
             $db->conn->delete(
                 $_TABLES['dailyquote_quoteXcat'],
-                array('cid' => $id),
+                array('cid' => $cid),
                 array(Database::INTEGER)
             );
         } catch (\Throwable $e) {
@@ -255,7 +255,7 @@ class Category
 
         try {
             // Determine if this is an INSERT or UPDATE
-            if ($this->id == 0) {
+            if ($this->cid == 0) {
                 $db->conn->insert(
                     $_TABLES[self::$TABLE],
                     array('name' => $this->name, 'enabled' => $this->enabled),
@@ -268,7 +268,7 @@ class Category
                         'name' => $this->name,
                         'enabled' => $this->enabled,
                     ),
-                    array('id' => $this->id),
+                    array('cid' => $this->cid),
                     array(Database::STRING, Database::INTEGER, Database::INTEGER)
                 );
             }
@@ -333,7 +333,7 @@ class Category
             ),
             array(
                 'text' => 'Category ID',
-                'field' => 'id',
+                'field' => 'cid',
                 'sort' => true,
             ),
             array(
@@ -397,11 +397,11 @@ class Category
         $T->set_file('page', 'catform.thtml');
         $T->set_var(array(
             'name'      => $this->name,
-            'id'        => $this->id,
-            'chk'       => ($this->enabled == 1 || $this->id == 0) ?
+            'cid'        => $this->cid,
+            'chk'       => ($this->enabled == 1 || $this->cid == 0) ?
                             'checked="checked"' : '',
             'cancel_url' => DQ_ADMIN_URL . '/index.php?categories',
-            'show_delbtn' => $this->id > 1 ? 'true' : '',
+            'show_delbtn' => $this->cid > 1 ? 'true' : '',
         ));
         $T->parse('output','page');
         $retval .= $T->finish($T->get_var('output'));
@@ -428,7 +428,7 @@ class Category
         case 'edit':
             $retval .= COM_createLink(
                 '',
-                DQ_ADMIN_URL . "/index.php?editcat={$A['id']}",
+                DQ_ADMIN_URL . "/index.php?editcat={$A['cid']}",
                 array(
                     'class' => 'uk-icon uk-icon-edit',
                 )
@@ -438,15 +438,15 @@ class Category
         case 'enabled':
             $value = $fieldvalue == 1 ? 1 : 0;
             $chk = $fieldvalue == 1 ? ' checked="checked" ' : '';
-            $retval .= '<input type="checkbox" id="togena' . $A['id'] . '"' .
-                $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['id'] .
+            $retval .= '<input type="checkbox" id="togena' . $A['cid'] . '"' .
+                $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['cid'] .
                     '", "category");\' />';
             break;
 
         case 'delete':
-            if ($A['id'] > 1) {
+            if ($A['cid'] > 1) {
                 $retval = FieldList::delete(array(
-                    'delete_url' => DQ_ADMIN_URL . '/index.php?delcat=' . $A['id'],
+                    'delete_url' => DQ_ADMIN_URL . '/index.php?delcat=' . $A['cid'],
                     'attr' => array(
                         'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
                         'title' => $LANG_ADMIN['delete'],
@@ -494,7 +494,7 @@ class Category
             $T->set_block('page', 'CatRow', 'cRow');
             $T->set_var(array(
                 'pi_url'    => DQ_URL . '/index.php',
-                'cat_id'    => $row['id'],
+                'cat_id'    => $row['cid'],
                 'dispcat'   => $row['name'],
                 'cell_width' => (int)(100 / $col),
             ) );
