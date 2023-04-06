@@ -1,17 +1,19 @@
 <?php
 /**
- * Batch add quotes to the database.  Similar to glFusion's user import.
+ * Batch add quotes to the database. Similar to glFusion's user import.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2020-2022 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2020-2023 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
- * @version     v0.4.0
+ * @version     v0.3.0
  * @since       v0.2.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace DailyQuote;
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 use DailyQuote\Models\Request;
 use DailyQuote\Models\DataArray;
 
@@ -27,7 +29,7 @@ class Batch
      *
      * @return  string  HTML for the form
     */
-    public static function form()
+    public static function form() : string
     {
         global $_TABLES, $_CONF, $LANG_DQ;
 
@@ -36,18 +38,22 @@ class Batch
         $T = new \Template(DQ_PI_PATH . '/templates');
 
         //retrieve categories from db if any and display
-        $result = DB_query(
-            "SELECT id, name
-            FROM {$_TABLES['dailyquote_cat']}
-            WHERE enabled='1'
-            ORDER BY name"
-);
+        try {
+            $stmt = Database::getInstance()->conn->executeQuery(
+                "SELECT cid, name FROM {$_TABLES['dailyquote_cat']}
+                WHERE enabled='1'
+                ORDER BY name"
+            );
+        } catch (\Throwable $e) {
+            Log::write('system', Log::ERROR, __METHOD__ . ': ' . $e->getMessage());
+            $stmt = false;
+        }
         $catlist = '';
         $chk = 'checked="checked"';
-        if ($result) {
-            while ($row = DB_fetchArray($result, false)) {
+        if ($stmt) {
+            while ($row = $stmt->fetchAssociative()) {
                 $catlist .= '<input type="checkbox" name="cat[]" value="'.
-                    $row['id'] . '" ' . $chk . '>&nbsp;' .
+                    $row['cid'] . '" ' . $chk . '>&nbsp;' .
                     $row['name']. '&nbsp;';
                 $chk = '';
             }
@@ -60,7 +66,7 @@ class Batch
             'action_url' => DQ_ADMIN_URL .'/index.php',
             'catlist'   => $catlist,
         ) );
-        $T->parse('output','page');
+        $T->parse('output', 'page');
         $retval .= $T->finish($T->get_var('output'));
         $T->parse('output', 'footer');
         $retval .= $T->finish($T->get_var('output'));
@@ -71,7 +77,7 @@ class Batch
     /**
      * Inserts a batch of quotes into the database.
     */
-    public static function process()
+    public static function process() : string
     {
         global $_TABLES, $_CONF, $LANG_DQ;
 

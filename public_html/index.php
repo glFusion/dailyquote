@@ -1,9 +1,9 @@
 <?php
 /**
- * Common functions for the DailyQuote plugin.
+ * Guest-facing entry page for the DailyQuote plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2023 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
  * @version     0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
@@ -13,6 +13,8 @@
 
 /** Import core glFusion functions */
 require_once('../lib-common.php');
+use glFusion\Database\Database;
+use glFusion\Log\Log;
 use DailyQuote\Config;
 use DailyQuote\Models\Request;
 $Request = Request::getInstance();
@@ -31,7 +33,7 @@ function DQ_listQuotes($sort, $dir, $page)
         $LANG_ADMIN;
 
     $Coll = new DailyQuote\Collections\QuoteCollection;
-    $Request = DailyQuote\Models\Request::getInstance();
+    $Request = Request::getInstance();
 
     if (isset($Request['id'])) {
         $Coll->withQuoteId($Request->getInt('id'));
@@ -161,16 +163,19 @@ function DQ_listCategories()
 
     $retval = '';
 
-    $sql = "SELECT DISTINCT id, name
-            FROM {$_TABLES['dailyquote_cat']} c
+    try {
+        $stmt = Database::getInstance()->conn->executeQuery(
+            "SELECT DISTINCT cid, name FROM {$_TABLES['dailyquote_cat']} c
             WHERE c.enabled='1'
-            ORDER BY name ASC";
+            ORDER BY name ASC"
+        );
+    } catch (\Throwable $e) {
+        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
+        $stmt = false;
+    }
 
-    $result = DB_query($sql);
-    if (!$result){
-        $retval = $LANG_DQ['caterror'];
-        glFusion\Log\Log::write('system', Log::ERROR, 'An error occured while retrieving list of categories');
-        return $retval;
+    if (!$stmt) {
+        return $LANG_DQ['caterror'];
     }
 
     // Display cats if any to display
@@ -180,7 +185,7 @@ function DQ_listCategories()
     // display horizontal rows -- 3 cats per row
     $i = 0;
     $col = 3;
-    while ($row = DB_fetchArray($result)) {
+    while ($row = $stmt->fetchAssociative()) {
         $T->set_block('page', 'CatRow', 'cRow');
         $T->set_var(array(
             'pi_url'    => Config::get('url') . '/index.php',
