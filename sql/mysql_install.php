@@ -58,7 +58,7 @@ $_SQL_UPGRADE = array(
         "ALTER TABLE {$_TABLES['dailyquote_submission']}
             ADD `enabled` tinyint(1) default 1",
     ),
-    '0.4.0' => array(
+    '0.3.0' => array(
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} DROP PRIMARY KEY",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD mediumint unsigned NOT NULL auto_increment PRIMARY KEY FIRST",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD approved tinyint(1) unsigned DEFAULT 1 AFTER enabled",

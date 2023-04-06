@@ -39,5 +39,5 @@ DQ_do_upgrade(true);
 if (function_exists('CACHE_clear')) {
     CACHE_clear();
 }
-header('Location: '.$_CONF['site_admin_url'].'/plugins.php?msg=600');
+echo COM_refresh($_CONF['site_admin_url'].'/plugins.php?msg=600');
 exit;

@@ -3,9 +3,9 @@
  * Upgrade routines for the Dailyquote plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2009-2022 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2009-2023 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
- * @version     v0.3.0.1
+ * @version     v0.3.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -54,8 +54,8 @@ function DQ_do_upgrade($dvlp=false)
         if (!DQ_do_set_version($current_ver)) return false;
     }
 
-    if (!COM_checkVersion($current_ver, '0.4.0')) {
-        $current_ver = '0.4.0';
+    if (!COM_checkVersion($current_ver, '0.3.0')) {
+        $current_ver = '0.3.0';
         if (!DQ_do_upgrade_sql($current_ver, $dvlp)) return false;
         // Changing quote ID to auto_increment integer.
         // Must add new key field to quote table, then update quoteXcat to
@@ -110,7 +110,7 @@ function DQ_do_upgrade($dvlp=false)
             }
         }
         if (Config::isset('cb_enable') && Config::get('cb_enable') == 0) {
-            // Leverating cb_pos to infer cb_enable
+            // Leveraging cb_pos to infer cb_enable
             $cfg->set('cb_pos', 0, 'dailyquote');
         }
 
