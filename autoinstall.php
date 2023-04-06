@@ -21,6 +21,7 @@ require_once __DIR__ . '/functions.inc';
 require_once __DIR__ . '/sql/mysql_install.php';
 
 use DailyQuote\Config;
+use glFusion\Log\Log;
 
 /** Plugin installation options
  * @global array $INSTALL_plugin['dailyquote']
@@ -43,11 +44,6 @@ $INSTALL_plugin['dailyquote'] = array(
         'type'  => 'table',
         'table' => $_TABLES['dailyquote_quotes'],
         'sql'   => $_SQL['dailyquote_quotes'],
-    ),
-    array(
-        'type'  => 'table',
-        'table' => $_TABLES['dailyquote_submission'],
-        'sql'   => $_SQL['dailyquote_submission']
     ),
     array(
         'type'  => 'table',
@@ -142,7 +138,7 @@ function plugin_install_dailyquote()
     $pi_display_name    = Config::get('pi_display_name');
     $pi_version         = Config::get('pi_version');
 
-    glFusion\Log\Log::write('system', Log::INFO, "Attempting to install the $pi_display_name plugin");
+    Log::write('system', Log::INFO, "Attempting to install the $pi_display_name plugin");
 
     $ret = INSTALLER_install($INSTALL_plugin[$pi_name]);
     if ($ret > 0) {
