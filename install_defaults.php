@@ -74,17 +74,6 @@ $dailyquoteConfigData = array(
         'group' => 'dailyquote',
     ),
     array(
-        'name' => 'submit_grp',
-        'default_value' => 13,
-        'type' => 'select',
-        'subgroup' => 0,
-        'fieldset' => 0,
-        'selection_array' => 0,
-        'sort' => 40,
-        'set' => true,
-        'group' => 'dailyquote',
-    ),
-    array(
         'name' => 'google_link',
         'default_value' => 1,
         'type' => 'select',

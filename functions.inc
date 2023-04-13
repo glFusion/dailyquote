@@ -560,10 +560,10 @@ function phpblock_dailyquote_dqmenu()
     $content .= $href . "<br />\n";
 
     // Link to the submission form
-    if (SEC_inGroup(Config::get('submit_grp')) || SEC_hasRights('dailyquote.add')) {
+    if (SEC_hasRights('dailyquote.submit')) {
         $href = COM_createLink(
             'Add a Quote',
-            $_CONF['site_url'].'/submit.php?type='.Config::PI_NAME
+            Config::get('url') . '/index.php?edit'
         );
         $content .= $href . "<br />\n";
     }
@@ -759,101 +759,6 @@ function plugin_moderationdelete_dailyquote($id)
         Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
     }
     return '';
-}
-
-
-/**
- * Saves a user submission.
- * If user is authorized, or the submission queue is not used, save directly to
- * the production table. Otherwise, save to the submission table.
- *
- * @param   array   $A  Array of items to save, from $_POST
- * @return  string      Text or HTTP redirect to display
- */
-function plugin_savesubmission_dailyquote($A)
-{
-    echo __FUNCTION__ . ' deprecated';die;
-    global $_TABLES, $_USER, $_CONF, $LANG12, $LANG_DQ;
-
-    // Initialize error message.  If it's still empty at the end, then
-    // the save was successful.  Otherwise, redisplay the submission
-    // form with the error message at the top.
-    $errmsg = '';
-    $A = new DataArray($A);
-
-    if (empty($_USER['uid'])) {
-        return false;       // Catastrophic error, just return
-    } else {
-        $owner_id = $_USER['uid'];
-    }
-
-    // check for missing fields
-    if (empty($A['quote'])) {
-        COM_resetSpeedlimit('submit');
-        $errmsg .= "<li>". $LANG_DQ['missing_req_fields']. "</li>\n";
-    }
-
-    // If this user is an authorized submitter, or we're not using the
-    // submission queue, then put it directly into the quotes table.
-    if (SEC_hasRights(Config::PI_NAME. '.submit')) {
-        //$table = 'dailyquote_quotes';
-        $msg = '02';    // "has been saved" message
-        $email_admin = 0;
-    } elseif (Config::get('queue') == 0) {
-        // Same tables as above, but set $email_admin
-        //$table = 'dailyquote_quotes';
-        $msg = '02';    // "has been saved" message
-        $email_admin = Config::get('email_admin') == 2 ? 1 : 0;
-    } else {
-        //$table = 'dailyquote_submission';
-        $msg = '01';    // "added to queue" message
-        $email_admin = Config::get('email_admin') > 0 ? 1 : 0;
-    }
-
-    if ($errmsg == '') {        // Only save if no errors so far
-        if ($A['mode'] == $LANG12[8] ||
-            $A['mode'] == $LANG_ADMIN['save']) {     // mode = Submit
-            // This is a user-submitted ad
-            $A['uid'] = $owner_id;
-            $A['dt_add'] = time();
-
-            $Q = new DailyQuote\Quote();
-            if ($Q->saveSubmission($A) != '') {
-                return false;       // Catastrophic failure
-            }
-        }
-
-    }
-
-    // If still no error message, return to the home page with
-    // the 'success' message.  Otherwise, redisplay the submission form
-    // with the error message
-    if ($errmsg == '') {
-        // Send notification, if configured
-        if ($email_admin == 1) {
-            $T = new Template(Config::get('path') . '/templates');
-            $T->set_file('msg', 'email_admin.thtml');
-            $T->set_var(array(
-                'title'     => $A['title'],
-                'quote'     => $A['quote'],
-                'quoted'    => $A['quoted'],
-                'subm_by'   => COM_getDisplayName($A['uid']),
-            ) );
-            $T->parse('output','msg');
-            COM_mail($_CONF['site_mail'], $LANG_DQ['email_subject'],
-                $T->finish($T->get_var('output')));
-        }
-        return COM_refresh($_CONF['site_url']
-                    . "/index.php?msg=$msg&amp;plugin=". Config::PI_NAME);
-    } else {
-        // An error occurred, return to the submission form
-        $display = COM_siteHeader();
-        $display .= "<span class=alert><ul>$errmsg</ul></span\n";
-        $Q->id = '';
-        $display .= $Q->Edit('submit', $Request);
-        $display .= COM_siteFooter();
-        return $display;
-    }
 }
 
 
@@ -1250,34 +1155,6 @@ function plugin_getiteminfo_dailyquote($id, $what, $uid=0, $options=array())
     } else {
         return $retval;
     }
-}
-
-
-/**
- * Gets all the groups in the glFusion groups table to prepare a selection list.
- *
- * @param   string  $grplist    Optional list of groups to include or exclude
- * @param   string  $NOT        Set to "NOT" to exclude $grplist, blank to include it.
- * @return  array       Array of (grp_name=>grp_id)
- */
-function plugin_configmanager_select_submit_grp_dailyquote()
-{
-    global $_TABLES;
-
-    $A = array();
-    $db = Database::getInstance();
-    try {
-        $data = $db->conn->executeQuery(
-            "SELECT grp_id, grp_name FROM {$_TABLES['groups']}"
-        )->fetchAll(Database::ASSOCIATIVE);
-    } catch (\Exception $e) {
-        Log::write('system', Log::ERROR, __FUNCTION__ . ': ' . $e->getMessage());
-        $data = array();
-    }
-    foreach ($data as $row) {
-        $A[$row['grp_name']] = $row['grp_id'];
-    }
-    return $A;
 }
 
 

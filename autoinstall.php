@@ -97,9 +97,9 @@ $INSTALL_plugin['dailyquote'] = array(
     ),
     array(
         'type'  => 'mapping',
-        'group' => 'admin_group_id',
+        'findgroup' => 'Logged-in Users',
         'feature' => 'submit_feature_id',
-        'log'   => 'Adding feature to the admin group',
+        'log'   => 'Adding feature to Logged-In Users',
     ),
     array(
         'type'  => 'block',
@@ -189,7 +189,11 @@ function plugin_autouninstall_dailyquote_X()
         /* give the full name of the group, as in the db */
         'groups' => array('dailyquote Admin'),
         /* give the full name of the feature, as in the db */
-        'features' => array('dailyquote.admin', 'dailyquote.edit', 'dailyquote.submit'),
+        'features' => array(
+            'dailyquote.admin',
+            'dailyquote.edit',
+            'dailyquote.submit',
+        ),
         /* give the full name of the block, including 'phpblock_', etc */
         'php_blocks' => array(),
         /* give all vars with their name */
