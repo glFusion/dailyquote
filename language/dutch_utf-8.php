@@ -17,6 +17,7 @@ $LANG_DQ = array(
 'access_denied_msg'  => 'Je hebt geen toegang tot deze pagina. Je gebruikersnaam en IP zijn opgeslagen.',
 'access_denied_msg1' => 'Alleen geautoriseerde gebruikers hebben toegang tot deze pagina. Je gebruikersnaam en IP zijn opgeslagen.',
 'enabled'            => 'Ingeschakeld',
+'approved' => 'Approved',
 'absentfile'         => 'Fout: Geen upload bestand opgegeven.',
 'addformlink'        => 'Quote Toevoegen',
 'addquote'           => 'Add Your Quotation Here',

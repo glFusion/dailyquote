@@ -13,6 +13,7 @@
 namespace DailyQuote;
 use glFusion\Database\Database;
 use glFusion\Log\Log;
+use glFusion\FieldList;
 use DailyQuote\Models\DataArray;
 
 
@@ -89,10 +90,18 @@ class Quote
         if (!empty($qid)) {
             $this->qid = $qid;
             $this->Read();
+        } else {
+            $this->enabled = $this->isAdmin;
         }
     }
 
 
+    /**
+     * Create a quote instance from an array of values.
+     *
+     * @param   array   $A      Array, e.g. database record
+     * @return  object  Quote object
+     */
     public static function fromArray(array $A) : self
     {
         $Quote = new self;
@@ -364,20 +373,21 @@ class Quote
      * Update the 'enabled' value for a quote.
      * Only applies to the prod table
      *
-     * @param   integer $newval     New value to set (1 or 0)
+     * @param   integer $oldval     Original value (1 or 0)
      * @param   string  $id         Quote ID
+     * @param   string  $fld        Name of field to update
      * @return  integer     New value, or old value on error
      */
-    public static function toggleEnabled(int $newval, string $id) : int
+    public static function toggle(int $oldval, int $id, string $fld) : int
     {
         global $_TABLES;
 
-        $newval = $newval == 0 ? 0 : 1;
-        $oldval = $newval == 0 ? 1 : 0;
+        $oldval = $oldval == 0 ? 0 : 1;
+        $newval = $oldval == 0 ? 1 : 0;
         try {
             Database::getInstance()->conn->update(
                 $_TABLES['dailyquote_quotes'],
-                array('enabled' => $newval),
+                array($fld => $newval),
                 array('qid' => $id),
                 array(Database::INTEGER, Database::STRING)
             );
@@ -498,17 +508,19 @@ class Quote
 
         // Default save action based on table
         $hidden_vars = '';
-        if ($this->isAdmin) {
+        /*if ($this->isAdmin) {
             $action_url = DQ_ADMIN_URL . '/index.php';
         } else {
             $action_url = DQ_URL . '/index.php';
-        }
+        }*/
 
-        $cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php?quotes' : $_CONF['site_url'];
+        //$cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php?quotes' : $_CONF['site_url'];
+        $action_url = Config::get('url') . '/index.php';
+        $cancel_url = Config::get('url');
         switch ($mode) {
         case 'edit':
             $saveoption = $LANG_ADMIN['save'];      // Save
-            $cancel_url = $this->isAdmin ? DQ_ADMIN_URL . '/index.php' :
+            $cancel_url = $this->isAdmin ? Config::get('admin_url') . '/index.php' :
                 $_CONF['site_url'];
             $saveaction = 'savequote';
             break;
@@ -517,8 +529,8 @@ class Quote
         case $LANG12[8]:
             $saveoption = $LANG_ADMIN['save'];      // Save
             $saveaction = 'savesubmission';
-            $hidden_vars= '<input type="hidden" name="type" value="dailyquote" />'
-                .'<input type="hidden" name="mode" value="' . $LANG12[8].'" />';
+            //$hidden_vars= '<input type="hidden" name="type" value="dailyquote" />'
+            //    .'<input type="hidden" name="mode" value="' . $LANG12[8].'" />';
             break;
 
         case 'moderate':
@@ -528,7 +540,7 @@ class Quote
             break;
         }
 
-        $T = new \Template(DQ_PI_PATH . '/templates');
+        $T = new \Template(Config::get('path') . '/templates');
         $T->set_file('page', 'editform.thtml');
         $T->set_var(array(
             'gltoken_name'  => CSRF_TOKEN,
@@ -723,7 +735,7 @@ class Quote
         if ($msg == '') {
             // Send notification, if configured
             if ($email_admin == 1) {
-                $T = new \Template(DQ_PI_PATH . '/templates');
+                $T = new \Template(Config::get('path') . '/templates');
                 $T->set_file('msg', 'email_admin.thtml');
                 $T->set_var(array(
                     'title'     => $A['title'],
@@ -850,6 +862,12 @@ class Quote
                 'align' => 'center',
             ),
             array(
+                'field' => 'approved',
+                'text' => $LANG_DQ['approved'],
+                'sort' => false,
+                'align' => 'center',
+            ),
+            array(
                 'field' => 'qid',
                 'text' => 'Quote ID',
                 'sort' => true,
@@ -885,19 +903,19 @@ class Quote
         $defsort_arr = array('field' => 'dt', 'direction' => 'desc');
         $text_arr = array(
             'has_extras' => true,
-            'form_url' => DQ_ADMIN_URL . '/index.php?type=quote',
+            'form_url' => Config::get('admin_url') . '/index.php?type=quote',
         );
         $options = array('chkdelete' => 'true', 'chkfield' => 'qid');
         $query_arr = array(
             'table' => 'dailyquote',
             'sql' => "SELECT * FROM {$_TABLES['dailyquote_quotes']} ",
             'query_fields' => array('title', 'quotes', 'quoted'),
-            'default_filter' => 'WHERE approved=1',
+            'default_filter' => 'WHERE 1=1',
         );
         $form_arr = array();
         $retval = COM_createLink(
             $LANG_DQ['newquote'],
-            DQ_ADMIN_URL . '/index.php?editquote=x',
+            Config::get('admin_url') . '/index.php?editquote',
             array(
                 'class' => 'uk-button uk-button-success',
             )
@@ -932,7 +950,7 @@ class Quote
         switch($fieldname) {
         case 'edit':
             $retval .= COM_createLink('',
-                DQ_ADMIN_URL . "/index.php?editquote={$A['qid']}",
+                Config::get('admin_url') . "/index.php?editquote={$A['qid']}",
                 array(
                     'class' => 'uk-icon uk-icon-edit',
                 )
@@ -940,11 +958,22 @@ class Quote
             break;
 
         case 'enabled':
+        case 'approved':
             $value = $fieldvalue == 1 ? 1 : 0;
+            $retval .= FieldList::checkbox(array(
+                'name' => 'ena_check',
+                'id' => "togenabled{$A['qid']}",
+                'checked' => $fieldvalue == 1,
+                //'title' => $tip,
+                'onclick' => "DailyQuote.toggle(this,'{$A['qid']}','{$fieldname}','quote');",
+            ) );
+            break;
+
+/*
             $chk = $fieldvalue == 1 ? ' checked="checked" ' : '';
             $retval .= '<input type="checkbox" id="togena' . $A['qid'] . '"' .
                 $chk . 'onclick=\'DQ_toggleEnabled(this, "' . $A['qid'] .
-                    '", "quote");\' />';
+                '", "quote");\' />';*/
             break;
 
         case 'title':
@@ -961,7 +990,7 @@ class Quote
 
         case 'delete':
             $retval = COM_createLink('',
-                DQ_ADMIN_URL . '/index.php?delquote=' . $A['qid'],
+                Config::get('admin_url') . '/index.php?delquote=' . $A['qid'],
                 array(
                     'class' => 'uk-icon uk-icon-minus-square uk-text-danger',
                     'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',

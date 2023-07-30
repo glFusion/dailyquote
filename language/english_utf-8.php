@@ -16,6 +16,7 @@ $LANG_DQ= array(
 'access_denied_msg' => 'You do not have Access to this page. Your user name and IP have been recorded.',
 'access_denied_msg1' => 'Only Authorized Users have Access to this Page. Your user name and IP have been recorded.',
 'enabled'           => 'Enabled',
+'approved'          => 'Approved',
 'absentfile'        => 'Error: You must specify a file to upload.',
 'addformlink'       => 'Add a Quote',
 'addquote'          => 'Add Your Quotation Here',
@@ -128,6 +129,8 @@ $LANG_DQ= array(
 'err_saving_cat'    => 'Error saving category',
 'untitled'          => 'Untitled',
 'admin'             => 'Admin',
+'msg_updated'       => 'The item was updated.',
+'msg_nochange'      => 'The item was not changed.',
 );
 
 

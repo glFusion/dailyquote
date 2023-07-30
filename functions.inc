@@ -54,13 +54,6 @@ if (file_exists(__DIR__ . '/config.php')) {
     include_once __DIR__ . '/config.php';
 }
 
-define('DQ_PI_PATH', __DIR__);
-define('DQ_ADMIN_URL', 
-    $_CONF['site_url'].'/admin/plugins/'.Config::PI_NAME);
-define('DQ_URL',
-    $_CONF['site_url'].'/'. Config::PI_NAME);
-
-
 // Load language file
 $langpath = __DIR__ . '/language';
 $langfile = "{$_CONF['language']}.php";
@@ -111,6 +104,7 @@ function plugin_getheaderjs_dailyquote()
 {
     return array(
         __DIR__ . '/js/toggleEnabled.js',
+        __DIR__ . '/js/util.js',
     );
 }
 
