@@ -21,11 +21,13 @@ if (!in_array('dailyquote', $_PLUGINS)) {
     exit;
 }
 use DailyQuote\Config;
+use glFusion\Log\Log;
 
 // Only let admin users access this page
 if (!SEC_hasRights('dailyquote.admin,dailyquote.edit', 'OR')) {
     // Someone is trying to illegally access this page
-    glFusion\Log\Log::write('system', Log::ERROR,
+    Log::write(
+        'system', Log::ERROR,
         "Someone has tried to illegally access the dailyquote Admin page.  User id: {$_USER['uid']}, Username: {$_USER['username']}, IP: $REMOTE_ADDR"
     );
     COM_404();
