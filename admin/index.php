@@ -54,7 +54,7 @@ case 'mode':
 case 'savecat':
     $C = new DailyQuote\Category($Request->getInt('id'));
     $C->Save($Request);
-    echo COM_refresh(DQ_ADMIN_URL . '/index.php?categories');
+    echo COM_refresh(Config::get('admin_url') . '/index.php?categories');
     break;
 
 case 'savequote':
@@ -63,7 +63,7 @@ case 'savequote':
     if (!empty($message)) {
         COM_setMsg($message);
     }
-    echo COM_refresh(DQ_ADMIN_URL);
+    echo COM_refresh(Config::get('admin_url'));
     break;
 
 case 'savemoderation':
@@ -75,12 +75,12 @@ case 'savemoderation':
         // Error saving
         COM_setMsg($message);
     }
-    echo COM_refresh(DQ_ADMIN_URL);
+    echo COM_refresh(Config::get('admin_url'));
     break;
 
 case 'delquote':
     DailyQuote\Quote::Delete((int)$actionval);
-    COM_refresh(DQ_ADMIN_URL);
+    COM_refresh(Config::get('admin_url'));
     break;
 
 case 'delbutton_x':
@@ -91,12 +91,12 @@ case 'delbutton_x':
             DailyQuote\Quote::Delete((int)$item);
         }
     }
-    echo COM_refresh(DQ_ADMIN_URL);
+    echo COM_refresh(Config::get('admin_url'));
     break;
 
 case 'delcat':
     DailyQuote\Category::Delete($actionval);
-    echo COM_refresh(DQ_ADMIN_URL . '/index.php?categories');
+    echo COM_refresh(Config::get('admin_url') . '/index.php?categories');
     break;
 
 case 'processbatch':

@@ -35,7 +35,7 @@ class Batch
 
         $retval = '';
 
-        $T = new \Template(DQ_PI_PATH . '/templates');
+        $T = new \Template(Config::get('path') . '/templates');
 
         //retrieve categories from db if any and display
         try {
@@ -63,7 +63,7 @@ class Batch
             'footer' => 'batchadd_sample.thtml',
         ) );
         $T->set_var(array(
-            'action_url' => DQ_ADMIN_URL .'/index.php',
+            'action_url' => Config::get('admin_url') .'/index.php',
             'catlist'   => $catlist,
         ) );
         $T->parse('output', 'page');
@@ -144,7 +144,7 @@ class Batch
                     "title=$title, source=$source, " .
                     "sourcedate=$sourcedate</b><br>\n";
                 $retval .= $msg;
-                glFusion\Log\Log::write('system', Log::INFO, $msg);
+                Log::write('system', Log::INFO, $msg);
             }
 
             // prepare import for database

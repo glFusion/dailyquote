@@ -25,11 +25,13 @@ if (!SEC_inGroup('Root')) {
     COM_404();
     exit;
 }
-require_once DQ_PI_PATH . '/upgrade.inc.php';   // needed for set_version()
+use DailyQuote\Cache;
+use DailyQuote\Config;
+require_once Config::get('path') . '/upgrade.inc.php';   // needed for set_version()
 if (function_exists('CACHE_clear')) {
     CACHE_clear();
 }
-\DailyQuote\Cache::clear();
+Cache::clear();
 
 // Force the plugin version to the previous version and do the upgrade
 $_PLUGIN_INFO['dailyquote']['pi_version'] = '0.1.0';

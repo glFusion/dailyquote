@@ -297,11 +297,11 @@ class Category
                 'text' => $LANG_ADMIN['admin_home'],
             ),
             array(
-                'url' => DQ_ADMIN_URL . '/index.php?editcat=0',
+                'url' => Config::get('admin_url') . '/index.php?editcat=0',
                 'text' => 'New Category',
             ),
             array(
-                'url' => DQ_ADMIN_URL,
+                'url' => Config::get('admin_url'),
                 'text' => $LANG_DQ['user_menu2'],
             ),
         );
@@ -353,7 +353,7 @@ class Category
 
         $text_arr = array(
             'has_extras' => true,
-            'form_url' => DQ_ADMIN_URL . '/index.php?mode=categories'
+            'form_url' => Config::get('admin_url') . '/index.php?mode=categories'
         );
 
         $query_arr = array(
@@ -366,7 +366,7 @@ class Category
         $form_arr = array();
         $retval = COM_createLink(
             $LANG_DQ['newcat'],
-            DQ_ADMIN_URL . '/index.php?editcat=0',
+            Config::get('admin_url') . '/index.php?editcat=0',
             array(
                 'class' => 'uk-button uk-button-success',
             )
@@ -393,14 +393,14 @@ class Category
 
         $retval = '';
 
-        $T = new \Template(DQ_PI_PATH . '/templates');
+        $T = new \Template(Config::get('path') . '/templates');
         $T->set_file('page', 'catform.thtml');
         $T->set_var(array(
             'name'      => $this->name,
             'cid'        => $this->cid,
             'chk'       => ($this->enabled == 1 || $this->cid == 0) ?
                             'checked="checked"' : '',
-            'cancel_url' => DQ_ADMIN_URL . '/index.php?categories',
+            'cancel_url' => Config::get('admin_url') . '/index.php?categories',
             'show_delbtn' => $this->cid > 1 ? 'true' : '',
         ));
         $T->parse('output','page');
@@ -428,7 +428,7 @@ class Category
         case 'edit':
             $retval .= COM_createLink(
                 '',
-                DQ_ADMIN_URL . "/index.php?editcat={$A['cid']}",
+                Config::get('admin_url') . "/index.php?editcat={$A['cid']}",
                 array(
                     'class' => 'uk-icon uk-icon-edit',
                 )
@@ -446,7 +446,7 @@ class Category
         case 'delete':
             if ($A['cid'] > 1) {
                 $retval = FieldList::delete(array(
-                    'delete_url' => DQ_ADMIN_URL . '/index.php?delcat=' . $A['cid'],
+                    'delete_url' => Config::get('admin_url') . '/index.php?delcat=' . $A['cid'],
                     'attr' => array(
                         'onclick' => 'return confirm(\'' . $LANG_DQ['confirm_delitem'] . '\');',
                         'title' => $LANG_ADMIN['delete'],
@@ -484,7 +484,7 @@ class Category
         }
 
         // Display cats if any to display
-        $T = new \Template(DQ_PI_PATH . '/templates');
+        $T = new \Template(Config::get('path') . '/templates');
         $T->set_file('page', 'dispcats.thtml');
 
         // display horizontal rows -- 3 cats per row
@@ -493,7 +493,7 @@ class Category
         while ($row = $stmt->fetchAssociative()) {
             $T->set_block('page', 'CatRow', 'cRow');
             $T->set_var(array(
-                'pi_url'    => DQ_URL . '/index.php',
+                'pi_url'    => Config::get('url') . '/index.php',
                 'cat_id'    => $row['cid'],
                 'dispcat'   => $row['name'],
                 'cell_width' => (int)(100 / $col),

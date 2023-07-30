@@ -39,20 +39,21 @@ class Menu
         } else {
             $hlp_text = $LANG_DQ['hlp_admin_dailyquote'];
         }
+        $admin_url = Config::get('admin_url');
 
         $menu_arr = array(
             array(
                 'text' => $LANG_DQ['glsearchlabel'],
-                'url' => DQ_ADMIN_URL . '/index.php?quotes=x',
+                'url' => $admin_url . '/index.php?quotes=x',
                 'active' => $view == 'quotes',
             ),
             array(
                 'text' => $LANG_DQ['manage_cats'],
-                'url' => DQ_ADMIN_URL . '/index.php?categories=x',
+                'url' => $admin_url . '/index.php?categories=x',
                 'active' => $view == 'categories',
             ),
             array(
-                'url' => DQ_ADMIN_URL . '/index.php?batchform=x',
+                'url' => $admin_url . '/index.php?batchform=x',
                 'text' => $LANG_DQ['batchaddlink'],
                 'active' => $view == 'batchform',
             ),

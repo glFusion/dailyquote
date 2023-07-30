@@ -233,7 +233,7 @@ class QuoteCollection extends Collection
         $nextpage = $this->page + 1;
         $displim = $this->getDisplayLimit();
         $pagestart = ($this->page - 1) * $displim;
-        $baseurl = DQ_URL . '/index.php?sort=' . $sort. '&dir=' . $dir;
+        $baseurl = Config::get('url') . '/index.php?sort=' . $sort. '&dir=' . $dir;
         $numpages = ceil($total_quotes / $displim);
         return COM_printPageNavigation($baseurl, $this->page, $numpages);
     }

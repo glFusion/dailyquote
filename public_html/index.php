@@ -52,7 +52,7 @@ function DQ_listQuotes($sort, $dir, $page)
                    ->getObjects();
 
     // Display quotes if any to display
-    $T = new Template(DQ_PI_PATH . '/templates');
+    $T = new Template(Config::get('path') . '/templates');
     $T->set_file('page', 'dispquotes.thtml');
 
     // Set up sorting options
@@ -179,7 +179,7 @@ function DQ_listCategories()
     }
 
     // Display cats if any to display
-    $T = new Template(DQ_PI_PATH . '/templates');
+    $T = new Template(Config::get('path') . '/templates');
     $T->set_file('page', 'dispcats.thtml');
 
     // display horizontal rows -- 3 cats per row
