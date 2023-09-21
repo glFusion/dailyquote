@@ -8,6 +8,7 @@
 - Use category table
 - Change to `auto_increment` field for quote ID.
 - DBAL implementation, glFusion 2.0+ only.
+- Make default sort options configurable.
 
 ## Version 0.2.0 - 2016-11-28
 - Add uikit-based templates
