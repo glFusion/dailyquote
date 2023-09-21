@@ -27,7 +27,7 @@ $Request = Request::getInstance();
  * @param   integer $page   Page number to display
  * @return  string          HTML for quote listing
  */
-function DQ_listQuotes($sort, $dir, $page)
+function DQ_listQuotes(string $sort='', string $dir='', int $page=1)
 {
     global $_TABLES, $_CONF, $LANG_DQ, $_USER, $_IMAGE_TYPE,
         $LANG_ADMIN;
@@ -222,8 +222,8 @@ list($action, $actionval) = $Request->getAction($expected);
 $mode = $Request->getString('mode', 'quotes');
 $qid = $Request->getInt('qid');
 $cid = $Request->getInt('cid');
-$sort = $Request->getString('sort', 'dt');
-$dir = $Request->getString('dir', 'ASC');
+$sort = $Request->getString('sort', Config::get('def_sortby'));
+$dir = $Request->getString('dir', Config::get('def_sortdir'));
 $page = $Request->getInt('page', 1);
 
 $display = DailyQuote\Menu::siteHeader();

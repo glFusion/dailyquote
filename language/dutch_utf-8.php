@@ -131,6 +131,9 @@ $LANG_DQ = array(
 'newcat' => 'New Category',
 'required' => 'This item is required',
 'contribute' => 'Contribute',
+'admin' => 'Admin',
+'msg_updated' => 'The item was updated.',
+'msg_nochange' => 'The item was not changed.',
 );
 
 // GL Interface Messages
@@ -164,6 +167,15 @@ $LANG_configSelect['dailyquote'] = array(
     5  => array(0 => 'Nooit', 1 => 'Bovenaan de Pagina', 2 => 'Na Hoofdartikel', 3 => 'Onderaan de Pagina'),
     9  => array(0 => 'Nooit', 1 => 'Bij Goedkeuring', 2 => 'Altijd'),
     13 => array(0 => 'None', 1 => 'Left', 2 => 'Right', 3 => 'Both'),
+    14 => array(
+        'dt' => 'Date',
+        'quote' => 'Quotation',
+        'quoted' => 'Person Quoted',
+    ),
+    15 => array(
+        'ASC' => 'Ascending',
+        'DESC' => 'Descending',
+    ),
 );
 
 $LANG_confignames['dailyquote'] = array(
@@ -180,4 +192,6 @@ $LANG_confignames['dailyquote'] = array(
     'whatsnewdays'  => 'Aantal dagen dat een quote als "nieuw" wordt beschouwd',
     'email_admin'   => 'Notificatie E-mail naar Beheerder?',
     'displayblocks' => 'Display glFusion Blocks',
+    'def_sortby' => 'Default Sort Field',
+    'def_sortdir' => 'Default Sort Direction',
 );

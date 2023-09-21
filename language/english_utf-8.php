@@ -6,7 +6,7 @@
  * @copyright   Copyright (c) 2009 Lee Garner <lee@leegarner.com>
  * @package     dailyquote
  * @version     v0.4.0
- * @license     http://opensource.org/licenses/gpl-2.0.php 
+ * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
@@ -166,6 +166,15 @@ $LANG_configSelect['dailyquote'] = array(
     5 => array(0 => 'None', 1 => 'Top of Page', 2 => 'Below Featured Article', 3 => 'Bottom of Page'),
     9 => array(0 => 'Never', 1 => 'If Submission Queue', 2 => 'Always'),
     13 => array(0 => 'None', 1 => 'Left', 2 => 'Right', 3 => 'Both'),
+    14 => array(
+        'dt' => 'Date',
+        'quote' => 'Quotation',
+        'quoted' => 'Person Quoted',
+    ),
+    15 => array(
+        'ASC' => 'Ascending',
+        'DESC' => 'Descending',
+    ),
 );
 
 $LANG_confignames['dailyquote'] = array(
@@ -181,5 +190,7 @@ $LANG_confignames['dailyquote'] = array(
     'whatsnew' => 'Show Quotes in "What\'s New" block?',
     'whatsnewdays' => 'Number of days for a quote to be considered "new"',
     'email_admin' => 'Notification Email to Admin?',
-    'displayblocks'  => 'Display glFusion Blocks',
+    'displayblocks' => 'Display glFusion Blocks',
+    'def_sortby' => 'Default Sort Field',
+    'def_sortdir' => 'Default Sort Direction',
 );

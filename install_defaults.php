@@ -139,6 +139,28 @@ $dailyquoteConfigData = array(
         'set' => true,
         'group' => 'dailyquote',
     ),
+    array(
+        'name' => 'def_sortby',
+        'default_value' => 'dt',
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 14,
+        'sort' => 120,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
+    array(
+        'name' => 'def_sortdir',
+        'default_value' => 'DESC',
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 15,
+        'sort' => 130,
+        'set' => true,
+        'group' => 'dailyquote',
+    ),
 
     array(
         'name' => 'fs_cblock',

@@ -128,6 +128,9 @@ $LANG_DQ= array(
 'confirm_delitem' => 'Are you sure you want to delete this item?',
 'err_saving_cat' => 'Error saving category',
 'untitled' => 'Untitled',
+'admin' => 'Admin',
+'msg_updated' => 'The item was updated.',
+'msg_nochange' => 'The item was not changed.',
 );
 
 
@@ -163,6 +166,15 @@ $LANG_configSelect['dailyquote'] = array(
     5 => array(0 => 'None', 1 => 'Top of Page', 2 => 'Below Featured Article', 3 => 'Bottom of Page'),
     9 => array(0 => 'Never', 1 => 'If Submission Queue', 2 => 'Always'),
     13 => array(0 => 'None', 1 => 'Left', 2 => 'Right', 3 => 'Both'),
+    14 => array(
+        'dt' => 'Date',
+        'quote' => 'Quotation',
+        'quoted' => 'Person Quoted',
+    ),
+    15 => array(
+        'ASC' => 'Ascending',
+        'DESC' => 'Descending',
+    ),
 );
 
 $LANG_confignames['dailyquote'] = array(
@@ -179,4 +191,6 @@ $LANG_confignames['dailyquote'] = array(
     'whatsnewdays' => 'Number of days for a quote to be considered "new"',
     'email_admin' => 'Notification Email to Admin?',
     'displayblocks'  => 'Display glFusion Blocks',
+    'def_sortby' => 'Default Sort Field',
+    'def_sortdir' => 'Default Sort Direction',
 );
