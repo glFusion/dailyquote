@@ -60,7 +60,7 @@ $_SQL_UPGRADE = array(
     ),
     '0.3.0' => array(
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} DROP PRIMARY KEY",
-        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD mediumint unsigned NOT NULL auto_increment PRIMARY KEY FIRST",
+        "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD qid mediumint unsigned NOT NULL auto_increment PRIMARY KEY FIRST",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD approved tinyint(1) unsigned DEFAULT 1 AFTER enabled",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD hash varchar(32)",
         "UPDATE {$_TABLES['dailyquote_quotes']} SET hash = MD5(quote)",
