@@ -136,7 +136,7 @@ function DQ_do_upgrade($dvlp=false)
         }
     }
     CTL_clearCache(Config::PI_NAME);
-    Log::write('system', Log::INFO, "Succesfully updated the {Config::PI_NAME} plugin!");
+    Log::write('system', Log::INFO, 'Succesfully updated the ' . Config::PI_NAME . ' plugin!');
     return true;
 }
 
