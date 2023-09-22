@@ -2,7 +2,7 @@
     <id>dailyquote</id>
     <name>Daily Quotes</name>
     <description>Show random quotes on the site.</description>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <glfusionversion>2.0.0</glfusionversion>
     <phpversion>7.4.0</phpversion>
     <url>http://www.leegarner.com</url>
