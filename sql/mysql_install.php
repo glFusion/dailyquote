@@ -67,6 +67,7 @@ $_SQL_UPGRADE = array(
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} DROP KEY `idx_quote`",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} ADD UNIQUE `idx_hash` (`hash`)",
         "ALTER TABLE {$_TABLES['dailyquote_quotes']} CHANGE uid uid mediumint unsigned not null",
+        "ALTER TABLE {$_TABLES['dailyquote_cat']} CHANGE id id mediumint",
         "ALTER TABLE {$_TABLES['dailyquote_cat']} DROP PRIMARY KEY",
         "ALTER TABLE {$_TABLES['dailyquote_cat']} CHANGE id cid mediumint unsigned not null auto_increment PRIMARY KEY",
         "ALTER TABLE {$_TABLES['dailyquote_quoteXcat']} CHANGE cid cid mediumint unsigned not null",
